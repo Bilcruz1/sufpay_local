@@ -1,3 +1,3 @@
 
 
-export const name = "sufpay";
+export { default as SplashScreen } from './SplashScreen'
