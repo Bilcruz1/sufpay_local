@@ -1,21 +1,21 @@
 import { Box, Typography } from "@mui/material";
-import bg_img from "../assets/img/bg_img.svg";
+import React from "react";
+import img from "../../assets/img/signup_img.png";
 
-const SplashScreen = () => {
+const Rhs: React.FC = () => {
   return (
     <Box
-      height={"100vh"}
-      maxHeight={"100vh"}
-      width={"100vw"}
+      height={"100%"}
+      width={"100%"}
       sx={{
-        background: `url(${bg_img}) no-repeat center center`,
+        backgroundImage: `url(${img})`,
+        backgroundRepeat: "no-repeat",
         backgroundSize: "cover",
       }}
-      color={"#fff"}
       display={"flex"}
-      flexDirection={"column"}
       justifyContent={"center"}
       alignItems={"center"}
+      color={"#fff"}
     >
       <Box>
         <Typography component={"h1"} variant="h2" gutterBottom>
@@ -37,4 +37,4 @@ const SplashScreen = () => {
   );
 };
 
-export default SplashScreen;
+export default Rhs;
