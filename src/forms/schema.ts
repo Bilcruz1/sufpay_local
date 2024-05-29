@@ -5,7 +5,7 @@ import { z } from "zod";
 
 
 // login schematic
-const emailSchema = z.string().email({ message: "Invalid email address" });
+export const emailSchema = z.string().email({ message: "Invalid email address" });
 
 const phoneSchema = z
   .string()
