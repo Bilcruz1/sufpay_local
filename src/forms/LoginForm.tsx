@@ -29,8 +29,6 @@ const LoginForm: React.FC = () => {
     password: "",
   });
 
-  console.log(formData);
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
