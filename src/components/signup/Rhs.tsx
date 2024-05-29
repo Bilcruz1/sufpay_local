@@ -1,6 +1,6 @@
 import { Box, Typography } from "@mui/material";
 import React from "react";
-import img from "../../assets/img/bg_img.svg";
+import img from "../../assets/img/signup_img.png";
 
 const Rhs: React.FC = () => {
   return (

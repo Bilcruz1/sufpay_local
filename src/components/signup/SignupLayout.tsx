@@ -1,6 +1,7 @@
 import { Box, Stack, Typography } from "@mui/material";
 import React, { ReactNode } from "react";
 import Rhs from "./Rhs";
+import logo from '../../assets/img/logo.svg'
 
 interface IProps {
   component: ReactNode;
@@ -9,23 +10,33 @@ interface IProps {
 
 const SignUpLayout: React.FC<IProps> = ({ header, component }) => {
   return (
-    <Box height={"100vh"} width={"100%"}>
+    <Box
+      height={{ md: "100vh" }}
+      width={"100%"}
+      sx={{
+        minHeight: "100vh",
+      }}
+    >
       <Stack direction={"row"} height={"100vh"}>
         {/* lhs */}
         <Box
-          flex={2}
+          flex={{ xs: 1, md: 0.6 }}
           width={"100%"}
           display={"flex"}
           justifyContent={"center"}
-          alignItems={"center"}
+          alignItems={{ xs: "flex-start", md: "center" }}
+          mt={{ xs: 4 }}
         >
-          <Box width={"60%"}>
+          <Box width={{ xs: "90%", md: "60%" }} mb={4}>
             <>
+              <img src={logo} alt={"logo"} />
+
               <Typography
                 variant={"h3"}
                 component={"h1"}
                 textAlign={"center"}
                 mb={4}
+                mt={4}
               >
                 {header}
               </Typography>
@@ -34,7 +45,12 @@ const SignUpLayout: React.FC<IProps> = ({ header, component }) => {
           </Box>
         </Box>
         {/* rhs */}
-        <Box component={"div"} flex={1} width={"100%"}>
+        <Box
+          component={"div"}
+          flex={0.4}
+          width={"100%"}
+          sx={{ display: { xs: "none", md: "block" } }}
+        >
           <Rhs />
         </Box>
       </Stack>

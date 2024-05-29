@@ -8,6 +8,7 @@ interface IProps {
   value: string;
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   label: string;
+  error? : string
 }
 
 const PasswordInputFeild: React.FC<IProps> = ({
@@ -15,6 +16,7 @@ const PasswordInputFeild: React.FC<IProps> = ({
   value,
   handleChange,
   label,
+  error
 }) => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
@@ -74,6 +76,8 @@ const PasswordInputFeild: React.FC<IProps> = ({
         type={showPassword ? "text" : "password"}
         onPaste={handlePaste}
         onBlur={() => setShowPassword(false)}
+        error={!!error}
+        helperText={error}
       />
     </Box>
   );
