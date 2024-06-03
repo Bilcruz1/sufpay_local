@@ -1,4 +1,4 @@
-import { Box, Button, Divider, InputAdornment, Link, Stack, Typography } from "@mui/material";
+import { Box, Button, Divider, Link, Stack, Typography } from "@mui/material";
 import React, { useState } from "react";
 import {
   InputFeild,
@@ -7,12 +7,7 @@ import {
   PhoneNumberField,
 } from "../components";
 import {
-  // Box,
-  FormControl,
   InputLabel,
-  MenuItem,
-  Select,
-  TextField,
 } from "@mui/material";
 // import CountryCodePhoneNumberField from "./CountryCodePhoneNumberField";
 import googleImg from '../assets/img/google_img.svg'
@@ -34,7 +29,7 @@ const SignupForm = () => {
     countryCode: "+1",
     phoneNumber: "",
     password: "",
-  });
+  })
 
   const [formErrors, setFormErrors] = useState<IForm>({
     firstName: "",
@@ -42,7 +37,7 @@ const SignupForm = () => {
     countryCode: "",
     phoneNumber: "",
     password: "",
-  });
+  })
 
   const [passwordChecks, setPasswordChecks] = useState<IPasswordChkProps>({
     charCountChk: false,
@@ -52,12 +47,12 @@ const SignupForm = () => {
     OneNumberChk: false,
   })
 
-  const handleCountryCodeChange = (e: React.ChangeEvent) => {
-    // setFormData((prev) => ({
-    //   ...prev,
-    //   countryCode: e.target.value as string,
-    // }));
-  };
+  // const handleCountryCodeChange = (e: React.ChangeEvent) => {
+  //   // setFormData((prev) => ({
+  //   //   ...prev,
+  //   //   countryCode: e.target.value as string,
+  //   // }));
+  // };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -174,5 +169,3 @@ const SignupForm = () => {
 };
 
 export default SignupForm;
-
-// import React from "react";

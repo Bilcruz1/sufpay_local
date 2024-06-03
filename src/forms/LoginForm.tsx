@@ -48,7 +48,10 @@ const LoginForm: React.FC = () => {
         setErrors(prev => ({ ...prev, [el.path[0]]: el.message }))
       })
       setBtnDisabled(true)
+      return
     }
+
+    // api calls
   };
 
   return (
