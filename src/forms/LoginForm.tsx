@@ -39,6 +39,8 @@ const LoginForm: React.FC = () => {
       credentials: "",
       password: "",
     }));
+    
+    //validation
     const validationResult = formDataSchema.safeParse(formData);
 
     if (!validationResult.success) {
@@ -47,8 +49,6 @@ const LoginForm: React.FC = () => {
       })
       setBtnDisabled(true)
     }
-
-
   };
 
   return (

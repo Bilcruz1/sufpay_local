@@ -1,6 +1,6 @@
 import "./App.css";
 import { Route, Routes } from "react-router-dom";
-import { ForgetPasswordPage, SignInPage, SplashScreen } from "./pages";
+import { ForgetPasswordPage, SignInPage, SignUpPage, SplashScreen } from "./pages";
 
 function App() {
   return (
@@ -8,7 +8,11 @@ function App() {
       <Routes>
         <Route path={"/splash"} element={<SplashScreen />} />
         <Route path={"/login"} element={<SignInPage />} />
-        <Route path={"/forget-password-page"} element={<ForgetPasswordPage />} />
+        <Route path={"/signup"} element={<SignUpPage />} />
+        <Route
+          path={"/forget-password-page"}
+          element={<ForgetPasswordPage />}
+        />
       </Routes>
     </div>
   );
