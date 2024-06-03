@@ -1,4 +1,4 @@
-import { Box, InputLabel, TextField, Typography } from "@mui/material";
+import { Box, InputLabel, TextField } from "@mui/material";
 
 interface IProps {
   name: string;
