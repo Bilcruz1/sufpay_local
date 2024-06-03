@@ -16,6 +16,7 @@ import {
 } from "@mui/material";
 // import CountryCodePhoneNumberField from "./CountryCodePhoneNumberField";
 import googleImg from '../assets/img/google_img.svg'
+import { IPasswordChkProps } from "../utils/interfaces";
 
 interface IForm {
   firstName: string;
@@ -43,6 +44,14 @@ const SignupForm = () => {
     password: "",
   });
 
+  const [passwordChecks, setPasswordChecks] = useState<IPasswordChkProps>({
+    charCountChk: false,
+    lowerCaseChk: false,
+    upperCaseChk: false,
+    specialCaseChk: false,
+    OneNumberChk: false,
+  })
+
   const handleCountryCodeChange = (e: React.ChangeEvent) => {
     // setFormData((prev) => ({
     //   ...prev,
@@ -55,7 +64,6 @@ const SignupForm = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  console.log(formData);
   const submitForm = () => {};
 
   return (
@@ -104,7 +112,7 @@ const SignupForm = () => {
           label={"Password"}
           error={formErrors.password}
         />
-        <PasswordChks />
+        <PasswordChks {...passwordChecks} />
       </Box>
 
       <Stack direction={"column"} gap={2} mt={4}>

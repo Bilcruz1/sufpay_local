@@ -1,9 +1,12 @@
 import { Box, Grid, Typography } from '@mui/material';
 import CircleIcon from "@mui/icons-material/Circle";
-import React from 'react'
+import React, { FC } from 'react'
 import { passwordChecks } from '../../utils/constants';
+import { IPasswordChkProps } from '../../utils/interfaces';
 
-const PasswordChks = () => {
+
+
+const PasswordChks: FC<IPasswordChkProps> = (props) => {
   return (
     <>
       <Box
@@ -13,11 +16,11 @@ const PasswordChks = () => {
       >
         <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
           {passwordChecks.map((el, ind) => (
-            <Grid item xs={4}>
+            <Grid key={ind} item xs={4}>
               <CircleIcon
                 sx={{ color: "#666666", width: "10px", height: "10px" }}
               />
-              <Typography ml={2} component={"span"} sx={{fontSize: '12px'}}>
+              <Typography ml={2} component={"span"} sx={{ fontSize: "12px" }}>
                 {el}
               </Typography>
             </Grid>
@@ -26,6 +29,6 @@ const PasswordChks = () => {
       </Box>
     </>
   );
-}
+};
 
 export default PasswordChks
