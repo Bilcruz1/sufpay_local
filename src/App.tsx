@@ -3,6 +3,7 @@ import { Route, Routes } from "react-router-dom";
 import {
   CreateNewPasswordPage,
   ForgetPasswordPage,
+  ResetPaswordPage,
   SignInPage,
   SignUpPage,
   SplashScreen,
@@ -22,6 +23,7 @@ function App() {
         />
         <Route path={"/change-password"} element={<CreateNewPasswordPage />} />
         <Route path={"/verify-account"} element={<VerifyAccountPage />} />
+        <Route path={"/password-verification"} element={<ResetPaswordPage />} />
       </Routes>
     </div>
   );
