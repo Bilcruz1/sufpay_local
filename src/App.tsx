@@ -3,6 +3,7 @@ import { Route, Routes } from "react-router-dom";
 import {
   CreateNewPasswordPage,
   ForgetPasswordPage,
+  LandingPage,
   ResetPaswordPage,
   SignInPage,
   SignUpPage,
