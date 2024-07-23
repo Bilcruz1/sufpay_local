@@ -1,75 +1,69 @@
-import { Avatar, AvatarGroup, Box, Button, Container, Typography, styled } from '@mui/material'
+import { Box, Button, Typography, styled } from '@mui/material'
 import React from 'react'
-import bannerimg from '../../assets/img/bannerImg.png'
+import banner_img from "../../assets/img/banner_img.png";
 
 
 const BannerContainer = styled(Box)`
   /* background-color: #121212; */
   color: #fff;
   text-align: center;
-  padding: 4rem 0;
+  /* padding: 4rem 0; */
   display: flex;
   flex-direction: column;
-    width:'90%';
-    margin: 'auto';
+  /* width:'80%'; */
+  margin: 'auto';
+  pb: '114px';
+  /* border: '1px solid red'; */
 
 
-  @media (min-width: 768px) {
+  /* @media (min-width: 768px) {
     flex-direction: row;
-  }
+  } */
 `;
 
+
 const Banner = () => {
+
+  const styles = {
+    width: '100%',
+  }
+
   return (
-    <BannerContainer>
-      <Container maxWidth="md" sx={{ flex: 1, textAlign: "left" }}>
-        <Typography
-          variant="h1"
-          sx={{ fontSize: "80px", lineHeight: 1.5 }}
-          mb={"1rem"}
-          gutterBottom
-        >
-          MAKE PAYMENTS EASY AND SIMPLIFY YOUR FINANCES
+    <BannerContainer sx={{ marginTop: "10%" }}>
+      <Box>
+        <Typography variant="h1" component={"h1"}>
+          Welcome to SufPay, the forefront of financial technology innovation in
+          Nigeria.
         </Typography>
-        <Typography
-          variant="caption"
-          sx={{ display: "block", fontSize: "19px" }}
-          mb={"2.5rem"}
-          gutterBottom
-        >
-          A new way to make payments easy, reliable and secure. You can manage
-          all your transactions from your mobile phone.
+        <Typography variant="h6" mt={'32px'} component={"h6"}>
+          We are dedicated to revolutionizing the digital transaction landscape,
+          making financial services more accessible, secure, and efficient for
+          all Nigerians. Explore our comprehensive range of services, from
+          transaction facilitation and regulatory adherence to digital
+          communication devices and networking solutions. Discover how SufPay
+          can empower your financial and digital future.
         </Typography>
+      </Box>
+      {/* uncommnet when ready */}
+      {/* <Box
+        sx={{
+          display: "flex",
+          gap: "20px",
+          justifyContent: "center",
+          alignItems: "center",
+          mt: '60px',
+        }}
+      >
+        <Button variant="contained" size="large">
+          Get started
+        </Button>
+        <Button variant="outlined" size="large">
+          Log in
+        </Button>
+      </Box> */}
 
-        {/* cta */}
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "flex-start",
-            alignItems: "center",
-            gap: "1rem",
-          }}
-        >
-          <Button
-            variant="contained"
-            color="primary"
-            size="large"
-            sx={{ borderRadius: "32px" }}
-          >
-            Get Started
-          </Button>
-
-          {/* <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}> */}
-            <AvatarGroup sx={{fontSize: '24px'}} total={104} >
-              <Avatar  alt="Remy Sharp" src="/static/images/avatar/1.jpg" />
-              <Avatar  alt="Travis Howard" src="/static/images/avatar/2.jpg" />
-              <Avatar  alt="Agnes Walker" src="/static/images/avatar/4.jpg" />
-              <Avatar  alt="Trevor Henderson" src="/static/images/avatar/5.jpg"/>
-            </AvatarGroup>
-        </Box>
-      </Container>
-      <Box sx={{ flex: 1 }}>
-        <img src={bannerimg} alt={"banner"} />
+      <Box mt={{xs: '40px', md: '148px'}} >
+        <img src={banner_img} alt={"sufpay banner"} style={styles } />
       </Box>
     </BannerContainer>
   );

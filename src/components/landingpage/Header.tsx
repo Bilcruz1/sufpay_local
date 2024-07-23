@@ -1,35 +1,34 @@
-import React from "react";
 import Nav from "./Nav";
 import { Box } from "@mui/material";
 import Banner from "./Banner";
 import heroBg from '../../assets/img/heroBg.png'
-import HeaderFooter from "./HeaderFooter";
+import React from "react";
+import { IHeaderProps } from "../../utils/interfaces";
 
-function Header() {
+
+const Header: React.FC<IHeaderProps> = ({id}) => {
   return (
     <Box
-    height={"100vh"}
-    minHeight={"100vh"}
+      id={id}
+      minHeight={"100vh"}
       sx={{
-        backgroundColor: "#121212",
-        // border: "1px solid red",
+        backgroundColor: "#1D1D1F",
         backgroundImage: `url(${heroBg})`,
         backgroundSize: "cover",
         backgroundRepeat: "no-repeat",
-          backgroundPosition: "center",
-          paddingTop: '3rem'
+        backgroundPosition: "center",
+        py: "3rem",
+
       }}
     >
       <Box
         sx={{
-          width: "90%",
+          width: "80%",
           margin: "auto",
         }}
       >
         <Nav />
-              <Banner />
-              {/* finish the header footer */}
-        {/* <HeaderFooter /> */}
+        <Banner />
       </Box>
     </Box>
   );
