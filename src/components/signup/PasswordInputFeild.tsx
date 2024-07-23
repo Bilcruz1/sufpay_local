@@ -25,7 +25,7 @@ const PasswordInputFeild: React.FC<IProps> = ({
   };
 
   return (
-    <Box display={"flex"} flexDirection={"column"} width={"100%"} gap={1}>
+    <Box display={"flex"} flexDirection={"column"} width={"100%"} gap={1.3}>
       <InputLabel
         htmlFor={name}
         sx={{

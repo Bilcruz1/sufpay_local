@@ -1,4 +1,7 @@
-import { Box, InputLabel, TextField } from "@mui/material";
+
+import { Box, InputLabel, TextField } from '@mui/material';
+import React from 'react'
+
 
 interface IProps {
   name: string;
@@ -6,15 +9,18 @@ interface IProps {
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   label: string;
   error?: string;
-  placeholder?: string
+  placeholder?: string;
+  numberOfRows: number;
 }
-const InputFeild: React.FC<IProps> = ({
-  name,
-  value,
-  handleChange,
-  label,
-  error,
-  placeholder,
+
+const TextAreaInputFeild: React.FC<IProps> = ({
+    name,
+    value,
+    handleChange,
+    label,
+    error,
+    placeholder,
+    numberOfRows
 }) => {
   return (
     <Box
@@ -25,9 +31,12 @@ const InputFeild: React.FC<IProps> = ({
       textAlign={"left"}
     >
       <InputLabel htmlFor={name}>{label}</InputLabel>
+
       <TextField
-        id={name}
+        multiline
+        rows={numberOfRows}
         variant="outlined"
+        fullWidth
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e)}
         name={name}
         value={value}
@@ -39,8 +48,4 @@ const InputFeild: React.FC<IProps> = ({
   );
 };
 
-export default InputFeild;
-
-
-
-
+export default TextAreaInputFeild
