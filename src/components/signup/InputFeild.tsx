@@ -6,6 +6,7 @@ interface IProps {
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   label: string;
   error?: string;
+  placeholder?: string
 }
 const InputFeild: React.FC<IProps> = ({
   name,
@@ -13,13 +14,14 @@ const InputFeild: React.FC<IProps> = ({
   handleChange,
   label,
   error,
+  placeholder,
 }) => {
   return (
     <Box
       display={"flex"}
       flexDirection={"column"}
       width={"100%"}
-      gap={1}
+      gap={1.3}
       textAlign={"left"}
     >
       <InputLabel htmlFor={name}>{label}</InputLabel>
@@ -31,6 +33,7 @@ const InputFeild: React.FC<IProps> = ({
         value={value}
         error={!!error}
         helperText={error}
+        placeholder={placeholder}
       />
     </Box>
   );

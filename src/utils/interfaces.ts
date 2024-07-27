@@ -1,4 +1,5 @@
 
+import { Link } from '@mui/material';
 
 
 export interface IPasswordChkProps {
@@ -7,4 +8,31 @@ export interface IPasswordChkProps {
   upperCaseChk: boolean;
   specialCaseChk: boolean;
   OneNumberChk: boolean;
+}
+
+export interface ISocials {
+  title: string;
+  link: string;
+  icon: string;
+}
+
+export interface IServices {
+  title: string;
+  content: string
+  img: string
+}
+
+export interface INavList {
+  title: string;
+  link: string;
+}
+
+export interface IHeaderProps{
+  id: string
+}
+
+export interface IContatctUsForm{
+  name: string;
+  email: string;
+  message: string;
 }
