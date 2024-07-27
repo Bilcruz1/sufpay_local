@@ -1,11 +1,6 @@
 import React from "react";
 import styled from "@emotion/styled";
-import { Box, Grid, Typography, Card, CardContent } from '@mui/material';
-import PaymentIcon from '@mui/icons-material/Payment'; // Example icon
-import RocketLaunchIcon from '@mui/icons-material/RocketLaunch'; // Example icon
-import AccountBalanceIcon from '@mui/icons-material/AccountBalance'; // Example icon
-import BusinessIcon from '@mui/icons-material/Business'; // Example icon
-import MobileFriendlyIcon from '@mui/icons-material/MobileFriendly';
+import { Box, Grid, Typography, Card, CardContent } from "@mui/material";
 import { whatWeDo } from "../../utils/constants";
 
 const WhatWeDoContainer = styled(Box)({
@@ -15,46 +10,52 @@ const WhatWeDoContainer = styled(Box)({
   margin: "auto",
 });
 
-
 const WhatWeDo = () => {
   return (
     <WhatWeDoContainer>
-      <Box width={"80%"} margin={"auto"} sx={{ py: "52px" }}>
-
+      <Box
+        width={{ xs: "90%", md: "80%" }}
+        margin="auto"
+        sx={{ py: "3.25rem" }}
+      >
         <Typography variant="h2" gutterBottom textAlign="center">
-          What We <span style={{ color: "#AAC645" }}>Do</span>
+          What We Do
         </Typography>
-        {/* </Box> */}
-
-        {/* grid block */}
+        {/* Grid block */}
         <Box sx={{ width: "100%" }}>
           <Grid
             container
+            spacing={2} // Added spacing between Grid items
             sx={{
               width: "100%",
               margin: "auto",
-              padding: "none",
-              justifyItems: "center",
-              alignItems: "center",
+              alignItems: "stretch", // Ensure all items have the same height
             }}
           >
             {whatWeDo.slice(0, 3).map((service, index) => (
               <Grid
                 item
                 xs={12}
-                sm={6}
+                sm={index === 2 ? 12 : 6} // Set the third item to full width on small screens
                 md={4}
                 key={index}
-                sx={{ width: "100%" }}
+                sx={{
+                  display: "flex",
+                  justifyContent: index === 2 ? "center" : "flex-start", // Center third item on small screens
+                  alignItems: "stretch", // Ensure items stretch to the same height
+                  textAlign: index === 2 ? "center" : "left", // Center text if needed
+                }}
               >
                 <Card
                   sx={{
-                    boder: "none",
+                    border: "none",
                     boxShadow: "none",
                     width: "100%",
+                    display: "flex",
+                    flexDirection: "column",
                   }}
                 >
-                  <CardContent sx={{ textAlign: "center" }}>
+                  <CardContent sx={{ textAlign: "center", flexGrow: 1 }}>
                     <Box sx={{ mb: 2 }}>
                       <img src={service.icon} alt="service icons" />
                     </Box>
@@ -71,11 +72,11 @@ const WhatWeDo = () => {
           </Grid>
           <Grid
             container
+            spacing={2} // Added spacing between Grid items
             sx={{
               width: { xs: "100%", md: "67%" },
               margin: "auto",
-              justifyItems: "center",
-              alignItems: "center",
+              alignItems: "stretch", // Ensure all items have the same height
             }}
           >
             {whatWeDo.slice(3).map((service, index) => (
@@ -85,16 +86,18 @@ const WhatWeDo = () => {
                 sm={6}
                 md={6}
                 key={index}
-                sx={{ width: "100%" }}
+                sx={{ display: "flex", alignItems: "stretch" }}
               >
                 <Card
                   sx={{
-                    boder: "none",
+                    border: "none",
                     boxShadow: "none",
                     width: "100%",
+                    display: "flex",
+                    flexDirection: "column",
                   }}
                 >
-                  <CardContent sx={{ textAlign: "center" }}>
+                  <CardContent sx={{ textAlign: "center", flexGrow: 1 }}>
                     <Box sx={{ mb: 2 }}>
                       <img src={service.icon} alt="service icons" />
                     </Box>

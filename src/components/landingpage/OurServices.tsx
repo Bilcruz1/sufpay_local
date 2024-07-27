@@ -27,10 +27,9 @@ const OurServicesContainer = styled(Box)({
 const OurServices: React.FC<IHeaderProps> = ({id}) => {
   return (
     <OurServicesContainer id={id}>
-      <Box sx={{ width: "80%", margin: "auto", py: "6rem" }}>
-
-        <Typography sx={{textAlign: "center"}} variant="h2" gutterBottom>
-          Our <span style={{ color: "#AAC645" }}>Services</span>
+      <Box sx={{ width: {xs: "90%", md: "80%"}, margin: "auto", py: "6rem" }}>
+        <Typography sx={{ textAlign: "center" }} variant="h2" gutterBottom>
+          Our Services
         </Typography>
 
         {/* service list for xs < */}
@@ -51,10 +50,17 @@ const OurServices: React.FC<IHeaderProps> = ({id}) => {
               sm={6}
               md={4}
               sx={{ display: "flex", justifyContent: "center" }}
+              spacing={4}
             >
-              <Card sx={{ maxWidth: 345, width: "100%" }}>
+              <Card
+                sx={{
+                  width: "100%",
+                  boxShadow: "none",
+                  padding: "1rem",
+                }}
+              >
                 <CardMedia
-                  sx={{ height: 140 }}
+                  sx={{ height: 140, borderRadius: "0.25rem" }}
                   image={el.img}
                   title="green iguana"
                 />

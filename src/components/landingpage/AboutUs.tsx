@@ -13,6 +13,7 @@ const AboutUsContainer = styled(Box)({
   display: "flex",
   justifyItems: "center",
   alignItems: "center",
+  flexWrap: "wrap"
 });
 
 const AboutUs: React.FC<IHeaderProps> = ({ id }) => {
@@ -20,13 +21,13 @@ const AboutUs: React.FC<IHeaderProps> = ({ id }) => {
     <AboutUsContainer id={id}>
       <Box
         sx={{
-          width: "80%",
+          width: { xs: "90%", md: "80%" },
           margin: "auto",
           padding: 2,
           textAlign: "center",
           display: "flex",
           flexDirection: { xs: "column-reverse", md: "row-reverse" },
-          gap: "22px",
+          gap: "1.375rem",
           py: "4rem",
         }}
       >
@@ -37,9 +38,21 @@ const AboutUs: React.FC<IHeaderProps> = ({ id }) => {
             heigth: "inherit",
             flex: 1,
             backgroundColor: "#F8F8F8",
+            paddingLeft: "2rem",
+            paddingTop: {xs: "1rem", md: "3rem"},
+            borderRadius: "1rem"
+            
           }}
         >
-          <img src={about_us_img} width={"100%"} alt="sufpay payment img" />
+          <Box
+            component="img"
+            src={about_us_img}
+            alt="icon img"
+            sx={{
+              width: "100%",
+              display: "block",
+            }}
+          />
         </Box>
 
         {/* content */}
@@ -52,18 +65,28 @@ const AboutUs: React.FC<IHeaderProps> = ({ id }) => {
           <Box
             sx={{
               display: "flex",
-              gap: ".75rem",
+              gap: ".5rem",
               justifyContent: "flex-start",
-              alignItems: "flex-start",
+              alignItems: "center",
             }}
           >
-            <img
+            <Box
+              component="img"
               src={about_us_icon}
               alt="icon img"
-              style={{ width: "3em", height: "3em" }}
+              sx={{
+                width: "2em",
+                height: "2em",
+                display: "block",
+              }}
             />
-            <Typography variant="h2" gutterBottom>
-              About <span style={{ color: "#AAC645" }}>Us</span>
+            <Typography
+              variant="h5"
+              component={"h2"}
+              sx={{ margin: 0, lineHeight: "2em" }}
+              gutterBottom
+            >
+              About Us
             </Typography>
           </Box>
 
@@ -77,15 +100,15 @@ const AboutUs: React.FC<IHeaderProps> = ({ id }) => {
             }}
           >
             {aboutUs.map((el, ind) => (
-              <Box mt={"32px"} key={ind}>
-                <Typography variant="h6">{el.title}</Typography>
+              <Box mt={"2rem"} key={ind}>
+                <Typography variant="h3">{el.title}</Typography>
                 <Typography
-                  sx={{ textAlign: "justify", mb: "32px" }}
+                  sx={{ textAlign: "left", mb: "2rem", marginTop: "1rem" }}
                   variant="body1"
                 >
                   {el.content}
                 </Typography>
-                <Divider />
+                {ind !== 2 && <Divider />}
               </Box>
             ))}
           </Box>

@@ -20,6 +20,15 @@ const FooterContainer = styled(Box)({
 });
 
 const Footer = () => {
+  const handleNavClick = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      const yOffset = -70;
+      const y = element.getBoundingClientRect().top + window.scrollY + yOffset;
+      window.scrollTo({ top: y, behavior: "smooth" });
+    }
+  };
+
   return (
     <FooterContainer>
       <Container
@@ -28,7 +37,7 @@ const Footer = () => {
           justifyItems: "center",
           alignItems: "center",
           flexDirection: "column",
-          width: { xs: "80%", md: "60%" },
+          width: { xs: "90%", md: "40%" },
           gap: "40px",
         }}
       >
@@ -44,7 +53,12 @@ const Footer = () => {
           }}
         >
           {navList.map((el, ind) => (
-            <Link href={`#${el.link}`} key={ind} sx={{ color: "#fff" }}>
+            <Link
+              // href={`#${el.link}`}
+              onClick={() => handleNavClick(`${el.link}`)}
+              key={ind}
+              sx={{ color: "#fff" }}
+            >
               {el.title}
             </Link>
           ))}
@@ -52,12 +66,7 @@ const Footer = () => {
 
         {/* address for small screen */}
 
-        {/* <Box
-          sx={{
-            width: "100%",
-            height: "100%",
-          }}
-        > */}
+        
         <Box
           sx={{
             width: "100%",
@@ -71,8 +80,7 @@ const Footer = () => {
             sx={{
               display: "flex",
               alignItems: "flex-start",
-              // gap: ".7rem",
-              textAlign: "left",
+                textAlign: "left",
               color: "#fff",
               flexDirection: "column",
             }}
@@ -81,8 +89,8 @@ const Footer = () => {
               <img src={location_icon} alt={"icon"} />
             </Box>
             <Box>
-              <Typography variant={"h6"}>Address</Typography>
-              <Typography variant="body1" component={"p"}>
+              <Typography variant={"h6"} color={ "#fff"}>Address</Typography>
+              <Typography variant="body1" component={"p"} mt={".5rem"} color={"#fff"}>
                 1234 Innovation Street, Lagos, Nigeria
               </Typography>
             </Box>
@@ -104,6 +112,7 @@ const Footer = () => {
               info@sufpay.com
             </Typography>
             <Box
+              mt={".5rem"}
               sx={{
                 display: "flex",
                 gap: "1rem",
@@ -113,7 +122,7 @@ const Footer = () => {
                 <Tooltip
                   key={ind}
                   title="Delete"
-                  sx={{ background: "#333333" }}
+                  sx={{ background: "#fff" }}
                 >
                   <IconButton>
                     <img
@@ -128,14 +137,24 @@ const Footer = () => {
             </Box>
           </Box>
         </Box>
-        {/* </Box> */}
 
-        <Typography variant="overline" display="block" gutterBottom>
+        <Typography
+          variant="overline"
+          color={"#fff"}
+          display="block"
+          gutterBottom
+          sx={{
+            textAlign: {xs: "left", md: "center"}
+
+          }}
+        >
           © Copyright ©2021 All rights reserved | Powered by SufPay
         </Typography>
 
         <Tooltip
           title="To the Top"
+              onClick={() => handleNavClick(`${"home"}`)}
+
           sx={{
             backgroundColor: "#9BB830",
           }}

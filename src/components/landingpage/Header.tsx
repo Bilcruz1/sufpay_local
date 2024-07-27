@@ -23,7 +23,7 @@ const Header: React.FC<IHeaderProps> = ({id}) => {
     >
       <Box
         sx={{
-          width: "80%",
+          width: {xs: "90%", md: "80%"},
           margin: "auto",
         }}
       >

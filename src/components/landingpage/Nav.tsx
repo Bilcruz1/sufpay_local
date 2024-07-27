@@ -14,57 +14,44 @@ import logo from "../../assets/img/logo.svg";
 import MenuIcon from "@mui/icons-material/Menu";
 
 const Nav = () => {
- 
-       const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
-  
-       const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-         setAnchorEl(event.currentTarget);
-       };
-  
-       const handleClose = () => {
-         setAnchorEl(null);
-       };
 
-  //  const handleNavClick = (id: string) => {
-  //    const element = document.getElementById(id);
-  //    if (element) {
-  //      const yOffset = -64;
-  //       const y =
-  //         element.getBoundingClientRect().top + window.pageYOffset + yOffset;
-  //      window.scrollTo({ top: y, behavior: "smooth"})
-  //     //  element.scrollIntoView({ behavior: "smooth" });
-  //    }
-  //    handleClose();
-  //  };
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   const handleNavClick = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
       const yOffset = -70;
-      const y =
-        element.getBoundingClientRect().top + window.scrollY + yOffset;
+      const y = element.getBoundingClientRect().top + window.scrollY + yOffset;
       window.scrollTo({ top: y, behavior: "smooth" });
     }
     handleClose();
   };
-       
+
   return (
     <AppBar
       sx={{
-        position: { sx: "relative", md: "fixed" },
+        position: { xs: "fixed", md: "fixed" },
         width: { xs: "100%", md: "80%" },
         margin: "auto",
-        top: { sx: 0, md: "2.5rem" },
-        borderRadius: { sx: "none", md: "40px" },
+        top: { xs: 0, md: "2.5rem" },
+        borderRadius: { xs: "none", md: "40px" },
         backgroundColor: "rgba(0, 0, 0,.4)",
         backdropFilter: "blur(10px)",
         boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
-        border: { md: "1px solid rgba(255, 255, 255, 0.3)" },
+        border: { md: "1px solid #ffffff29" },
         px: { xs: "10px", md: "40px" },
         py: { xs: "6px", md: "12px" },
         right: 0,
         left: 0,
+        zIndex: 1300, // Ensure the navbar is above other elements
       }}
     >
       <Container maxWidth="xl">
@@ -79,7 +66,12 @@ const Nav = () => {
         >
           {/* logo */}
           <Box sx={{}}>
-            <img src={logo} alt={"sufpay logo"} width={"80%"} />
+            <Box
+              component={"img"}
+              src={logo}
+              alt={"sufpay logo"}
+              width={"80%"}
+            />
           </Box>
 
           {/* nav links md */}
@@ -95,7 +87,6 @@ const Nav = () => {
           >
             {navList.map((el, ind) => (
               <Link
-                // href={`#${el.link}`}
                 key={ind}
                 onClick={() => handleNavClick(`${el.link}`)}
                 sx={{
@@ -109,7 +100,7 @@ const Nav = () => {
             ))}
           </Box>
           <Box sx={{ display: { xs: "none", md: "flex" }, gap: ".7rem" }}>
-            {/* uncemment after integration */}
+            {/* uncomment after integration */}
             {/* <Button variant="text" size="small">
                 Login
               </Button>
@@ -132,32 +123,50 @@ const Nav = () => {
               aria-expanded={open ? "true" : undefined}
               onClick={handleClick}
             >
-              <MenuIcon color={"primary"} />
+              <MenuIcon sx={{ color: "#fff" }} />
             </IconButton>
+
+            {/* where the menu should go */}
             <Menu
               id="demo-positioned-menu"
-              aria-labelledby="demo-positioned-button"
               anchorEl={anchorEl}
               open={open}
               onClose={handleClose}
               anchorOrigin={{
-                vertical: "top",
-                horizontal: "left",
+                vertical: "bottom",
+                horizontal: "center",
               }}
               transformOrigin={{
                 vertical: "top",
-                horizontal: "left",
+                horizontal: "center",
+              }}
+              PaperProps={{
+                sx: {
+                  width: "inherit",
+                  maxWidth: "inherit",
+                  backgroundColor: "#2A2A2A",
+                  borderRadius: "0",
+                  textAlign: "center",
+                  padding: "1rem 0",
+                  marginTop: ".3rem",
+                  boxShadow: "none",
+                  left: 0,
+                  right: 0,
+                },
               }}
             >
               {navList.map((el, ind) => (
-                <MenuItem key={ind} onClick={handleClose}>
-                  <Link
-                    onClick={() => handleNavClick(`${el.link}`)}
-                    sx={{ color: "#797979" }}
-                    href={`#${el.link}`}
-                  >
-                    {el.title}
-                  </Link>
+                <MenuItem
+                  key={ind}
+                  onClick={() => handleNavClick(`${el.link}`)}
+                  sx={{
+                    width: "100%",
+                    justifyContent: "center",
+                    textTransform: "uppercase",
+                    color: "#fff",
+                  }}
+                >
+                  {el.title}
                 </MenuItem>
               ))}
             </Menu>
