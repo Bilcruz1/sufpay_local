@@ -22,42 +22,56 @@ const CoreValues = () => {
     <CoreValuesContainer>
       <Box
         sx={{
-          width: "80%",
+          width: { xs: "90%", md: "80%" },
           margin: "auto",
           heigth: "inherith",
           display: "flex",
-          py: 4,
+          py: "4rem",
           gap: "2rem",
           flexDirection: { xs: "column", md: "row" },
+          flexWrap: "wrap",
         }}
       >
         {/* LHS */}
         <Box flex={{ xs: 1, md: 0.6 }}>
           <Box sx={{ color: "#fff", textAlign: "left" }}>
-            <Box
-              sx={{ display: "flex", gap: ".75rem", alignItems: "flex-end" }}
-            >
-              <img src={cube_icon} alt={"icon"} />
-              <Typography variant="h3">Core Values</Typography>
+            <Box sx={{ display: "flex", gap: ".5rem", alignItems: "center" }}>
+              <Box
+                component="img"
+                src={cube_icon}
+                alt="icon img"
+                sx={{
+                  width: "2em",
+                  height: "2em",
+                  display: "block",
+                  flexWrap: "wrap",
+                }}
+              />
+              <Typography variant="h4" component={"h2"} sx={{ color: "#fff" }}>
+                Core Values
+              </Typography>
             </Box>
-            <Typography variant="body1" sx={{ fontSize: "20px", mt: 2 }}>
+            <Typography
+              variant="body1"
+              sx={{ fontSize: "1.25rem", mt: 2, color: "#fff" }}
+            >
               We are committed to fostering a culture of accountability, taking
               ownership of our actions and decisions, and continuously striving
               for improvement
             </Typography>
-            <Button
+            {/* <Button
               variant="outlined"
               sx={{
-                borderRadius: 1,
-                borderColor: "#fff",
-                color: "#fff",
+                borderRadius: ".7rem",
                 mt: 2,
                 width: { xs: "100%", md: "auto" },
                 display: { xs: "block", md: "inline-block" },
+                py: "1rem",
+                px: "2.125rem",
               }}
             >
               Create an account
-            </Button>
+            </Button> */}
           </Box>
         </Box>
         {/* RHS */}
@@ -68,7 +82,7 @@ const CoreValues = () => {
             justifyContent: "space-between",
             alignItems: "center",
             flexDirection: { xs: "column", md: "row" },
-            gap: "28px",
+            gap: "1.75rem",
           }}
         >
           {coreValuesContent.map((el, ind) => (
@@ -89,7 +103,7 @@ const CoreValues = () => {
                 justifyContent: "center",
                 alignItems: "center",
                 color: "#fff",
-                boxShadow: "0px 0px 3px #fff",
+                // boxShadow: "0px 0px 3px #fff",
               }}
             >
               <img
@@ -100,7 +114,7 @@ const CoreValues = () => {
               />
               <Typography
                 sx={{
-                  textShadow: "0px 0px 4px #fff",
+                  color: "#fff"
                 }}
                 variant="h6"
                 component={"h6"}

@@ -2,15 +2,17 @@ import { Box, Button, Container, Stack, styled, Typography } from '@mui/material
 import {useState} from 'react'
 import { InputFeild, TextAreaInputFeild } from '../components'
 import { z } from 'zod'
-import arrow_left from "../assets/icons/arrow_left.svg" 
 import EastIcon from "@mui/icons-material/East";
+import { IContatctUsForm } from '../utils/interfaces'
+import { sendMessage } from '../utils/fireBaseSetup'
 
 const ContactUsFormContainer = styled(Box)({
     textAlign: 'left',
     display: 'flex',
     justifyItems: 'center',
     alignItems: 'center',
-    height: '100%'
+  height: '100%',
+    marginBottom: "2rem"
 })
 
 
@@ -22,60 +24,80 @@ const formDataSchema = z.object({
 
 
 const ContactUsForm = () => {
-    const [formData, setFormData] = useState({
-        name: "",
-        email: "",
-        message: "",
-    })
+  const [formData, setFormData] = useState<IContatctUsForm>({
+    name: "",
+    email: "",
+    message: "",
+  })
 
-    const [errors, setErrors] = useState({
-      name: "",
-      email: "",
-      message: "",
-    });
+  const [errors, setErrors] = useState<IContatctUsForm>({
+    name: "",
+    email: "",
+    message: "",
+  });
   
   const [btnDisabled, setBtnDisabled] = useState<boolean>(false);
     
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-      setBtnDisabled(prev => false)
-      const { name, value } = e.target;
-      setFormData(prev => ({...prev, [name]: value}))
+    setBtnDisabled(prev => false)
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }))
+  }
+  
+  
+  const handleSubmit = async () => {
+    setBtnDisabled(true)
+    setErrors((prev) => ({
+      name: "",
+      email: "",
+      message: "",
+    }));
+
+    //validation
+    const validationResult = formDataSchema.safeParse(formData);
+
+    if (!validationResult.success) {
+      validationResult.error.errors.forEach((el) => {
+        setErrors((prev) => ({ ...prev, [el.path[0]]: el.message }))
+      })
+      setBtnDisabled(true);
+      console.log(validationResult)
+      return;
     }
-  
-  
-  const handleSubmit = () => {
-     setBtnDisabled(true);
-     setErrors((prev) => ({
-       name: "",
-       email: "",
-       message: "",
-     }));
 
-     //validation
-     const validationResult = formDataSchema.safeParse(formData);
+    const messageStatus: boolean = await sendMessage(formData)
 
-     if (!validationResult.success) {
-       validationResult.error.errors.forEach((el) => {
-         setErrors((prev) => ({ ...prev, [el.path[0]]: el.message }));
-       });
-       setBtnDisabled(true);
-       return;
-     }  
+    if (messageStatus === true) {
+      setFormData({
+        name: "",
+        email: "",
+        message: "",
+      })
+      console.log("sent")
+    }
+    else if (messageStatus === false) {
+      console.log("failed")
+    }
+  }
+
+
+
+
 
      
-  }
+
 
   return (
     <ContactUsFormContainer>
       <Container
         sx={{
-          width: { xs: "80%", md: "70%" },
-          marging: "auto",
+          width: { xs:"90%", md: "80%" },
+          margin: "auto",
         }}
       >
         {/* header */}
         <Box>
-          <Typography sx={{textAlign: {xs: "center", md: "left"}}} variant="h2" gutterBottom>
+          <Typography sx={{textAlign: "left"}} variant="h2" component={"h2"} gutterBottom>
             Contact {` `}
             <Typography sx={{ color: "#AAC645" }} component="span" variant="h2">
               Us
@@ -84,7 +106,7 @@ const ContactUsForm = () => {
         </Box>
 
         {/* form */}
-        <Stack direction={"column"} gap={2}>
+        <Stack direction={"column"} mt={"2.5rem"} gap={"1.5rem"}>
           <InputFeild
             name={"name"}
             value={formData.name}
@@ -114,7 +136,7 @@ const ContactUsForm = () => {
             sx={{
               display: "flex",
               justifyContent: { xs: "center", md: "right" },
-              mt: 1,
+              mt: "1.5rem",
             }}
           >
             <Button
@@ -122,6 +144,7 @@ const ContactUsForm = () => {
               endIcon={<EastIcon />}
               onClick={handleSubmit}
               disabled={btnDisabled}
+              sx={{color: "#fff"}}
             >
               Send
             </Button>

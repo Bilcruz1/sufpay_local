@@ -1,41 +1,44 @@
 import { Box, Button, Typography, styled } from '@mui/material'
-import React from 'react'
 import banner_img from "../../assets/img/banner_img.png";
 
 
 const BannerContainer = styled(Box)`
-  /* background-color: #121212; */
   color: #fff;
   text-align: center;
-  /* padding: 4rem 0; */
   display: flex;
   flex-direction: column;
-  /* width:'80%'; */
-  margin: 'auto';
-  pb: '114px';
-  /* border: '1px solid red'; */
-
-
-  /* @media (min-width: 768px) {
-    flex-direction: row;
-  } */
+  margin: "auto";
+  padding-bottom: "3rem";
 `;
 
 
 const Banner = () => {
 
-  const styles = {
-    width: '100%',
-  }
+const styles = {
+  image: {
+    width: "80%", 
+    "@media (max-width:600px)": {
+      width: "200%", 
+    },
+    "@media (max-width:900px)": {
+      width: "80%", 
+    },
+  },
+};
 
   return (
-    <BannerContainer sx={{ marginTop: "10%" }}>
+    <BannerContainer sx={{ marginTop: "10%", color: "#fff" }}>
       <Box>
-        <Typography variant="h1" component={"h1"}>
+        <Typography variant="h1" component={"h1"} sx={{ color: "#fff" }}>
           Welcome to SufPay, the forefront of financial technology innovation in
           Nigeria.
         </Typography>
-        <Typography variant="h6" mt={'32px'} component={"h6"}>
+        <Typography
+          variant="h6"
+          mt={"2rem"}
+          component={"h6"}
+          sx={{ color: "#fff" }}
+        >
           We are dedicated to revolutionizing the digital transaction landscape,
           making financial services more accessible, secure, and efficient for
           all Nigerians. Explore our comprehensive range of services, from
@@ -48,10 +51,10 @@ const Banner = () => {
       {/* <Box
         sx={{
           display: "flex",
-          gap: "20px",
+          gap: "1.25rem",
           justifyContent: "center",
           alignItems: "center",
-          mt: '60px',
+          mt: '3.75rem',
         }}
       >
         <Button variant="contained" size="large">
@@ -62,8 +65,8 @@ const Banner = () => {
         </Button>
       </Box> */}
 
-      <Box mt={{xs: '40px', md: '148px'}} >
-        <img src={banner_img} alt={"sufpay banner"} style={styles } />
+      <Box mt={{ xs: "2rem", md: "9rem" }}>
+        <img src={banner_img} alt={"sufpay banner"} style={styles.image} />
       </Box>
     </BannerContainer>
   );

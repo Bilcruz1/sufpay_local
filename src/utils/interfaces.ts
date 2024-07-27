@@ -30,3 +30,9 @@ export interface INavList {
 export interface IHeaderProps{
   id: string
 }
+
+export interface IContatctUsForm{
+  name: string;
+  email: string;
+  message: string;
+}

@@ -71,12 +71,23 @@ const ContactUs: React.FC<IHeaderProps> = ({id}) => {
                 color: "#fff",
               }}
             >
-              <Box p={1} pl={0} mb={11}>
-                <img src={location_icon} alt={"icon"} />
+              <Box p={1} pl={0} mb={"2rem"}>
+                <Box
+                  component="img"
+                  src={location_icon}
+                  alt="icon"
+                  sx={{
+                    width: "2em",
+                    height: "2em",
+                    display: "block",
+                  }}
+                />
               </Box>
               <Box>
-                <Typography variant={"h6"}>Address</Typography>
-                <Typography variant="body1" component={"p"}>
+                <Typography variant={"h6"} color={"#fff"}>
+                  Address
+                </Typography>
+                <Typography variant="body1" component={"p"} color={"#fff"}>
                   1234 Innovation Street, Lagos, Nigeria
                 </Typography>
               </Box>
@@ -87,6 +98,7 @@ const ContactUs: React.FC<IHeaderProps> = ({id}) => {
                 justifyContent: "space-between",
                 alignItems: "center",
                 width: "100%",
+                flexWrap: "wrap",
               }}
             >
               <Typography variant="h6" color={"#fff"}>
