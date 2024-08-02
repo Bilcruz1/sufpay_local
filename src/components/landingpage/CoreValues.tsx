@@ -15,6 +15,7 @@ const CoreValuesContainer = styled(Box)({
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
+  padding: "6rem 0"
 });
 
 const CoreValues = () => {
@@ -26,7 +27,6 @@ const CoreValues = () => {
           margin: "auto",
           heigth: "inherith",
           display: "flex",
-          py: "4rem",
           gap: "2rem",
           flexDirection: { xs: "column", md: "row" },
           flexWrap: "wrap",

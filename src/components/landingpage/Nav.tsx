@@ -25,10 +25,24 @@ const Nav = () => {
     setAnchorEl(null);
   };
 
+  // const handleNavClick = (id: string) => {
+  //   const element = document.getElementById(id);
+  //   if (element) {
+  //     const yOffset = -70;
+  //     const y = element.getBoundingClientRect().top + window.scrollY + yOffset;
+  //     window.scrollTo({ top: y, behavior: "smooth" });
+  //   }
+  //   handleClose();
+  // };
+
   const handleNavClick = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
-      const yOffset = -70;
+      const rootFontSize = parseFloat(
+        getComputedStyle(document.documentElement).fontSize
+      ); // Get root font size in pixels
+      const yOffsetRems = -5; // Change this to your desired rem value
+      const yOffset = yOffsetRems * rootFontSize; // Convert rem to pixels
       const y = element.getBoundingClientRect().top + window.scrollY + yOffset;
       window.scrollTo({ top: y, behavior: "smooth" });
     }
@@ -47,11 +61,11 @@ const Nav = () => {
         backdropFilter: "blur(10px)",
         boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
         border: { md: "1px solid #ffffff29" },
-        px: { xs: "10px", md: "40px" },
-        py: { xs: "6px", md: "12px" },
+        px: { xs: "0.625rem", md: "2.5rem" },
+        py: { xs: "0.3rem", md: "0.5rem" },
         right: 0,
         left: 0,
-        zIndex: 1300, // Ensure the navbar is above other elements
+        zIndex: 1300,
       }}
     >
       <Container maxWidth="xl">
@@ -70,7 +84,9 @@ const Nav = () => {
               component={"img"}
               src={logo}
               alt={"sufpay logo"}
-              width={"80%"}
+              width={"100%"}
+              sx={{cursor : "pointer"}}
+              onClick={() => handleNavClick("home")}
             />
           </Box>
 
