@@ -36,27 +36,27 @@ export const passwordChecks: string[] = [
 
 
 export const socails: ISocials[] = [
-   {
+  {
     title: "instagram",
-    link: "https://www.instagram.com",
-    icon: instagram_icon
+    link: "https://www.instagram.com/sufpayng",
+    icon: instagram_icon,
   },
-   {
+  {
     title: "website",
     link: "/home",
-    icon: web_icon
+    icon: web_icon,
   },
   {
     title: "x",
-    link: "https://www.x.com",
-    icon: x_icon
+    link: "https://x.com/sufpayng",
+    icon: x_icon,
   },
   {
     title: "youtube",
     link: "https://www.youtube.com",
-    icon: youtube_icon
+    icon: youtube_icon,
   },
-]
+];
 
 export const ourServices: IServices[] = [
   {
