@@ -11,8 +11,8 @@ const ContactUsFormContainer = styled(Box)({
     display: 'flex',
     justifyItems: 'center',
     alignItems: 'center',
-  height: '100%',
-    marginBottom: "2rem"
+    height: '100%',
+    padding: "3rem 0"
 })
 
 

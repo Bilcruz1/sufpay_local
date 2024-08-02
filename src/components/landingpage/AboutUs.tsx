@@ -13,7 +13,9 @@ const AboutUsContainer = styled(Box)({
   display: "flex",
   justifyItems: "center",
   alignItems: "center",
-  flexWrap: "wrap"
+  flexWrap: "wrap",
+  padding: "3rem 0"
+
 });
 
 const AboutUs: React.FC<IHeaderProps> = ({ id }) => {
