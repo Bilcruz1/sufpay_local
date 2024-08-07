@@ -6,12 +6,14 @@ import {
   PasswordInputFeild,
   PhoneNumberField,
 } from "../components";
-import {
-  InputLabel,
-} from "@mui/material";
+import { InputLabel } from "@mui/material";
 // import CountryCodePhoneNumberField from "./CountryCodePhoneNumberField";
-import googleImg from '../assets/img/google_img.svg'
-import { IPasswordChkProps } from "../utils/interfaces";
+import googleImg from "../assets/img/google_img.svg";
+import { IBasicApiResponse, IPasswordChkProps, IResponse } from "../utils/interfaces";
+import {
+  verifyEmailUniqueness,
+  verifyPhoneNumberUniqueness
+} from "../Apis/onBoardingApi";
 
 interface IForm {
   firstName: string;
@@ -19,6 +21,7 @@ interface IForm {
   countryCode: string;
   phoneNumber: string;
   password: string;
+  email: string
 }
 
 const SignupForm = () => {
@@ -29,7 +32,8 @@ const SignupForm = () => {
     countryCode: "+1",
     phoneNumber: "",
     password: "",
-  })
+    email: ""
+  });
 
   const [formErrors, setFormErrors] = useState<IForm>({
     firstName: "",
@@ -37,7 +41,8 @@ const SignupForm = () => {
     countryCode: "",
     phoneNumber: "",
     password: "",
-  })
+    email: ""
+  });
 
   const [passwordChecks, setPasswordChecks] = useState<IPasswordChkProps>({
     charCountChk: false,
@@ -45,18 +50,32 @@ const SignupForm = () => {
     upperCaseChk: false,
     specialCaseChk: false,
     OneNumberChk: false,
-  })
-
-  // const handleCountryCodeChange = (e: React.ChangeEvent) => {
-  //   // setFormData((prev) => ({
-  //   //   ...prev,
-  //   //   countryCode: e.target.value as string,
-  //   // }));
-  // };
+  });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleBlur = async (e: string) => {
+    setFormErrors(prev => ({...prev, phoneNumber:  ""}))
+    setFormErrors((prev) => ({ ...prev, email: "" }));
+    if (e === "email") {
+      const result: IResponse<IBasicApiResponse> = await verifyEmailUniqueness(
+        e
+      );
+      if (result.data === true) {
+        setFormErrors((prev) => ({ ...prev, email: "Email already exists" }));
+      }
+    } else if (e === "phoneNumber") {
+      const result: IResponse<IBasicApiResponse> = await verifyPhoneNumberUniqueness(e);
+      if (result.data === true) {
+        setFormErrors((prev) => ({
+          ...prev,
+          phoneNumber: "Phone number already exists",
+        }));
+      }
+    }
   };
 
   const submitForm = () => {};
@@ -92,12 +111,22 @@ const SignupForm = () => {
             error={formErrors.lastName}
           />
         </Stack>
+        <InputFeild
+          name={"email"}
+          value={formData.email}
+          handleChange={handleChange}
+          label={"Email"}
+          error={formErrors.email}
+          handdleBlur={handleBlur}
+        />
         <PhoneNumberField
           countryCode={formData.countryCode}
           phoneNumber={formData.phoneNumber}
           handleChange={handleChange}
+          name={"phoneNumber"}
           // handleCountryCodeChange={handleCountryCodeChange}
           label={"Phone number"}
+          handdleBlur={handleBlur}
           error={formErrors.phoneNumber}
         />
         <PasswordInputFeild

@@ -7,6 +7,8 @@ interface IProps {
   label: string;
   error?: string;
   placeholder?: string
+  handdleBlur?: (e: string) => void
+
 }
 const InputFeild: React.FC<IProps> = ({
   name,
@@ -15,6 +17,7 @@ const InputFeild: React.FC<IProps> = ({
   label,
   error,
   placeholder,
+  handdleBlur,
 }) => {
   return (
     <Box
@@ -34,6 +37,7 @@ const InputFeild: React.FC<IProps> = ({
         error={!!error}
         helperText={error}
         placeholder={placeholder}
+        onBlur={() => handdleBlur?.(name) }
       />
     </Box>
   );

@@ -8,14 +8,17 @@ import {
   IconButton,
   MenuItem,
   Menu,
+  Button,
 } from "@mui/material";
 import { navList } from "../../utils/constants";
 import logo from "../../assets/img/logo.svg";
 import MenuIcon from "@mui/icons-material/Menu";
+import {useNavigate} from 'react-router-dom'
 
 const Nav = () => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+  const navigate = useNavigate()
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -85,7 +88,7 @@ const Nav = () => {
               src={logo}
               alt={"sufpay logo"}
               width={"100%"}
-              sx={{cursor : "pointer"}}
+              sx={{ cursor: "pointer" }}
               onClick={() => handleNavClick("home")}
             />
           </Box>
@@ -117,12 +120,20 @@ const Nav = () => {
           </Box>
           <Box sx={{ display: { xs: "none", md: "flex" }, gap: ".7rem" }}>
             {/* uncomment after integration */}
-            {/* <Button variant="text" size="small">
-                Login
-              </Button>
-              <Button variant="contained" size="small">
-                sign up
-              </Button> */}
+            <Button
+              variant="text"
+              size="small"
+              onClick={() => navigate("/login")}
+            >
+              Login
+            </Button>
+            <Button
+              variant="contained"
+              size="small"
+              onClick={() => navigate("/signup")}
+            >
+              sign up
+            </Button>
           </Box>
 
           {/* sm menu */}

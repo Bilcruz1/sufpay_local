@@ -3,19 +3,23 @@ import { Box, FormControl, InputAdornment, InputLabel, MenuItem, Select, TextFie
 interface ICountryCodeProps {
   countryCode: string;
   phoneNumber: string;
+  name: string
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-//   handleCountryCodeChange: (e: React.ChangeEvent) => void;
+  //   handleCountryCodeChange: (e: React.ChangeEvent) => void;
   label: string;
   error?: string;
+  handdleBlur?: (e: string) => void;
 }
 
 const PhoneNumberField: React.FC<ICountryCodeProps> = ({
   countryCode,
   phoneNumber,
   handleChange,
-//   handleCountryCodeChange,
+  name,
+  //   handleCountryCodeChange,
   label,
   error,
+  handdleBlur,
 }) => {
   return (
     <Box
@@ -34,6 +38,7 @@ const PhoneNumberField: React.FC<ICountryCodeProps> = ({
         value={phoneNumber}
         error={!!error}
         helperText={error}
+        onBlur={() => handdleBlur?.(name)}
         InputProps={{
           startAdornment: (
             <InputAdornment position="start">
@@ -46,7 +51,7 @@ const PhoneNumberField: React.FC<ICountryCodeProps> = ({
               >
                 <Select
                   value={countryCode}
-                //   onChange={handleCountryCodeChange}
+                  //   onChange={handleCountryCodeChange}
                   displayEmpty
                   inputProps={{ "aria-label": "Country Code" }}
                   sx={{
