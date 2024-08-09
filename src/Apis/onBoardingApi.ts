@@ -4,16 +4,17 @@ import {
   IResponse,
 } from "../utils/interfaces";
 import http, { handleApiError } from "./httpService";
+import { ISigupForm, IVerifyEmailUniqueness, IVerifyPhoneNumberUniqueness } from "./requestInterface";
 
 
 export const register = async (
-  data: any
+  data: ISigupForm
 ): Promise<IResponse<IBasicApiResponse>> => {
   try {
     const res: IBasicApiResponse = await http.post(
       "/Authentication/register",
       data
-    );
+    )
     if (res.succeeded) {
       return { error: null, data: res };
     } else {
@@ -22,22 +23,10 @@ export const register = async (
   } catch (err) {
     return handleApiError(err);
   }
-};
-
-// export const verifyPhoneNumberUniqueness = async (data: any): Promise<IResponse> => {
-//   try {
-//     const res: IApiResponse<boolean> = await http.post(
-//       "/Authentication/verify-phone-uniqueness",
-//       data
-//     );
-//     return { error: null, data: res.data };
-//   } catch (err) {
-//     return handleApiError(err);
-//   }
-// };
+}
 
 export const verifyPhoneNumberUniqueness = async (
-  data: string
+  data: IVerifyPhoneNumberUniqueness
 ): Promise<IResponse<IApiResponse>> => {
   try {
     const res: IApiResponse<boolean> = await http.post(
@@ -50,16 +39,16 @@ export const verifyPhoneNumberUniqueness = async (
   }
 };
 
-export const verifyEmailUniqueness = async (data: string): Promise<IResponse<IApiResponse>> => {
+export const verifyEmailUniqueness = async (
+  data: IVerifyEmailUniqueness
+): Promise<IResponse<IApiResponse>> => {
   try {
     const res: IApiResponse<boolean> = await http.post(
       "/Authentication/verify-email-uniqueness",
       data
     );
-    console.log(res, "data")
     return { error: null, data: res.data };
   } catch (err) {
-    console.log(err, "exception")
     return handleApiError(err);
   }
 };

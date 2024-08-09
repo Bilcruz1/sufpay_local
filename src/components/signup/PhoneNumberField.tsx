@@ -58,9 +58,9 @@ const PhoneNumberField: React.FC<ICountryCodeProps> = ({
                     "& .MuiOutlinedInput-notchedOutline": { border: "none" },
                   }}
                 >
-                  <MenuItem value="+1">+1</MenuItem>
-                  <MenuItem value="+91">+91</MenuItem>
-                  <MenuItem value="+44">+44</MenuItem>
+                  <MenuItem value="+234">+234</MenuItem>
+                  {/* <MenuItem value="+91">+91</MenuItem>
+                  <MenuItem value="+44">+44</MenuItem> */}
                 </Select>
               </FormControl>
             </InputAdornment>

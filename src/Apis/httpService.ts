@@ -61,10 +61,8 @@ API.interceptors.response.use(
       error.response.status >= 400 &&
       error.response.status < 500;
     if (!expectedError) {
-      console.error("Logging the error", error);
       alert("An unexpected error occurred.");
     }
-    console.log(expectedError, "interceptor")
     return Promise.reject(error);
   }
 );
@@ -81,6 +79,5 @@ export const handleApiError = (
 ): IResponse<null | IResponse<IBasicApiResponse> | IResponse<IApiResponse>> => {
   const errorMessage =
     error.response?.data?.message || "An unexpected error occurred.";
-  console.log(errorMessage, "handleApiError");
   return { error: [errorMessage], data: null };
 };

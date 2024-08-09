@@ -1,4 +1,12 @@
-import { Box, Button, Divider, Link, Stack, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Divider,
+  Link,
+  Stack,
+  Typography,
+  InputLabel,
+} from "@mui/material";
 import React, { useState } from "react";
 import {
   InputFeild,
@@ -6,14 +14,15 @@ import {
   PasswordInputFeild,
   PhoneNumberField,
 } from "../components";
-import { InputLabel } from "@mui/material";
 // import CountryCodePhoneNumberField from "./CountryCodePhoneNumberField";
 import googleImg from "../assets/img/google_img.svg";
 import { IBasicApiResponse, IPasswordChkProps, IResponse } from "../utils/interfaces";
 import {
+  register,
   verifyEmailUniqueness,
   verifyPhoneNumberUniqueness
 } from "../Apis/onBoardingApi";
+import { signupFormDataSchema } from "./schema";
 
 interface IForm {
   firstName: string;
@@ -29,7 +38,7 @@ const SignupForm = () => {
   const [formData, setFormData] = useState<IForm>({
     firstName: "",
     lastName: "",
-    countryCode: "+1",
+    countryCode: "+234",
     phoneNumber: "",
     password: "",
     email: ""
@@ -58,27 +67,64 @@ const SignupForm = () => {
   };
 
   const handleBlur = async (e: string) => {
-    setFormErrors(prev => ({...prev, phoneNumber:  ""}))
-    setFormErrors((prev) => ({ ...prev, email: "" }));
-    if (e === "email") {
-      const result: IResponse<IBasicApiResponse> = await verifyEmailUniqueness(
-        e
-      );
-      if (result.data === true) {
-        setFormErrors((prev) => ({ ...prev, email: "Email already exists" }));
+
+    if (e !== null && e !== "" && e !== undefined && e.length >= 3) { 
+      setFormErrors(prev => ({...prev, phoneNumber:  ""}))
+      setFormErrors((prev) => ({ ...prev, email: "" }));
+      if (e === "email") {
+        const result: IResponse<IBasicApiResponse> = await verifyEmailUniqueness(
+          { email: formData.email }
+        );
+        if (result.data === true) {
+          setFormErrors((prev) => ({ ...prev, email: "Email already exists" }));
+        }
+      } else if (e === "phoneNumber") {
+        const result: IResponse<IBasicApiResponse> =
+          await verifyPhoneNumberUniqueness({ phoneNumber: formData.phoneNumber });
+        if (result.data === true) {
+          setFormErrors((prev) => ({
+            ...prev,
+            phoneNumber: "Phone number already exists",
+          }));
+        }
       }
-    } else if (e === "phoneNumber") {
-      const result: IResponse<IBasicApiResponse> = await verifyPhoneNumberUniqueness(e);
-      if (result.data === true) {
-        setFormErrors((prev) => ({
-          ...prev,
-          phoneNumber: "Phone number already exists",
-        }));
-      }
+
     }
   };
 
-  const submitForm = () => {};
+  const submitForm = () => {
+    setBtnDisabled(prev => true)
+    setFormErrors(prev => ({
+      firstName: "",
+      lastName: "",
+      countryCode: "",
+      phoneNumber: "",
+      password: "",
+      email: ""
+    }))
+
+    const validationResult = signupFormDataSchema.safeParse(formData)
+
+    if (!validationResult.success) {
+      validationResult.error.errors.forEach((error) => {
+        setFormErrors((prev) => ({ ...prev, [error.path[0]]: error.message }));
+      })
+
+
+      const response = register({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phoneNumber: formData.countryCode + formData.phoneNumber,
+        password: formData.password,
+      })
+
+
+      setBtnDisabled((prev) => false)
+      
+
+    }
+  }
 
   return (
     <Box
@@ -98,7 +144,7 @@ const SignupForm = () => {
         <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
           <InputFeild
             name={"firstName"}
-            value={formData.firstName}
+            value={formData.firstName || ""}
             handleChange={handleChange}
             label={"First name"}
             error={formErrors.firstName}
