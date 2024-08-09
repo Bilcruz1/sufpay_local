@@ -82,16 +82,16 @@ const Nav = () => {
           }}
         >
           {/* logo */}
-          <Box sx={{}}>
+          {/* <Box sx={{}}> */}
             <Box
               component={"img"}
               src={logo}
               alt={"sufpay logo"}
-              width={"100%"}
-              sx={{ cursor: "pointer" }}
+              width={{xs: "25%", sm: "15%", md: "10%"}}
+              sx={{cursor : "pointer"}}
               onClick={() => handleNavClick("home")}
             />
-          </Box>
+          {/* </Box> */}
 
           {/* nav links md */}
           <Box
@@ -118,23 +118,15 @@ const Nav = () => {
               </Link>
             ))}
           </Box>
-          <Box sx={{ display: { xs: "none", md: "flex" }, gap: ".7rem" }}>
+          {/* <Box sx={{ display: { xs: "none", md: "flex" }, gap: ".7rem" }}> */}
             {/* uncomment after integration */}
-            <Button
-              variant="text"
-              size="small"
-              onClick={() => navigate("/login")}
-            >
-              Login
-            </Button>
-            <Button
-              variant="contained"
-              size="small"
-              onClick={() => navigate("/signup")}
-            >
-              sign up
-            </Button>
-          </Box>
+            {/* <Button variant="text" size="small">
+                Login
+              </Button>
+              <Button variant="contained" size="small">
+                sign up
+              </Button> */}
+          {/* </Box> */}
 
           {/* sm menu */}
           <Box>
