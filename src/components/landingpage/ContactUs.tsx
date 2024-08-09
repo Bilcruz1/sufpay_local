@@ -1,6 +1,7 @@
 import {
   Box,
   IconButton,
+  Link,
   styled,
   Tooltip,
   Typography,
@@ -47,7 +48,6 @@ const ContactUs: React.FC<IHeaderProps> = ({id}) => {
             background:
               "linear-gradient(to bottom, #ccc, #333 50%, #111 80%, #000 100%)",
             opacity: 0.5,
-            pointerEvents: "none",
           }}
         >
           <Box
@@ -88,7 +88,7 @@ const ContactUs: React.FC<IHeaderProps> = ({id}) => {
                   Address
                 </Typography>
                 <Typography variant="body1" component={"p"} color={"#fff"}>
-                  1234 Innovation Street, Lagos, Nigeria
+                  86 Lome Crescent Wuse Zone 7, wupa. Abuja.
                 </Typography>
               </Box>
             </Box>
@@ -101,9 +101,9 @@ const ContactUs: React.FC<IHeaderProps> = ({id}) => {
                 flexWrap: "wrap",
               }}
             >
-              <Typography variant="h6" color={"#fff"}>
+              {/* <Typography variant="h6" color={"#fff"}>
                 +234-123-4567
-              </Typography>
+              </Typography> */}
               <Typography variant="h6" color={"#fff"}>
                 info@sufpay.com
               </Typography>
@@ -114,20 +114,27 @@ const ContactUs: React.FC<IHeaderProps> = ({id}) => {
                 }}
               >
                 {socails.map((el, ind) => (
-                  <Tooltip
+                  <Link
+                    href={el.link}
+                    target="_blank"
+                    sx={{ cursor: "pointer" }}
                     key={ind}
-                    title="Delete"
-                    sx={{ background: "#333333" }}
+                    rel="noopener noreferrer"
                   >
-                    <IconButton>
-                      <img
-                        width={"25rem"}
-                        height={"25rem"}
-                        src={el.icon}
-                        alt={`${el.title} socails icon`}
-                      />
-                    </IconButton>
-                  </Tooltip>
+                    <Tooltip
+                      title={el.title}
+                      sx={{ background: "#333", cursor: "pointer" }}
+                    >
+                      <IconButton>
+                        <img
+                          width={"25rem"}
+                          height={"25rem"}
+                          src={el.icon}
+                          alt={`${el.title} socails icon`}
+                        />
+                      </IconButton>
+                    </Tooltip>
+                  </Link>
                 ))}
               </Box>
             </Box>
