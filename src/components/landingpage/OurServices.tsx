@@ -21,7 +21,7 @@ const OurServicesContainer = styled(Box)({
   alignItems: "center",
   flexDirection: "column",
   gap: "2rem",
-  py: 4,
+  padding: "3rem 0",
 });
 
 const OurServices: React.FC<IHeaderProps> = ({id}) => {

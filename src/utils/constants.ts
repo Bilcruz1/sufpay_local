@@ -4,6 +4,8 @@ import instagram_icon from '../assets/icons/instagram_icon.svg'
 import web_icon from '../assets/icons/web_icon.svg'
 import x_icon from '../assets/icons/x_icon.svg'
 import youtube_icon from '../assets/icons/youtube_icon.svg'
+import facebook_icon from '../assets/icons/facebook_icon.svg'
+
 import ser_1_icon from '../assets/icons/ser_1_icon.svg'
 import ser_2_icon from '../assets/icons/ser_2_icon.svg'
 import ser_3_icon from '../assets/icons/ser_3_icon.svg'
@@ -36,27 +38,27 @@ export const passwordChecks: string[] = [
 
 
 export const socails: ISocials[] = [
-   {
+  {
     title: "instagram",
-    link: "https://www.instagram.com",
-    icon: instagram_icon
+    link: "https://www.instagram.com/sufpayng",
+    icon: instagram_icon,
   },
-   {
-    title: "website",
-    link: "/home",
-    icon: web_icon
+  {
+    title: "facebook",
+    link: "https://www.facebook.com/profile.php?id=61563749577801&mibextid=LQQJ4d",
+    icon: facebook_icon,
   },
   {
     title: "x",
-    link: "https://www.x.com",
-    icon: x_icon
+    link: "https://x.com/sufpayng",
+    icon: x_icon,
   },
-  {
-    title: "youtube",
-    link: "https://www.youtube.com",
-    icon: youtube_icon
-  },
-]
+  // {
+  //   title: "youtube",
+  //   link: "https://www.youtube.com",
+  //   icon: youtube_icon,
+  // },
+];
 
 export const ourServices: IServices[] = [
   {

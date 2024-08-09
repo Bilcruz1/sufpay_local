@@ -66,7 +66,6 @@ const Footer = () => {
 
         {/* address for small screen */}
 
-        
         <Box
           sx={{
             width: "100%",
@@ -80,7 +79,7 @@ const Footer = () => {
             sx={{
               display: "flex",
               alignItems: "flex-start",
-                textAlign: "left",
+              textAlign: "left",
               color: "#fff",
               flexDirection: "column",
             }}
@@ -89,9 +88,17 @@ const Footer = () => {
               <img src={location_icon} alt={"icon"} />
             </Box>
             <Box>
-              <Typography variant={"h6"} color={ "#fff"}>Address</Typography>
-              <Typography variant="body1" component={"p"} mt={".5rem"} color={"#fff"}>
-                1234 Innovation Street, Lagos, Nigeria
+              <Typography variant={"h6"} color={"#fff"}>
+                Address
+              </Typography>
+              <Typography
+                variant="body1"
+                component={"p"}
+                mt={".5rem"}
+                color={"#fff"}
+              >
+                86 Lome Crescent Wuse
+                Zone 7, wupa. Abuja.
               </Typography>
             </Box>
           </Box>
@@ -105,9 +112,9 @@ const Footer = () => {
               flexDirection: "column",
             }}
           >
-            <Typography variant="h6" color={"#fff"}>
+            {/* <Typography variant="h6" color={"#fff"}>
               +234-123-4567
-            </Typography>
+            </Typography> */}
             <Typography variant="h6" color={"#fff"}>
               info@sufpay.com
             </Typography>
@@ -119,21 +126,28 @@ const Footer = () => {
               }}
             >
               {socails.map((el, ind) => (
-                <Tooltip
-                  key={ind}
-                  title="Delete"
-                  sx={{ background: "#fff" }}
-                >
-                  <IconButton>
-                    <img
-                      width={"25rem"}
-                      height={"25rem"}
-                      src={el.icon}
-                      alt={`${el.title} socails icon`}
-                    />
-                  </IconButton>
-                </Tooltip>
-              ))}
+                  <Link
+                    href={el.link}
+                    target="_blank"
+                    sx={{ cursor: "pointer" }}
+                    key={ind}
+                    rel="noopener noreferrer"
+                  >
+                    <Tooltip
+                      title={el.title}
+                      sx={{ background: "#fff", cursor: "pointer" }}
+                    >
+                      <IconButton>
+                        <img
+                          width={"25rem"}
+                          height={"25rem"}
+                          src={el.icon}
+                          alt={`${el.title} socails icon`}
+                        />
+                      </IconButton>
+                    </Tooltip>
+                  </Link>
+                ))}
             </Box>
           </Box>
         </Box>
@@ -144,8 +158,7 @@ const Footer = () => {
           display="block"
           gutterBottom
           sx={{
-            textAlign: {xs: "left", md: "center"}
-
+            textAlign: { xs: "left", md: "center" },
           }}
         >
           © Copyright ©2021 All rights reserved | Powered by SufPay
@@ -153,8 +166,7 @@ const Footer = () => {
 
         <Tooltip
           title="To the Top"
-              onClick={() => handleNavClick(`${"home"}`)}
-
+          onClick={() => handleNavClick(`${"home"}`)}
           sx={{
             backgroundColor: "#9BB830",
           }}

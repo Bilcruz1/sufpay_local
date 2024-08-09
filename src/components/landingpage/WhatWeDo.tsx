@@ -13,11 +13,7 @@ const WhatWeDoContainer = styled(Box)({
 const WhatWeDo = () => {
   return (
     <WhatWeDoContainer>
-      <Box
-        width={{ xs: "90%", md: "80%" }}
-        margin="auto"
-        sx={{ py: "3.25rem" }}
-      >
+      <Box width={{ xs: "90%", md: "80%" }} margin="auto" sx={{ py: "6rem" }}>
         <Typography variant="h2" gutterBottom textAlign="center">
           What We Do
         </Typography>
@@ -25,25 +21,25 @@ const WhatWeDo = () => {
         <Box sx={{ width: "100%" }}>
           <Grid
             container
-            spacing={2} // Added spacing between Grid items
+            spacing={2}
             sx={{
               width: "100%",
               margin: "auto",
-              alignItems: "stretch", // Ensure all items have the same height
+              alignItems: "stretch",
             }}
           >
             {whatWeDo.slice(0, 3).map((service, index) => (
               <Grid
                 item
                 xs={12}
-                sm={index === 2 ? 12 : 6} // Set the third item to full width on small screens
+                sm={index === 2 ? 12 : 6}
                 md={4}
                 key={index}
                 sx={{
                   display: "flex",
-                  justifyContent: index === 2 ? "center" : "flex-start", // Center third item on small screens
-                  alignItems: "stretch", // Ensure items stretch to the same height
-                  textAlign: index === 2 ? "center" : "left", // Center text if needed
+                  justifyContent: index === 2 ? "center" : "flex-start",
+                  alignItems: "stretch",
+                  textAlign: index === 2 ? "center" : "left",
                 }}
               >
                 <Card
@@ -55,7 +51,12 @@ const WhatWeDo = () => {
                     flexDirection: "column",
                   }}
                 >
-                  <CardContent sx={{ textAlign: "center", flexGrow: 1 }}>
+                  <CardContent
+                    sx={{
+                      textAlign: { xs: "left", sm: "center" },
+                      flexGrow: 1,
+                    }}
+                  >
                     <Box sx={{ mb: 2 }}>
                       <img src={service.icon} alt="service icons" />
                     </Box>
@@ -72,11 +73,11 @@ const WhatWeDo = () => {
           </Grid>
           <Grid
             container
-            spacing={2} // Added spacing between Grid items
+            spacing={2}
             sx={{
               width: { xs: "100%", md: "67%" },
               margin: "auto",
-              alignItems: "stretch", // Ensure all items have the same height
+              alignItems: "stretch",
             }}
           >
             {whatWeDo.slice(3).map((service, index) => (
@@ -97,7 +98,12 @@ const WhatWeDo = () => {
                     flexDirection: "column",
                   }}
                 >
-                  <CardContent sx={{ textAlign: "center", flexGrow: 1 }}>
+                  <CardContent
+                    sx={{
+                      textAlign: { xs: "left", sm: "center" },
+                      flexGrow: 1,
+                    }}
+                  >
                     <Box sx={{ mb: 2 }}>
                       <img src={service.icon} alt="service icons" />
                     </Box>

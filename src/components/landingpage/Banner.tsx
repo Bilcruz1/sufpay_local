@@ -8,43 +8,30 @@ const BannerContainer = styled(Box)`
   display: flex;
   flex-direction: column;
   margin: "auto";
-  padding-bottom: "3rem";
 `;
 
 
 const Banner = () => {
 
 const styles = {
-  image: {
-    width: "80%", 
-    "@media (max-width:600px)": {
-      width: "200%", 
-    },
-    "@media (max-width:900px)": {
-      width: "80%", 
-    },
+  headerColor: {
+    color: "#AAC645",
   },
 };
 
   return (
-    <BannerContainer sx={{ marginTop: "10%", color: "#fff" }}>
+    <BannerContainer sx={{ marginTop: "10%", color: "#fff", paddingBottom: "6rem" }}>
       <Box>
         <Typography variant="h1" component={"h1"} sx={{ color: "#fff" }}>
-          Welcome to SufPay, the forefront of financial technology innovation in
-          Nigeria.
+          Welcome to Suf<span style={styles.headerColor}>Pay</span> 
         </Typography>
         <Typography
           variant="h6"
           mt={"2rem"}
           component={"h6"}
-          sx={{ color: "#fff" }}
+          sx={{ color: "#fff", marginTop: "2rem" }}
         >
-          We are dedicated to revolutionizing the digital transaction landscape,
-          making financial services more accessible, secure, and efficient for
-          all Nigerians. Explore our comprehensive range of services, from
-          transaction facilitation and regulatory adherence to digital
-          communication devices and networking solutions. Discover how SufPay
-          can empower your financial and digital future.
+          The forefront of financial technology innovation in Nigeria.
         </Typography>
       </Box>
       {/* uncommnet when ready */}
@@ -65,9 +52,31 @@ const styles = {
         </Button>
       </Box> */}
 
-      <Box mt={{ xs: "2rem", md: "9rem" }}>
-        <img src={banner_img} alt={"sufpay banner"} style={styles.image} />
+      <Box mt={{ xs: "2rem", md: "6rem" }}>
+        <Box
+          component="img"
+          src={banner_img}
+          alt="sufpay_banner"
+          sx={{
+            display: "block",
+            width: { xs: "100%", sm: "80%" },
+            margin: "auto",
+          }}
+        />
       </Box>
+      <Typography
+        variant="h6"
+        mt={"2rem"}
+        component={"h6"}
+        sx={{ color: "#fff", marginTop: "2rem" }}
+      >
+        We are dedicated to revolutionizing the digital transaction landscape,
+        making financial services more accessible, secure, and efficient for all
+        Nigerians. Explore our comprehensive range of services, from transaction
+        facilitation and regulatory adherence to digital communication devices
+        and networking solutions. Discover how SufPay can empower your financial
+        and digital future.
+      </Typography>
     </BannerContainer>
   );
 }

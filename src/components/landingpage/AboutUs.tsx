@@ -13,7 +13,9 @@ const AboutUsContainer = styled(Box)({
   display: "flex",
   justifyItems: "center",
   alignItems: "center",
-  flexWrap: "wrap"
+  flexWrap: "wrap",
+  padding: "3rem 0"
+
 });
 
 const AboutUs: React.FC<IHeaderProps> = ({ id }) => {
@@ -40,7 +42,10 @@ const AboutUs: React.FC<IHeaderProps> = ({ id }) => {
             backgroundColor: "#F8F8F8",
             paddingLeft: "2rem",
             paddingTop: {xs: "1rem", md: "3rem"},
-            borderRadius: "1rem"
+            borderRadius: "1rem",
+
+            display: "flex",
+            alignItems: "center",
             
           }}
         >
