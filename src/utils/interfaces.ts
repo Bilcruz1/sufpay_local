@@ -38,45 +38,9 @@ export interface IContatctUsForm{
   message: string;
 }
 
-// export interface IResponse<T> {
-//   error: string[];
-//   data?: IBasicApiResponse | IApiResponse<T> | null;
-// }
-
-// export interface IBasicApiResponse {
-//   succeeded: boolean;
-//   message: string;
-//   errors: string[];
-//   statusCode: StatusCode;
-// }
-
-// export interface IApiResponse<T> extends IBasicApiResponse {
-//   data: T;
-// }
-
-
-
-// export interface IResponse<T = any> {
-//   // Default to 'any' if no type is specified
-//   error: string[] | null;
-//   data?: T | null;
-// }
-
-// export interface IBasicApiResponse {
-//   succeeded: boolean;
-//   message: string;
-//   errors: string[];
-//   statusCode: StatusCode;
-// }
-
-// export interface IApiResponse<T = any> extends IBasicApiResponse {
-//   data: T;
-// }
-
-
-export interface IResponse<T = any> {
+export interface IResponse {
   error: string[] | null;
-  data: T | null | any;
+  data: IBasicApiResponse | IApiResponse;
 }
 
 export interface IBasicApiResponse {
@@ -84,8 +48,9 @@ export interface IBasicApiResponse {
   message: string;
   errors: string[];
   statusCode: StatusCode;
+  data?: {} | [] | null | boolean;
 }
 
-export interface IApiResponse<T = any> extends IBasicApiResponse {
-  data: T;
+export interface IApiResponse extends IBasicApiResponse {
+  data: {} | [] | null | any;
 }

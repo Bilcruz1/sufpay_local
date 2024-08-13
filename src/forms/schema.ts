@@ -32,14 +32,14 @@ export const signupFormDataSchema = z.object({
   lastName: z
     .string()
     .min(3, "Last name must be at least 3 characters long and is required"),
-  password: z.string().min(8, "Password must be at least 8 characters long"),
+  password: z.string().min(7, "Password must be at least 8 characters long"),
 
   countryCode: z.string().min(1, "Country code is required"),
   phoneNumber: z
     .string()
     .min(
-      10,
-      "Phone number must be at least 10 digits long without the country code"
+      9,
+      "Phone number must be at least 10 digits long"
     )
     .refine((val) => /^\+\d{1,3}\d{10}$/.test(val), {
       message:

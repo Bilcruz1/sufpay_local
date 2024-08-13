@@ -8,7 +8,7 @@ import {
   SignInPage,
   SignUpPage,
   // SplashScreen,
-  // VerifyAccountPage,
+  VerifyAccountPage,
 } from "./pages";
 
 function App() {
@@ -24,7 +24,7 @@ function App() {
           element={<ForgetPasswordPage />}
         /> */}
         {/* <Route path={"/change-password"} element={<CreateNewPasswordPage />} /> */}
-        {/* <Route path={"/verify-account"} element={<VerifyAccountPage />} /> */}
+        <Route path={"/verify-account/:userId"} element={<VerifyAccountPage />} />
         {/* <Route path={"/password-verification"} element={<ResetPaswordPage />} /> */}
       </Routes>
     </div>

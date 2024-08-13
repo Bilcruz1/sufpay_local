@@ -15,3 +15,8 @@ export interface ISigupForm {
     password: string;
     email: string;
 }
+
+export interface IVerifyAccount {
+  otp: string
+  isEmailVerification: boolean
+}

@@ -16,13 +16,14 @@ import {
 } from "../components";
 // import CountryCodePhoneNumberField from "./CountryCodePhoneNumberField";
 import googleImg from "../assets/img/google_img.svg";
-import { IBasicApiResponse, IPasswordChkProps, IResponse } from "../utils/interfaces";
+import { IPasswordChkProps, IResponse } from "../utils/interfaces";
 import {
   register,
   verifyEmailUniqueness,
   verifyPhoneNumberUniqueness
 } from "../Apis/onBoardingApi";
 import { signupFormDataSchema } from "./schema";
+import  {useNavigate} from 'react-router-dom'
 
 interface IForm {
   firstName: string;
@@ -43,6 +44,7 @@ const SignupForm = () => {
     password: "",
     email: ""
   });
+  const navigate = useNavigate()
 
   const [formErrors, setFormErrors] = useState<IForm>({
     firstName: "",
@@ -72,16 +74,17 @@ const SignupForm = () => {
       setFormErrors(prev => ({...prev, phoneNumber:  ""}))
       setFormErrors((prev) => ({ ...prev, email: "" }));
       if (e === "email") {
-        const result: IResponse<IBasicApiResponse> = await verifyEmailUniqueness(
+        const result: IResponse = await verifyEmailUniqueness(
           { email: formData.email }
         );
-        if (result.data === true) {
+        if (result.data.succeeded === true) {
           setFormErrors((prev) => ({ ...prev, email: "Email already exists" }));
         }
-      } else if (e === "phoneNumber") {
-        const result: IResponse<IBasicApiResponse> =
+      }
+      if (e === "phoneNumber") {
+        const result: IResponse =
           await verifyPhoneNumberUniqueness({ phoneNumber: formData.phoneNumber });
-        if (result.data === true) {
+        if (result.data.succeeded === true) {
           setFormErrors((prev) => ({
             ...prev,
             phoneNumber: "Phone number already exists",
@@ -92,7 +95,7 @@ const SignupForm = () => {
     }
   };
 
-  const submitForm = () => {
+  const submitForm = async () => {
     setBtnDisabled(prev => true)
     setFormErrors(prev => ({
       firstName: "",
@@ -111,7 +114,7 @@ const SignupForm = () => {
       })
 
 
-      const response = register({
+      const response: IResponse = await register({
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
@@ -119,9 +122,15 @@ const SignupForm = () => {
         password: formData.password,
       })
 
+      console.log(response)
 
-      setBtnDisabled((prev) => false)
-      
+      if (response.data.succeeded === false && response.error !== null) {
+        // alert the user to the fail
+        alert(response.error)
+        setBtnDisabled((prev) => false)
+      }
+
+      navigate(`/verify-account/${response.data.data}`);
 
     }
   }
