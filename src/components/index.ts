@@ -33,3 +33,5 @@ export { default as LandingTemplate } from "./template/LandingTemplate"
 export { default as DashboardLanding } from "./dashboard/DashboardLanding"
 export { default as DashHeader } from "./dashboard/DashHeader"
 export { default as DashSideBar } from "./dashboard/DashSideBar";
+export { default as DonutChart } from "./dashboard/DonutChat";
+export { default as DashboardCards } from "./dashboard/DashboardCards";

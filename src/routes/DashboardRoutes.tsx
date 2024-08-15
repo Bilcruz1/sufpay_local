@@ -6,12 +6,12 @@ import { DashboardLanding } from '../components';
 const DashboardRoutes = () => {
   return (
     <Routes>
-      <Route path={"/dashboard"} element={<DashboardLanding />} />
-      {/* <Route path={"/dashboard/transactions"} element={<DashboardLanding />} />
-      <Route path={"/dashboard/notification"} element={<DashboardLanding />} />
-      <Route path={"/dashboard/help"} element={<DashboardLanding />} />
-      <Route path={"/dashboard/settings"} element={<DashboardLanding />} />
-      <Route path={"/dashboard/settings"} element={<DashboardLanding />} /> */}
+      <Route path={"/"} element={<DashboardLanding />} />
+      {/* <Route path={"transactions"} element={<DashboardLanding />} />
+      <Route path={"notifications"} element={<DashboardLanding />} />
+      <Route path={"help"} element={<DashboardLanding />} />
+      <Route path={"settings"} element={<DashboardLanding />} />
+      <Route path={"settings"} element={<DashboardLanding />} /> */}
       {/* <Route path={"/dashboard/*"} element={<NotFoundPage />} /> */}
       {/* <Redirect from={"*"} to=".dashboard"} /> */}
     </Routes>

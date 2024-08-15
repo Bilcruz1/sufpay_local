@@ -9,28 +9,33 @@ import {
   Typography,
   Box,
 } from "@mui/material";
-import HomeIcon from "@mui/icons-material/Home";
-import CreditCardIcon from "@mui/icons-material/CreditCard";
-import NotificationsIcon from "@mui/icons-material/Notifications";
-import HelpIcon from "@mui/icons-material/Help";
-import SettingsIcon from "@mui/icons-material/Settings";
-
-
-
+import { DashboadNav } from "../../utils/constants";
+import {useNavigate} from 'react-router-dom'
+import dash_logo from '../../assets/img/dash_Sufpay.svg'
+import exit_icon from '../../assets/icons/exit_icon.svg'
 
 const DashSideBar = () => {
-   const [activeItem, setActiveItem] = useState("Home");
+  const [activeItem, setActiveItem] = useState(DashboadNav[0].link);
+  const navigate = useNavigate()
 
-   const handleListItemClick = (item: string) => {
-     setActiveItem(item);
+   const handleListItemClick = (link: string) => {
+     setActiveItem(link);
+     navigate(link)
    }
 
   return (
-    <Drawer
-      variant="permanent"
+    <Box
+      // variant="permanent"
       sx={{
-        width: 240,
+        backgroundColor: "#AAC645",
+        padding: "0 .7rem",
+        color: "#FFF",
+        width: "100%",
         flexShrink: 0,
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
         "& .MuiDrawer-paper": {
           width: 240,
           boxSizing: "border-box",
@@ -39,79 +44,64 @@ const DashSideBar = () => {
       }}
     >
       <List>
-        <ListItem>
-          <Typography variant="h4" color="primary" fontWeight="bold">
-            Sufpay
-          </Typography>
+        <ListItem sx={{ marginBottom: "2rem" }}>
+          <Box component={"img"} src={dash_logo} alt={"sufpay_logo"} />
         </ListItem>
-        <ListItem
-          button
-          onClick={() => handleListItemClick("Home")}
-          sx={{
-            backgroundColor: activeItem === "Home" ? "#8bc34a" : "inherit",
-          }}
-        >
-          <ListItemIcon>
-            <HomeIcon />
-          </ListItemIcon>
-          <ListItemText primary="Home" />
-        </ListItem>
-        <ListItem
-          button
-          onClick={() => handleListItemClick("Transactions")}
-          sx={{
-            backgroundColor:
-              activeItem === "Transactions" ? "#8bc34a" : "inherit",
-          }}
-        >
-          <ListItemIcon>
-            <CreditCardIcon />
-          </ListItemIcon>
-          <ListItemText primary="Transactions" />
-        </ListItem>
-        <ListItem
-          button
-          onClick={() => handleListItemClick("Notification")}
-          sx={{
-            backgroundColor:
-              activeItem === "Notification" ? "#8bc34a" : "inherit",
-          }}
-        >
-          <ListItemIcon>
-            <NotificationsIcon />
-          </ListItemIcon>
-          <ListItemText primary="Notification" />
-        </ListItem>
-        <ListItem
-          button
-          onClick={() => handleListItemClick("Help")}
-          sx={{
-            backgroundColor: activeItem === "Help" ? "#8bc34a" : "inherit",
-          }}
-        >
-          <ListItemIcon>
-            <HelpIcon />
-          </ListItemIcon>
-          <ListItemText primary="Help" />
-        </ListItem>
-        <ListItem
-          button
-          onClick={() => handleListItemClick("Settings")}
-          sx={{
-            backgroundColor: activeItem === "Settings" ? "#8bc34a" : "inherit",
-          }}
-        >
-          <ListItemIcon>
-            <SettingsIcon />
-          </ListItemIcon>
-          <ListItemText primary="Settings" />
-        </ListItem>
+
+        {DashboadNav.map((el, ind) => (
+          <ListItem
+            key={ind}
+            onClick={() => handleListItemClick(el.link)}
+            sx={{
+              backgroundColor: activeItem === el.link ? "#8CAE14" : "inherit",
+              color: "#fff",
+              borderRadius: ".3rem",
+              cursor: "pointer",
+            }}
+          >
+            <ListItemIcon>
+              <Box component={"img"} src={el.icon} alt={`${el.title}_icon`} />
+            </ListItemIcon>
+            <ListItemText
+              primaryTypographyProps={{ color: "#fff" }}
+              sx={{ color: "#fff" }}
+              primary={el.title}
+            />
+          </ListItem>
+        ))}
       </List>
-      <Box sx={{ position: "absolute", bottom: 20, left: 10 }}>
-        <Avatar alt="Hassan Garba" src="/static/images/avatar/1.jpg" />
-        <Typography variant="caption">Hassan Garba</Typography>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          width: "100%",
+          marginBottom: "2rem",
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            gap: ".5rem",
+            alignItems: "center",
+            flexWrap: "wrap",
+          }}
+        >
+          <Avatar alt="Hassan Garba" src="/static/images/avatar/1.jpg" />
+          <Typography variant="caption" sx={{ color: "#fff" }}>
+            Hassan Garba
+          </Typography>
+        </Box>
+
+        <Box
+          component={"img"}
+          src={exit_icon}
+          alt={"exit_icon"}
+          sx={{ cursor: "pointer", width: "1rem", height: "1rem" }}
+        />
       </Box>
-    </Drawer>
+    </Box>
   );
 };
 
