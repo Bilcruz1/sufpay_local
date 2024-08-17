@@ -24,9 +24,19 @@ import serv_7_img from '../assets/img/serv_7_img.png'
 import serv_8_img from '../assets/img/serv_8_img.png'
 import serv_9_img from '../assets/img/serv_9_img.png'
 
+import dash_1 from '../assets/icons/dash_1.svg'
+import dash_2 from '../assets/icons/dash_2.svg'
+import dash_3 from '../assets/icons/dash_3.svg'
+import dash_4 from '../assets/icons/dash_4.svg'
+import dash_5 from '../assets/icons/dash_5.svg'
 
 
-
+import dash_card_1 from "../assets/icons/dash_card_1.svg"
+import dash_card_2 from "../assets/icons/dash_card_2.svg"
+import dash_card_3 from "../assets/icons/dash_card_3.svg"
+import dash_card_4 from "../assets/icons/dash_card_4.svg"
+import dash_card_5 from "../assets/icons/dash_card_5.svg"
+import dash_card_6 from "../assets/icons/dash_card_6.svg";
 
 export const passwordChecks: string[] = [
   "Use 8 or more characters",
@@ -217,3 +227,73 @@ export const coreValuesContent = [
     title: "Collaboration"
   }
 ];
+
+
+export const DashboadNav = [
+  {
+    title: "Home",
+    icon: dash_1,
+    link: "/dashboard",
+  },
+  {
+    title: "Transactions",
+    icon: dash_2,
+    link: "/dashboard/transactions",
+  },
+  {
+    title: "Notification",
+    icon: dash_3,
+    link: "/dashboard/notifications",
+  },
+  {
+    title: "Help",
+    icon: dash_4,
+    link: "/dashboard/help",
+  },
+  {
+    title: "Setting",
+    icon: dash_5,
+    link: "/dashboard/settings",
+  },
+];
+
+
+export const DashboardCardsContent = [
+  {
+    title: "Airtime",
+    icon: dash_card_1,
+    link: "/dashboard/bills/airtime",
+  },
+  {
+    title: "Data",
+    icon: dash_card_2,
+    link: "/dashboard/bills/data",
+  },
+  {
+    title: "Utility bills",
+    icon: dash_card_3,
+    link: "/dashboard/bills/utitlity",
+  },
+  {
+    title: "Cable and Tv",
+    icon: dash_card_4,
+    link: "/dashboard/bills/cable",
+  },
+  {
+    title: "Transport",
+    icon: dash_card_5,
+    link: "/dashboard/bills/transport",
+  },
+  {
+    title: "Events",
+    icon: dash_card_6,
+    link: "/dashboard/bills/events",
+  },
+];
+
+export const transactionsTile = [
+  { title: "Recent transactions", linkUrl: "/dashboard/transactions/recent" },
+  { title: "Upcoming transactions", linkUrl: "/dashboard/trasactions/upcoming" },
+];
+  
+
