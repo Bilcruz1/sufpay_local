@@ -95,6 +95,7 @@ export const theme = createTheme({
   },
 
   components: {
+    
     MuiChip: {
       styleOverrides: {
         root: {

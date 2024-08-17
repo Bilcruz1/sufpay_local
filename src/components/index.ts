@@ -22,3 +22,16 @@ export { default as AboutUs } from './landingpage/AboutUs'
 export { default as CoreValues } from './landingpage/CoreValues'
 export { default as OurServices } from './landingpage//OurServices'
 export { default as Carousel } from "./landingpage/Carousel"
+
+
+// template
+export { default as DashboardTemplate } from "./template/DashboardTemplate";
+export { default as LandingTemplate } from "./template/LandingTemplate"
+
+
+// dashboard
+export { default as DashboardLanding } from "./dashboard/DashboardLanding"
+export { default as DashHeader } from "./dashboard/DashHeader"
+export { default as DashSideBar } from "./dashboard/DashSideBar";
+export { default as DonutChart } from "./dashboard/DonutChat";
+export { default as DashboardCards } from "./dashboard/DashboardCards";
