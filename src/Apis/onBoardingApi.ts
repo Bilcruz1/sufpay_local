@@ -13,11 +13,10 @@ export const register = async (
       "/Authentication/register",
       data
     )
-    if (res.status === 200) {
+    if (res.status >= 200  && res.status < 300) {
       return { error: null, data: res.data };
-    } else {
-      return { error: res.data.errors, data: res.data };
-    }
+    } 
+      return { error: res.data.errors || "An error occurred", data: res.data };
   } catch (err) {
     return handleApiError(err);
   }
@@ -31,10 +30,11 @@ export const verifyPhoneNumberUniqueness = async (
       "/Authentication/verify-phone-uniqueness",
       data
     );
-    if (res.status === 200) {
+   if (res.status >= 200  && res.status < 300) {
       return { error: null, data: res.data };
-    }
-      return { error: res.data.errors, data: res.data };
+    } 
+        
+      return { error: res.data.errors || "An error occurred", data: res.data };
   } catch (err) {
     return handleApiError(err);
   }
@@ -48,10 +48,10 @@ export const verifyEmailUniqueness = async (
       "/Authentication/verify-email-uniqueness",
       data
     );
-     if (res.status === 200) {
+    if (res.status >= 200 && res.status < 300) {
       return { error: null, data: res.data };
-    }
-    return { error: res.data.errors, data: res.data };
+    } 
+    return { error: res.data.errors || "An error occurred", data: res.data };
   } catch (err) {
     return handleApiError(err);
   }
@@ -62,23 +62,23 @@ export const completeVerification = async (
 ): Promise<IResponse> => {
   try {
     const res = await http.post("/authentication/complete-verification", data);
-     if (res.status === 200) {
-       return { error: null, data: res.data };
-     }
-     return { error: res.data.errors, data: res.data };
+    if (res.status >= 200 && res.status < 300) {
+      return { error: null, data: res.data };
+    } 
+     return { error: res.data.errors || "An error occurred", data: res.data };
   } catch (err) {
     return handleApiError(err);
   }
 };
 
-export const resendOtp = async (data: string): Promise<IResponse> => {
-  try {
-    const res = await http.post("/authentication/resend-otp", data);
-    return { error: null, data: res.data };
-  } catch (err) {
-    return handleApiError(err);
-  }
-};
+// export const resendOtp = async (data: string): Promise<IResponse> => {
+//   try {
+//     const res = await http.post("/authentication/resend-otp", data);
+//     return { error: null, data: res.data };
+//   } catch (err) {
+//     return handleApiError(err);
+//   }
+// };
 
 // export const loginUser = async (data: any): Promise<IResponse> => {
 //   try {

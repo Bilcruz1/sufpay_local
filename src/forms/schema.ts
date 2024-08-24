@@ -40,11 +40,11 @@ export const signupFormDataSchema = z.object({
     .min(
       9,
       "Phone number must be at least 10 digits long"
-    )
-    .refine((val) => /^\+\d{1,3}\d{10}$/.test(val), {
-      message:
-        "Phone number must include country code and be at least 10 digits long after the country code",
-    }),
+    ),
+    // .refine((val) => /^\+\d{1,3}\d{10}$/.test(val), {
+    //   message:
+    //     "Phone number must include country code and be at least 10 digits long after the country code",
+    // }),
   email: z.string().email("Invalid email address"),
 });
 

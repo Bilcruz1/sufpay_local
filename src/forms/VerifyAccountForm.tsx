@@ -56,7 +56,11 @@ const VerifyAccountForm: React.FC = () => {
     if (values.length < 5)
       alert("incomplete")
 
-    const response: IResponse = await completeVerification({ otp: `${values.join("")}`, isEmailVerification: true })
+    const response: IResponse = await completeVerification({
+      otp: `${values.join("")}`,
+      userId: `${userId}`,
+    });
+
     console.log(response)
 
     if (
