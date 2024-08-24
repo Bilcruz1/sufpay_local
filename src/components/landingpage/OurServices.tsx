@@ -27,7 +27,7 @@ const OurServicesContainer = styled(Box)({
 const OurServices: React.FC<IHeaderProps> = ({id}) => {
   return (
     <OurServicesContainer id={id}>
-      <Box sx={{ width: {xs: "90%", md: "80%"}, margin: "auto", py: "6rem" }}>
+      <Box sx={{ width: { xs: "90%", md: "80%" }, margin: "auto", py: "6rem" }}>
         <Typography sx={{ textAlign: "center" }} variant="h2" gutterBottom>
           Our Services
         </Typography>
@@ -50,7 +50,6 @@ const OurServices: React.FC<IHeaderProps> = ({id}) => {
               sm={6}
               md={4}
               sx={{ display: "flex", justifyContent: "center" }}
-              spacing={4}
             >
               <Card
                 sx={{

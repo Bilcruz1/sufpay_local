@@ -1,5 +1,6 @@
 
 import { Link } from '@mui/material';
+import { StatusCode } from './enums';
 
 
 export interface IPasswordChkProps {
@@ -35,4 +36,21 @@ export interface IContatctUsForm{
   name: string;
   email: string;
   message: string;
+}
+
+export interface IResponse {
+  error: string[] | null;
+  data: IBasicApiResponse | IApiResponse;
+}
+
+export interface IBasicApiResponse {
+  succeeded: boolean;
+  message: string;
+  errors: string[];
+  statusCode: StatusCode;
+  data?: {} | [] | null | boolean;
+}
+
+export interface IApiResponse extends IBasicApiResponse {
+  data: {} | [] | null | any;
 }

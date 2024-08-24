@@ -1,4 +1,12 @@
-import { Box, Button, Divider, Link, Stack, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Divider,
+  Link,
+  Stack,
+  Typography,
+  InputLabel,
+} from "@mui/material";
 import React, { useState } from "react";
 import {
   InputFeild,
@@ -6,12 +14,16 @@ import {
   PasswordInputFeild,
   PhoneNumberField,
 } from "../components";
-import {
-  InputLabel,
-} from "@mui/material";
 // import CountryCodePhoneNumberField from "./CountryCodePhoneNumberField";
-import googleImg from '../assets/img/google_img.svg'
-import { IPasswordChkProps } from "../utils/interfaces";
+import googleImg from "../assets/img/google_img.svg";
+import { IPasswordChkProps, IResponse } from "../utils/interfaces";
+import {
+  register,
+  verifyEmailUniqueness,
+  verifyPhoneNumberUniqueness
+} from "../Apis/onBoardingApi";
+import { signupFormDataSchema } from "./schema";
+import  {useNavigate} from 'react-router-dom'
 
 interface IForm {
   firstName: string;
@@ -19,6 +31,7 @@ interface IForm {
   countryCode: string;
   phoneNumber: string;
   password: string;
+  email: string
 }
 
 const SignupForm = () => {
@@ -26,10 +39,12 @@ const SignupForm = () => {
   const [formData, setFormData] = useState<IForm>({
     firstName: "",
     lastName: "",
-    countryCode: "+1",
+    countryCode: "+234",
     phoneNumber: "",
     password: "",
-  })
+    email: ""
+  });
+  const navigate = useNavigate()
 
   const [formErrors, setFormErrors] = useState<IForm>({
     firstName: "",
@@ -37,7 +52,8 @@ const SignupForm = () => {
     countryCode: "",
     phoneNumber: "",
     password: "",
-  })
+    email: ""
+  });
 
   const [passwordChecks, setPasswordChecks] = useState<IPasswordChkProps>({
     charCountChk: false,
@@ -45,21 +61,90 @@ const SignupForm = () => {
     upperCaseChk: false,
     specialCaseChk: false,
     OneNumberChk: false,
-  })
-
-  // const handleCountryCodeChange = (e: React.ChangeEvent) => {
-  //   // setFormData((prev) => ({
-  //   //   ...prev,
-  //   //   countryCode: e.target.value as string,
-  //   // }));
-  // };
+  });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const submitForm = () => {};
+  const handleBlur = async (e: string) => {
+
+    if (e === "email" && formData.email.length >= 3) {
+        setFormErrors((prev) => ({ ...prev, email: "" }))
+        const result: IResponse = await verifyEmailUniqueness(
+          { email: formData.email }
+        );
+        if (result.data?.data === false) {
+          setFormErrors((prev) => ({ ...prev, email: "Email already exists" }));
+        }
+      }
+    if (e === "phoneNumber" && formData.phoneNumber.length >= 3) {
+      setFormErrors((prev) => ({ ...prev, phoneNumber: "" }))
+        
+        const result: IResponse =
+          await verifyPhoneNumberUniqueness({ phoneNumber: formData.phoneNumber });
+        if (result.data?.data === false) {
+          setFormErrors((prev) => ({
+            ...prev,
+            phoneNumber: "Phone number already exists",
+          }));
+        }
+      }
+
+  };
+
+
+  // form submission
+  const submitForm = async () => {
+    setBtnDisabled(prev => true)
+    setFormErrors(prev => ({
+      firstName: "",
+      lastName: "",
+      countryCode: "",
+      phoneNumber: "",
+      password: "",
+      email: ""
+    }))
+
+    const validationResult = signupFormDataSchema.safeParse(formData)
+
+    if (!validationResult.success) {
+      validationResult.error.errors.forEach((error) => {
+        setFormErrors((prev) => ({ ...prev, [error.path[0]]: error.message }));
+      })
+
+      return 
+    }
+
+
+    try {
+       // api call
+      const response: IResponse = await register({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phoneNumber: formData.countryCode + formData.phoneNumber,
+        password: formData.password,
+      });
+
+      console.log(response);
+
+      if (response?.data?.succeeded === false && response.error !== null) {
+        // alert the user to the fail
+        alert(response.error);
+        setBtnDisabled((prev) => false);
+      }
+
+      navigate(`/verify-account/${response.data.data}`, { replace: true });
+    } catch (err) {
+      console.log(err)
+      alert("An error occurred, _form submission failed");
+    }
+   
+  }
+
+
 
   return (
     <Box
@@ -79,7 +164,7 @@ const SignupForm = () => {
         <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
           <InputFeild
             name={"firstName"}
-            value={formData.firstName}
+            value={formData.firstName || ""}
             handleChange={handleChange}
             label={"First name"}
             error={formErrors.firstName}
@@ -92,12 +177,22 @@ const SignupForm = () => {
             error={formErrors.lastName}
           />
         </Stack>
+        <InputFeild
+          name={"email"}
+          value={formData.email}
+          handleChange={handleChange}
+          label={"Email"}
+          error={formErrors.email}
+          handdleBlur={() =>handleBlur("email")}
+        />
         <PhoneNumberField
           countryCode={formData.countryCode}
           phoneNumber={formData.phoneNumber}
           handleChange={handleChange}
+          name={"phoneNumber"}
           // handleCountryCodeChange={handleCountryCodeChange}
           label={"Phone number"}
+          handdleBlur={() => handleBlur("phoneNumber")}
           error={formErrors.phoneNumber}
         />
         <PasswordInputFeild
@@ -128,41 +223,10 @@ const SignupForm = () => {
           Create an account
         </Button>
         <InputLabel sx={{ textAlign: "center" }}>
-          Already have an ccount? Log in <Link>Login</Link>
+          Already have an ccount? Log in{" "}
+          <Link onClick={() => navigate("/login")}>Login</Link>
         </InputLabel>
 
-        <Box
-          mt={4}
-          display={"flex"}
-          width={"100%"}
-          justifyContent={"sapce-between"}
-          alignItems={"center"}
-          gap={2}
-        >
-          <Box width={"100%"}>
-            <Divider />
-          </Box>
-          <Typography component={"span"}>OR</Typography>
-          <Box width={"100%"}>
-            <Divider />
-          </Box>
-        </Box>
-        <Button
-          sx={{
-            borderRadius: "1rem",
-            marginTop: "2rem",
-            display: "flex",
-            alignItems: "center",
-            gap: ".5rem",
-          }}
-          variant="outlined"
-          onClick={submitForm}
-          size="large"
-          disabled={btnDisabled}
-        >
-          <img src={googleImg} alt="google" />
-          <Typography component={"span"}>Sign up with Google</Typography>
-        </Button>
       </Stack>
     </Box>
   );

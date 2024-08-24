@@ -1,9 +1,17 @@
 import React, { useState, useRef, ChangeEvent, KeyboardEvent } from "react";
 import { Box, Button, Link, TextField, Typography } from "@mui/material";
+import {useParams} from "react-router-dom"
+import { completeVerification } from "../Apis/onBoardingApi";
+import {useNavigate} from "react-router-dom"
+import {IResponse} from '../utils/interfaces'
+import { StatusCode } from "../utils/enums";
 
 const VerifyAccountForm: React.FC = () => {
   const [values, setValues] = useState<string[]>(Array(5).fill(""));
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
+  const [btnIsDiabaled, setBtnIsDiabaled] = useState<boolean>(false)
+  const { userId } = useParams()
+  const navigate = useNavigate()
 
   const handleChange = (
     index: number,
@@ -43,6 +51,40 @@ const VerifyAccountForm: React.FC = () => {
     }
   };
 
+  const handleSubmit = async () => {
+    setBtnIsDiabaled(true)
+    if (values.length < 5)
+      alert("incomplete")
+
+    const response: IResponse = await completeVerification({
+      otp: `${values.join("")}`,
+      userId: `${userId}`,
+    });
+
+    console.log(response)
+
+    if (
+      response.data?.succeeded === false &&
+      response.data?.statusCode == StatusCode.badRequest &&
+      response.error !== null
+    ) {
+      alert("oops something went wrong");
+      setBtnIsDiabaled(false);
+    } else if (response.data?.statusCode == StatusCode.deleted) {
+      alert(response.data?.errors[0]);
+      setBtnIsDiabaled(false);
+    } else if (response.data?.succeeded === true && response.data?.statusCode === StatusCode.ok){
+      navigate("/login");
+    }
+
+    console.log()
+
+  }
+
+  const handleResendOtp = () => {
+
+  }
+
     return (
       <Box>
         <Box
@@ -74,17 +116,18 @@ const VerifyAccountForm: React.FC = () => {
           sx={{
             marginTop: "4rem",
             width: "100%",
-                    background: "#AAC645",
-            borderRadius: '32px'
+            background: "#AAC645",
+            borderRadius: "32px",
           }}
           variant="contained"
+          disabled={btnIsDiabaled}
+          onClick={handleSubmit}
         >
           Verify
         </Button>
-            <Typography mt={4}
-         variant={"caption"} display={"block"}>
-          I didn’t receive a code <Link>Resend</Link>
-            </Typography>
+        <Typography mt={4} variant={"caption"} display={"block"}>
+          I didn’t receive a code <Link onClick={handleResendOtp}>Resend</Link>
+        </Typography>
       </Box>
     );
 };

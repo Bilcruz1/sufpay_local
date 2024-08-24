@@ -1,5 +1,6 @@
 import { Box, Button, Typography, styled } from '@mui/material'
 import banner_img from "../../assets/img/banner_img.png";
+import {useNavigate} from 'react-router-dom'
 
 
 const BannerContainer = styled(Box)`
@@ -12,6 +13,7 @@ const BannerContainer = styled(Box)`
 
 
 const Banner = () => {
+  const navigate = useNavigate();
 
 const styles = {
   headerColor: {
@@ -35,22 +37,30 @@ const styles = {
         </Typography>
       </Box>
       {/* uncommnet when ready */}
-      {/* <Box
+      <Box
         sx={{
           display: "flex",
           gap: "1.25rem",
           justifyContent: "center",
           alignItems: "center",
-          mt: '3.75rem',
+          mt: "3.75rem",
         }}
       >
-        <Button variant="contained" size="large">
+        <Button
+          variant="contained"
+          size="large"
+          onClick={() => navigate("/signup")}
+        >
           Get started
         </Button>
-        <Button variant="outlined" size="large">
+        <Button
+          variant="outlined"
+          size="large"
+          onClick={() => navigate("/login")}
+        >
           Log in
         </Button>
-      </Box> */}
+      </Box>
 
       <Box mt={{ xs: "2rem", md: "6rem" }}>
         <Box
