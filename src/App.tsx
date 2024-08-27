@@ -1,14 +1,28 @@
 import "./App.css";
 import { Route, Routes } from "react-router-dom";
-import { DashboardTemplate, LandingTemplate } from "./components";
+import { DashboardLanding, DashboardTemplate, LandingTemplate } from "./components";
+import DashboardRoutes from "./routes/DashboardRoutes";
+import TransactionsRoutes from "./routes/TransactionsRoutes";
+import LandingRoutes from "./routes/LandingRoutes";
 
 
 function App() {
   return (
     <div className="App">
       <Routes>
-        <Route path={"/*"} element={<LandingTemplate />} />
-        <Route path={"/dashboard/*"} element={<DashboardTemplate />} />
+        <Route path={"/*"} element={<LandingRoutes />} />
+        <Route
+          path={"/dashboard"}
+          element={<DashboardTemplate view={<DashboardLanding />} />}
+        />
+        <Route
+          path={"/transactions/*"}
+          element={<DashboardTemplate view={<TransactionsRoutes />} />}
+        />
+        {/* <Route path="notifications" element={<NotificationsPage />} /> */}
+        {/* <Route path="help" element={<HelpPage />} /> */}
+        {/* <Route path="settings" element={<SettingsPage />} /> */}
+        {/* <Route path="*" element={<NotFoundPage />} /> */}
       </Routes>
     </div>
   );
