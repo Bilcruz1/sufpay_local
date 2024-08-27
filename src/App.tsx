@@ -1,7 +1,7 @@
 import "./App.css";
 import { Route, Routes } from "react-router-dom";
 import { DashboardLanding, DashboardTemplate, LandingTemplate } from "./components";
-import DashboardRoutes from "./routes/DashboardRoutes";
+// import DashboardRoutes from "./routes/DashboardRoutes";
 import TransactionsRoutes from "./routes/TransactionsRoutes";
 import LandingRoutes from "./routes/LandingRoutes";
 

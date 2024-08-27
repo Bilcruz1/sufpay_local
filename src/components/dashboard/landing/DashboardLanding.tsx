@@ -1,5 +1,5 @@
 import React from "react";
-import { Grid, Card, CardContent, Typography, Box, Stack } from "@mui/material";
+import { Grid, Box, Stack } from "@mui/material";
 import {
   DashboardCardsContent,
   transactionsTile,

@@ -1,6 +1,4 @@
 import React from 'react'
-import DashboardRoutes from '../../routes/DashboardRoutes'
-import { DashboardPage } from '../../pages';
 import { Box, Stack } from '@mui/material';
 import DashHeader from '../dashboard/DashHeader';
 import DashSideBar from '../dashboard/DashSideBar';
