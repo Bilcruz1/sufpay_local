@@ -1,7 +1,6 @@
 import {
   Box,
   Button,
-  Divider,
   Link,
   Stack,
   Typography,
@@ -116,7 +115,6 @@ const SignupForm = () => {
 
       return 
     }
-
 
     try {
        // api call
