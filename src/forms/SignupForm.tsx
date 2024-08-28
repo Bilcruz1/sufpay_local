@@ -1,7 +1,6 @@
 import {
   Box,
   Button,
-  Divider,
   Link,
   Stack,
   Typography,
@@ -118,8 +117,6 @@ const SignupForm = () => {
       return 
     }
 
-
-    // api call
     try {
       const response: IResponse = await register({
         firstName: formData.firstName,

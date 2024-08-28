@@ -1,6 +1,6 @@
 import { Box, Stack } from '@mui/material'
 import { DashHeader, DashSideBar } from '../components';
-import DashboardRoutes from '../routes/DashboardRoutes';
+// import DashboardRoutes from '../routes/DashboardRoutes';
 
 
 const DashboardPage = () => {
@@ -18,7 +18,7 @@ const DashboardPage = () => {
         <DashHeader />
 
         <Box padding={2}>
-          <DashboardRoutes />
+          {/* <DashboardRoutes /> */}
         </Box>
       </Box>
     </Stack>

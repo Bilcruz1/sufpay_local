@@ -238,22 +238,22 @@ export const DashboadNav = [
   {
     title: "Transactions",
     icon: dash_2,
-    link: "/dashboard/transactions",
+    link: "/transactions",
   },
   {
     title: "Notification",
     icon: dash_3,
-    link: "/dashboard/notifications",
+    link: "/notifications",
   },
   {
     title: "Help",
     icon: dash_4,
-    link: "/dashboard/help",
+    link: "/help",
   },
   {
     title: "Setting",
     icon: dash_5,
-    link: "/dashboard/settings",
+    link: "/settings",
   },
 ];
 
@@ -262,32 +262,32 @@ export const DashboardCardsContent = [
   {
     title: "Airtime",
     icon: dash_card_1,
-    link: "/dashboard/bills/airtime",
+    link: "/transactions/buy/airtime",
   },
   {
     title: "Data",
     icon: dash_card_2,
-    link: "/dashboard/bills/data",
+    link: "/transactions/buy/data",
   },
   {
     title: "Utility bills",
     icon: dash_card_3,
-    link: "/dashboard/bills/utitlity",
+    link: "/transactions/buy/utitlity",
   },
   {
     title: "Cable and Tv",
     icon: dash_card_4,
-    link: "/dashboard/bills/cable",
+    link: "/transactions/buy/cable",
   },
   {
     title: "Transport",
     icon: dash_card_5,
-    link: "/dashboard/bills/transport",
+    link: "/transactions/buy/transport",
   },
   {
     title: "Events",
     icon: dash_card_6,
-    link: "/dashboard/bills/events",
+    link: "/transactions/events",
   },
 ];
 
