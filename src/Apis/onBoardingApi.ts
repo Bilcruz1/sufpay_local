@@ -8,6 +8,7 @@ import { ISigupForm, IVerifyAccount, IVerifyEmailUniqueness, IVerifyPhoneNumberU
 export const register = async (
   data: ISigupForm
 ): Promise<IResponse> => {
+  // console.log(data)
   try {
     const res = await http.post(
       "/Authentication/register",

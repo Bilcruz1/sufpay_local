@@ -17,6 +17,6 @@ export interface ISigupForm {
 }
 
 export interface IVerifyAccount {
-  otp: string,
-  userId: string
+  otp: string;
+  otpToken: string;
 }

@@ -21,7 +21,7 @@ const LandingRoutes = () => {
       <Route path={"signup"} element={<SignUpPage />} />
       <Route path={"forget-password-page"} element={<ForgetPasswordPage />} />
       <Route path={"change-password"} element={<CreateNewPasswordPage />} />
-      <Route path={"verify-account/:userId"} element={<VerifyAccountPage />} />
+      <Route path={"verify-account/:token"} element={<VerifyAccountPage />} />
       <Route path={"password-verification"} element={<ResetPaswordPage />} />
     </Routes>
   );

@@ -5,13 +5,26 @@ import { completeVerification } from "../Apis/onBoardingApi";
 import {useNavigate} from "react-router-dom"
 import {IResponse} from '../utils/interfaces'
 import { StatusCode } from "../utils/enums";
+// import { decryptData } from "../utils/aesEncryption";
 
 const VerifyAccountForm: React.FC = () => {
   const [values, setValues] = useState<string[]>(Array(5).fill(""));
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
   const [btnIsDiabaled, setBtnIsDiabaled] = useState<boolean>(false)
-  const { userId } = useParams()
+  const { token } = useParams()
   const navigate = useNavigate()
+
+console.log(process.env.REACT_APP_AES_Key);
+if (process.env.REACT_APP_AES_Key) {
+  console.log("AES Key is loaded:", process.env.REACT_APP_AES_Key);
+} else {
+  console.log(
+    "AES Key is not defined. Check your .env file and restart the server."
+  );
+}
+
+
+  // console.log(decryptData(`${token}`));
 
   const handleChange = (
     index: number,
@@ -58,14 +71,14 @@ const VerifyAccountForm: React.FC = () => {
 
     const response: IResponse = await completeVerification({
       otp: `${values.join("")}`,
-      userId: `${userId}`,
+      otpToken: `${token}`,
     });
 
     console.log(response)
 
     if (
       response.data?.succeeded === false &&
-      response.data?.statusCode == StatusCode.badRequest &&
+      response.data?.statusCode === StatusCode.badRequest &&
       response.error !== null
     ) {
       alert("oops something went wrong");

@@ -1,127 +1,37 @@
 // import CryptoJS from "crypto-js";
 
+// // Key and IV from environment variables
+// const key = CryptoJS.enc.Hex.parse() //CryptoJS.enc.Hex.parse(process.env.REACT_AES_Key);
+// const iv = CryptoJS.enc.Base64.parse()//CryptoJS.enc.Hex.parse(process.env.REACT_AES_IV)
 
-// // export const encryptData = (
-// //   data: {} | string,
-// //   secretKey: string = process.env.REACT_APP_AES_KEY
-// // ) => {
-// //   const ciphertext = CryptoJS.AES.encrypt(
-// //     JSON.stringify(data),
-// //     secretKey
-// //   ).toString();
-// //   return ciphertext;
-// // };
+// console.log(key)
+// // console.log(process.env.REACT_APP_AES_IV)
 
-// // export const decryptData = (
-// //   ciphertext: string,
-// //   secretKey: string = process.env.REACT_APP_AES_KEY
-// // ) => {
-// //   const bytes = CryptoJS.AES.decrypt(ciphertext, secretKey);
-// //   const decryptedText = bytes.toString(CryptoJS.enc.Utf8);
-// //   return JSON.parse(decryptedText);
-// // };
+// // Encrypt Data
+// export const encryptData = (data: {} | string) => {
+//   // Encrypt data
+//   const encrypted = CryptoJS.AES.encrypt(JSON.stringify(data), key, {
+//     iv: iv,
+//   }).toString();
 
-// export const encryptData = (
-//   data: {} | string,
-//   secretKey: string = process.env.REACT_APP_AES_KEY || ""
-// ) => {
-//   if (!secretKey) {
-//     throw new Error(
-//       "Encryption key is missing. Ensure REACT_APP_AES_KEY is set."
-//     );
-//   }
-//   const ciphertext = CryptoJS.AES.encrypt(
-//     JSON.stringify(data),
-//     secretKey
-//   ).toString();
-//   return ciphertext;
+//   return encrypted;
 // };
 
-// export const decryptData = (
-//   ciphertext: string,
-//   secretKey: string = process.env.REACT_APP_AES_KEY || ""
-// ) => {
-//   if (!secretKey) {
-//     throw new Error(
-//       "Decryption key is missing. Ensure REACT_APP_AES_KEY is set."
-//     );
-//   }
-//   const bytes = CryptoJS.AES.decrypt(ciphertext, secretKey);
-//   const decryptedText = bytes.toString(CryptoJS.enc.Utf8);
-//   return JSON.parse(decryptedText);
+// // Decrypt Data
+// export const decryptData = (ciphertext: string) => {
+//   // Decrypt data
+//   const decrypted = CryptoJS.AES.decrypt(ciphertext, key, {
+//     iv: iv,
+//   }).toString(CryptoJS.enc.Utf8);
+
+//   return JSON.parse(decrypted);
 // };
 
-import CryptoJS from "crypto-js";
+// // // Usage
+// // const encryptedData = encryptData(myData);
+// // console.log("Encrypted Data:", encryptedData);
 
-// Function to derive a key using PBKDF2 (similar to Rfc2898DeriveBytes)
-const deriveKey = (
-  passphrase: string,
-  salt: string,
-  iterations: number,
-  keySize: number
-) => {
-  return CryptoJS.PBKDF2(passphrase, CryptoJS.enc.Utf8.parse(salt), {
-    keySize: keySize / 32,
-    iterations: iterations,
-  });
-};
+// // const decryptedData = decryptData(encryptedData);
+// // console.log("Decrypted Data:", decryptedData);
 
-// Encrypt Data
-export const encryptData = (
-  data: {} | string,
-  passphrase: string,
-  saltValue: string,
-  initVector: string,
-  iterations: number,
-  keySize: number
-) => {
-  // Derive key
-  const key = deriveKey(passphrase, saltValue, iterations, keySize);
-
-  // Encrypt data
-  const encrypted = CryptoJS.AES.encrypt(JSON.stringify(data), key, {
-    iv: CryptoJS.enc.Utf8.parse(initVector),
-  }).toString();
-
-  return encrypted;
-};
-
-// Decrypt Data
-export const decryptData = (
-  ciphertext: string,
-  passphrase: string,
-  saltValue: string,
-  initVector: string,
-  iterations: number,
-  keySize: number
-) => {
-  // Derive key
-  const key = deriveKey(passphrase, saltValue, iterations, keySize);
-
-  // Decrypt data
-  const decrypted = CryptoJS.AES.decrypt(ciphertext, key, {
-    iv: CryptoJS.enc.Utf8.parse(initVector),
-  }).toString(CryptoJS.enc.Utf8);
-
-  return JSON.parse(decrypted);
-};
-
-
-// const encryptedData = encryptData(
-//   myData,
-//   process.env.REACT_APP_PASSPHRASE,
-//   process.env.REACT_APP_SALT_VALUE,
-//   process.env.REACT_APP_INIT_VECTOR,
-//   parseInt(process.env.REACT_APP_PASSWORD_ITERATIONS),
-//   parseInt(process.env.REACT_APP_BLOCKSIZE)
-// );
-
-// const decryptedData = decryptData(
-//   encryptedData,
-//   process.env.REACT_APP_PASSPHRASE,
-//   process.env.REACT_APP_SALT_VALUE,
-//   process.env.REACT_APP_INIT_VECTOR,
-//   parseInt(process.env.REACT_APP_PASSWORD_ITERATIONS),
-//   parseInt(process.env.REACT_APP_BLOCKSIZE)
-// );
-
+export const decryptData = ""
