@@ -2,18 +2,20 @@ import { Box, Button, Link, Typography } from "@mui/material";
 import React, { useState } from "react";
 import { InputFeild } from "../components";
 import { emailSchema } from "./schema";
+import { useNavigate } from "react-router-dom";
+import { forgotPassword } from "../Apis/onBoardingApi";
 
 const ForgetPasswordForm = () => {
   const [email, setEmail] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [btnDisabled, setBtnDisabled] = useState<boolean>(false);
-
+  const navigate = useNavigate()
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
     setEmail((prev) => value);
   }
 
-  function submitForm() {
+  const submitForm = async () => {
     //form submition
     setBtnDisabled(true);
     setError(prev => "")
@@ -24,6 +26,14 @@ const ForgetPasswordForm = () => {
         setError(el.message);
       });
       setBtnDisabled(false);
+    }
+
+    try {
+      const response = await forgotPassword({ email: email })
+      console.log(response);
+      setBtnDisabled(true);
+    } catch (err) {
+      setBtnDisabled(true);
     }
   }
 
@@ -51,7 +61,7 @@ const ForgetPasswordForm = () => {
         Send code
       </Button>
       <Typography textAlign={"center"} mt={4} variant="caption" display="block">
-        Remember password? <Link>Log in</Link>
+        Remember password? <Link onClick={() => navigate("/login", {replace: true})}>Log in</Link>
       </Typography>
     </Box>
   );

@@ -1,37 +1,57 @@
-// import CryptoJS from "crypto-js";
+import CryptoJS from "crypto-js";
 
-// // Key and IV from environment variables
-// const key = CryptoJS.enc.Hex.parse() //CryptoJS.enc.Hex.parse(process.env.REACT_AES_Key);
-// const iv = CryptoJS.enc.Base64.parse()//CryptoJS.enc.Hex.parse(process.env.REACT_AES_IV)
+// Ensure the environment variables are defined and fallback to an empty string if not
+const aesKey = process.env.REACT_APP_AES_Key;
+const aesIv = process.env.REACT_APP_AES_IV;
 
-// console.log(key)
-// // console.log(process.env.REACT_APP_AES_IV)
+if (!aesKey || !aesIv) {
+  throw new Error("AES Key or IV is not defined in the environment variables.");
+}
 
-// // Encrypt Data
-// export const encryptData = (data: {} | string) => {
-//   // Encrypt data
-//   const encrypted = CryptoJS.AES.encrypt(JSON.stringify(data), key, {
-//     iv: iv,
-//   }).toString();
+const key = CryptoJS.enc.Base64.parse(aesKey); // Use Base64 parse since your key and IV are in Base64 format
+const iv = CryptoJS.enc.Base64.parse(aesIv);
 
-//   return encrypted;
-// };
+export const encryptData = (data: {} | string) => {
+  // Encrypt data
+  const encrypted = CryptoJS.AES.encrypt(JSON.stringify(data), key, {
+    iv: iv,
+  }).toString();
 
-// // Decrypt Data
-// export const decryptData = (ciphertext: string) => {
-//   // Decrypt data
-//   const decrypted = CryptoJS.AES.decrypt(ciphertext, key, {
-//     iv: iv,
-//   }).toString(CryptoJS.enc.Utf8);
+  return encrypted;
+};
 
-//   return JSON.parse(decrypted);
-// };
+export const decryptData = (ciphertext: string) => {
+  try {
+    // Decrypt data
+    const decrypted = CryptoJS.AES.decrypt(ciphertext, key, {
+      iv: iv,
+    }).toString(CryptoJS.enc.Utf8);
 
-// // // Usage
-// // const encryptedData = encryptData(myData);
-// // console.log("Encrypted Data:", encryptedData);
+    if (!decrypted) {
+      throw new Error("Decryption failed or produced an empty result.");
+    }
 
-// // const decryptedData = decryptData(encryptedData);
-// // console.log("Decrypted Data:", decryptedData);
+    // Parse JSON only if decryption was successful
+    return JSON.parse(decrypted);
+  } catch (error) {
+    console.error("Error during decryption:", error);
+    return null; // or handle the error as needed
+  }
+};
 
-export const decryptData = ""
+
+// export function toUrlSafeBase64(base64String: string) {
+//   return base64String
+//     .replace(/\+/g, "-")
+//     .replace(/\//g, "_")
+//     .replace(/=+$/, "");
+// }
+
+// export function fromUrlSafeBase64(urlSafeBase64: string) {
+//   let base64String = urlSafeBase64.replace(/-/g, "+").replace(/_/g, "/");
+//   const padLength = base64String.length % 4;
+//   if (padLength > 0) {
+//     base64String += "=".repeat(4 - padLength);
+//   }
+//   return base64String;
+// }

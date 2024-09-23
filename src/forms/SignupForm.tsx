@@ -141,7 +141,9 @@ const SignupForm = () => {
         setBtnDisabled((prev) => false)
       }
 
-      navigate(`/verify-account/${response.data.data}`, { replace: true });
+      navigate(`/verify-account/${response.data.data}`, {
+        replace: true,
+      });
       setBtnDisabled((prev) => false);
 
     } catch (err) {

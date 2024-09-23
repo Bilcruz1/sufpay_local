@@ -9,6 +9,7 @@ const API = axios.create({
     "Content-Type": "application/json",
     "X-Auth-Signature": `something random`,
   },
+  withCredentials: true,
 });
 
 API.interceptors.response.use(

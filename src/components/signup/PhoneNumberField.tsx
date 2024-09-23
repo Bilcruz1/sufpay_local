@@ -3,12 +3,13 @@ import { Box, FormControl, InputAdornment, InputLabel, MenuItem, Select, TextFie
 interface ICountryCodeProps {
   countryCode: string;
   phoneNumber: string;
-  name: string
+  name: string;
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   //   handleCountryCodeChange: (e: React.ChangeEvent) => void;
   label: string;
   error?: string;
   handdleBlur?: (e: string) => void;
+  size?: "small" | "medium" | undefined;
 }
 
 const PhoneNumberField: React.FC<ICountryCodeProps> = ({
@@ -20,6 +21,7 @@ const PhoneNumberField: React.FC<ICountryCodeProps> = ({
   label,
   error,
   handdleBlur,
+  size = undefined
 }) => {
   return (
     <Box
@@ -28,14 +30,17 @@ const PhoneNumberField: React.FC<ICountryCodeProps> = ({
       width={"100%"}
       gap={1}
       textAlign={"left"}
+      // marginLeft={-1}
     >
-      <InputLabel htmlFor="phoneNumber">{label}</InputLabel>
+      <InputLabel sx={{marginLeft: 1}} htmlFor="phoneNumber">{label}</InputLabel>
       <TextField
+        // sx={{width: "100%"}}
         id="phoneNumber"
         variant="outlined"
         onChange={handleChange}
         name="phoneNumber"
         value={phoneNumber}
+        size={size}
         error={!!error}
         helperText={error}
         onBlur={() => handdleBlur?.(name)}
@@ -66,7 +71,7 @@ const PhoneNumberField: React.FC<ICountryCodeProps> = ({
             </InputAdornment>
           ),
         }}
-        sx={{ flex: 1, ml: 1 }}
+        sx={{ flex: 1 }}
       />
     </Box>
   );

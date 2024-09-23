@@ -2,7 +2,7 @@ import {
   IResponse,
 } from "../utils/interfaces";
 import http, { handleApiError } from "./httpService";
-import { ISigupForm, IVerifyAccount, IVerifyEmailUniqueness, IVerifyPhoneNumberUniqueness } from "./requestInterface";
+import { ILogin, IResendOtp, ISigupForm, IVerifyAccount, IVerifyEmailUniqueness, IVerifyPhoneNumberUniqueness } from "./requestInterface";
 
 
 export const register = async (
@@ -72,23 +72,32 @@ export const completeVerification = async (
   }
 };
 
-// export const resendOtp = async (data: string): Promise<IResponse> => {
-//   try {
-//     const res = await http.post("/authentication/resend-otp", data);
-//     return { error: null, data: res.data };
-//   } catch (err) {
-//     return handleApiError(err);
-//   }
-// };
+export const resendOtp = async (data: IResendOtp): Promise<IResponse> => {
+  try {
+    const res = await http.post("/authentication/resend-otp", data);
+    return { error: null, data: res.data };
+  } catch (err) {
+    return handleApiError(err);
+  }
+}
 
-// export const loginUser = async (data: any): Promise<IResponse> => {
-//   try {
-//     const res = await http.post("/Authentication/login", data);
-//     return { error: null, data: res.data };
-//   } catch (err) {
-//     return handleApiError(err);
-//   }
-// };
+export const loginUser = async (data: ILogin): Promise<IResponse> => {
+  try {
+    const res = await http.post("/Authentication/login", data);
+    return { error: null, data: res.data };
+  } catch (err) {
+    return handleApiError(err);
+  }
+}
+
+export const forgotPassword = async (data: {email: string}): Promise<IResponse> => {
+  try {
+    const res = await http.post("/authentication/forgot-password", data);
+    return { error: null, data: res.data };
+  } catch (err) {
+    return handleApiError(err);
+  }
+};
 
 // export const logoutUser = async (data: any): Promise<IResponse> => {
 //   try {
@@ -108,14 +117,7 @@ export const completeVerification = async (
 // //   }
 // // };
 
-// export const forgotPassword = async (data: any): Promise<IResponse> => {
-//   try {
-//     const res = await http.post("/authentication/forgot-password", data);
-//     return { error: null, data: res.data };
-//   } catch (err) {
-//     return handleApiError(err);
-//   }
-// };
+
 
 // export const twofactorAuth = async (data: string): Promise<IResponse> => {
 //   try {
