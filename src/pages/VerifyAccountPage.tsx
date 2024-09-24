@@ -32,11 +32,10 @@ const VerifyAccountPage = () => {
           mb={4}
           mt={4}
         >
-          Verify your phone number
+          Verify your acoount
         </Typography>
         <Typography variant={"body1"}>
-          We’ve sent an SMS with an activation code to your phone +234 9012
-          34563
+          We’ve sent an email with an activation code to your email.
         </Typography>
         <Box mt={4}>
           <VerifyAccountForm />

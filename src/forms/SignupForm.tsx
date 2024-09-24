@@ -23,6 +23,7 @@ import {
 } from "../Apis/onBoardingApi";
 import { signupFormDataSchema } from "./schema";
 import  {useNavigate} from 'react-router-dom'
+import { StatusCode } from "../utils/enums";
 
 interface IForm {
   firstName: string;
@@ -117,7 +118,6 @@ const SignupForm = () => {
     }
 
     try {
-       // api call
       const response: IResponse = await register({
         firstName: formData.firstName,
         lastName: formData.lastName,
@@ -128,13 +128,24 @@ const SignupForm = () => {
 
       console.log(response);
 
-      if (response?.data?.succeeded === false && response.error !== null) {
+      if (response.data?.statusCode === StatusCode.duplicateRequest
+      ) {
         // alert the user to the fail
-        alert(response.error);
-        setBtnDisabled((prev) => false);
+        alert("email or phone number has already been used");
+        setBtnDisabled((prev) => false)
+      } else if (response.data?.statusCode === StatusCode.badRequest) { 
+        alert("failed to register user")
+        setBtnDisabled((prev) => false)
+      } else if (response.data?.statusCode === StatusCode.internalServerError) {
+        alert("server error")
+        setBtnDisabled((prev) => false)
       }
 
-      navigate(`/verify-account/${response.data.data}`, { replace: true });
+      navigate(`/verify-account/${response.data.data}`, {
+        replace: true,
+      });
+      setBtnDisabled((prev) => false);
+
     } catch (err) {
       console.log(err)
       alert("An error occurred, _form submission failed");
@@ -181,7 +192,7 @@ const SignupForm = () => {
           handleChange={handleChange}
           label={"Email"}
           error={formErrors.email}
-          handdleBlur={() =>handleBlur("email")}
+          handdleBlur={() => handleBlur("email")}
         />
         <PhoneNumberField
           countryCode={formData.countryCode}
@@ -217,6 +228,7 @@ const SignupForm = () => {
           variant="contained"
           onClick={submitForm}
           size={"large"}
+          disabled={btnDisabled}
         >
           Create an account
         </Button>
@@ -224,7 +236,6 @@ const SignupForm = () => {
           Already have an ccount? Log in{" "}
           <Link onClick={() => navigate("/login")}>Login</Link>
         </InputLabel>
-
       </Stack>
     </Box>
   );

@@ -11,6 +11,9 @@ import React, { useState } from "react";
 import googleImg from "../assets/img/google_img.svg";
 import { InputFeild, PasswordInputFeild } from "../components";
 import { formDataSchema } from './schema'
+import { IResponse } from "../utils/interfaces";
+import { loginUser } from "../Apis/onBoardingApi";
+import { useNavigate } from "react-router-dom";
 
 interface IFormData {
   credentials: string;
@@ -29,11 +32,13 @@ const LoginForm: React.FC = () => {
     password: "",
   });
 
+  const navigate = useNavigate()
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
 
-  const submitForm = () => {
+  const submitForm = async() => {
     setBtnDisabled(true)
     setErrors(prev => ({
       credentials: "",
@@ -52,6 +57,17 @@ const LoginForm: React.FC = () => {
     }
 
     // api calls
+    try {
+      const response: IResponse = await loginUser({
+        emailAddress: formData.credentials,
+        password: formData.password,
+      });
+
+      console.log(response)
+
+    } catch (err) {
+      console.log(err)
+    }
   };
 
   return (
@@ -84,7 +100,9 @@ const LoginForm: React.FC = () => {
           />
 
           <Box textAlign={"end"} mt={-1}>
-            <Link>Forget your password?</Link>
+            <Link onClick={() => navigate("/forget-password")}>
+              Forget your password?
+            </Link>
           </Box>
         </Stack>
 
@@ -102,7 +120,8 @@ const LoginForm: React.FC = () => {
             Sign in
           </Button>
           <InputLabel sx={{ textAlign: "center" }}>
-            Don't have an account? <Link>Sign up</Link>
+            Don't have an account?{" "}
+            <Link onClick={() => navigate("/signup")}>Sign up</Link>
           </InputLabel>
 
           <Box

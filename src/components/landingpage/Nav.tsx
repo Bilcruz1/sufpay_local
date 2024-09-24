@@ -136,7 +136,7 @@ const Nav = () => {
           </Box>
 
           {/* sm menu */}
-          <Box>
+          <Box sx={{ display: {xs: 'inline-block', md: 'none'} }}>
             <IconButton
               size="large"
               edge="start"

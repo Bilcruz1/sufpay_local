@@ -9,6 +9,7 @@ const API = axios.create({
     "Content-Type": "application/json",
     "X-Auth-Signature": `something random`,
   },
+  withCredentials: true,
 });
 
 API.interceptors.response.use(
@@ -19,7 +20,7 @@ API.interceptors.response.use(
       error.response.status >= 400 &&
       error.response.status < 500;
     if (!expectedError) {
-      alert("An unexpected error occurred.");
+      alert("An unexpected error occurred from response.");
     }
     return Promise.reject(error);
   }

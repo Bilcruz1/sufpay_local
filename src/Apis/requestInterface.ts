@@ -17,6 +17,15 @@ export interface ISigupForm {
 }
 
 export interface IVerifyAccount {
-  otp: string,
-  userId: string
+  otp: string;
+  otpToken: string;
+}
+
+export interface IResendOtp {
+  token: string
+}
+
+export interface ILogin {
+  emailAddress: string,
+  password: string
 }
