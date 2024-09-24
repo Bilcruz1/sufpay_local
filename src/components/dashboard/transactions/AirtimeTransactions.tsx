@@ -8,6 +8,7 @@ const AirtimeTransactions = () => {
       <Box
         sx={{
           width: { xs: "100%", sm: "50%", md: "35%" },
+          backgroundColor: {xs: "blue", sm: "pink"}
         }}
       >
         <Typography variant="h5">Airtime</Typography>
