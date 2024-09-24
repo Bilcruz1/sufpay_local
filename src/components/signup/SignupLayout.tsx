@@ -1,7 +1,7 @@
 import { Box, Stack, Typography } from "@mui/material";
 import React, { ReactNode } from "react";
 import Rhs from "./Rhs";
-import logo from '../../assets/img/logo.svg'
+import logo from "../../assets/img/sufpay_logo_black.svg";
 
 interface IProps {
   component: ReactNode;
@@ -29,7 +29,15 @@ const SignUpLayout: React.FC<IProps> = ({ header, component }) => {
         >
           <Box width={{ xs: "90%", md: "60%" }} mb={4}>
             <>
-              <img src={logo} alt={"logo"} />
+              
+              <Box sx={{textAlign: 'center', width: "100%"}}>
+                <Box
+                  component={"img"}
+                  src={logo}
+                  alt={"sufpay logo"}
+                  sx={{alignSelf: "center"}}
+                />
+              </Box>
 
               <Typography
                 variant={"h3"}
