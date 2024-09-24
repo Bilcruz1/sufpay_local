@@ -99,7 +99,7 @@ const VerifyAccountForm: React.FC = () => {
         response.data?.data === true
       ) {
         navigate("/login", { replace: true });
-        setBtnIsDiabaled;
+        setBtnIsDiabaled(false);
       }
 
       alert("error");
