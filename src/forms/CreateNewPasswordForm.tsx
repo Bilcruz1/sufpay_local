@@ -38,13 +38,7 @@ const CreateNewPasswordForm: FC = () => {
       confirmPassword: "",
     }); 
     
-    const [passwordChecks, setPasswordChecks] = useState<IPasswordChkProps>({
-        charCountChk: false,
-        lowerCaseChk: false,
-        upperCaseChk: false,
-        specialCaseChk: false,
-        OneNumberChk: false,
-    })
+  
 
   const [validations, setValidations] = useState({
     hasMinLength: false,
@@ -113,7 +107,7 @@ const CreateNewPasswordForm: FC = () => {
             textAlign={"left"}
             color={"#666666"}
           >
-            <PasswordChks {...passwordChecks} />
+            <PasswordChks password={formData.password} />
           </Box>
 
           <Button

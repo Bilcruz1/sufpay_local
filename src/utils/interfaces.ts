@@ -3,13 +3,13 @@ import { Link } from '@mui/material';
 import { StatusCode } from './enums';
 
 
-export interface IPasswordChkProps {
-  charCountChk: boolean;
-  lowerCaseChk: boolean;
-  upperCaseChk: boolean;
-  specialCaseChk: boolean;
-  OneNumberChk: boolean;
-}
+// export interface IPasswordChkProps {
+//   charCountChk: boolean;
+//   lowerCaseChk: boolean;
+//   upperCaseChk: boolean;
+//   specialCaseChk: boolean;
+//   OneNumberChk: boolean;
+// }
 
 export interface ISocials {
   title: string;

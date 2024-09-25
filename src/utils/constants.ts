@@ -37,13 +37,29 @@ import dash_card_3 from "../assets/icons/dash_card_3.svg"
 import dash_card_4 from "../assets/icons/dash_card_4.svg"
 import dash_card_5 from "../assets/icons/dash_card_5.svg"
 import dash_card_6 from "../assets/icons/dash_card_6.svg";
+import { PasswordChkProperties } from "./enums";
 
-export const passwordChecks: string[] = [
-  "Use 8 or more characters",
-  "One Uppercase character",
-  "One lowercase character",
-  "One special character",
-  "One number",
+export const passwordChecks: {
+  value: string;
+  enumValue: PasswordChkProperties;
+}[] = [
+  {
+    value: "Use 8 or more characters",
+    enumValue: PasswordChkProperties.PasswordCount,
+  },
+  {
+    value: "One Uppercase character",
+    enumValue: PasswordChkProperties.upperCaseChk,
+  },
+  {
+    value: "One lowercase character",
+    enumValue: PasswordChkProperties.lowerCaseChk,
+  },
+  {
+    value: "One special character",
+    enumValue: PasswordChkProperties.specialCharChk,
+  },
+  { value: "One number", enumValue: PasswordChkProperties.OneNumberChk },
 ];
 
 

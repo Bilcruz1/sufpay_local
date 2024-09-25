@@ -9,13 +9,13 @@ import {
 import React, { useState } from "react";
 import {
   InputFeild,
-  PasswordChks,
+  // PasswordChks,
   PasswordInputFeild,
   PhoneNumberField,
 } from "../components";
 // import CountryCodePhoneNumberField from "./CountryCodePhoneNumberField";
 import googleImg from "../assets/img/google_img.svg";
-import { IPasswordChkProps, IResponse } from "../utils/interfaces";
+import { IResponse } from "../utils/interfaces";
 import {
   register,
   verifyEmailUniqueness,
@@ -24,6 +24,7 @@ import {
 import { signupFormDataSchema } from "./schema";
 import  {useNavigate} from 'react-router-dom'
 import { StatusCode } from "../utils/enums";
+import PasswordChks from "../components/signup/PasswordChks";
 
 interface IForm {
   firstName: string;
@@ -55,13 +56,13 @@ const SignupForm = () => {
     email: ""
   });
 
-  const [passwordChecks, setPasswordChecks] = useState<IPasswordChkProps>({
-    charCountChk: false,
-    lowerCaseChk: false,
-    upperCaseChk: false,
-    specialCaseChk: false,
-    OneNumberChk: false,
-  });
+  // const [passwordChecks, setPasswordChecks] = useState<IPasswordChkProps>({
+  //   charCountChk: false,
+  //   lowerCaseChk: false,
+  //   upperCaseChk: false,
+  //   specialCaseChk: false,
+  //   OneNumberChk: false,
+  // });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -211,7 +212,7 @@ const SignupForm = () => {
           label={"Password"}
           error={formErrors.password}
         />
-        <PasswordChks {...passwordChecks} />
+        <PasswordChks password={formData.password} />
       </Box>
 
       <Stack direction={"column"} gap={2} mt={4}>
