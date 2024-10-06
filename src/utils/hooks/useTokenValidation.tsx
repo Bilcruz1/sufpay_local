@@ -1,0 +1,104 @@
+import React from 'react'
+import { StatusCode } from '../enums';
+import { useNavigate } from 'react-router-dom';
+import { IResponse } from '../interfaces';
+import { resendOtp, validateToken } from '../../Apis/onBoardingApi';
+
+const useTokenValidation = () => {
+
+    const navigate = useNavigate()
+
+ async function handleTokenValidation(
+   token: string,
+   setShowLoadingPage: (value: boolean) => void
+ ): Promise<IResponse> {
+   try {
+     const response: IResponse = await validateToken({ token: `${token}` });
+     console.log(response);
+     if (
+       response.data?.succeeded === true &&
+       response.data?.statusCode === StatusCode.notFound &&
+       response.data.data === false
+     ) {
+       alert("Token is invalid");
+       navigate("/signup", { replace: true });
+     } else if (
+       response.data?.succeeded === true &&
+       response.data?.statusCode === StatusCode.deleted &&
+       response.data?.data === false
+     ) {
+       alert("Token is used");
+       navigate("/login", { replace: true });
+     } else if (
+       response.data?.succeeded === true &&
+       response.data?.statusCode === StatusCode.badRequest &&
+       response.data?.data === false
+     ) {
+       alert("Token timed out");
+       navigate(`/resend-otp/${token}`);
+     } else if (
+       response.data?.succeeded === true &&
+       response.data?.statusCode === StatusCode.ok &&
+       response.data.data === true
+     ) {
+       setShowLoadingPage(false);
+     }
+
+     return response;
+   } catch (err) {
+     alert("Something went wrong");
+     console.log(err);
+     return {
+       error: null,
+       data: {
+         succeeded: false,
+         message: "Failed",
+         errors: [],
+         statusCode: StatusCode.internalServerError,
+         data: null,
+       },
+     };
+   }
+  }
+  
+   const handleResendOtp = async (token: string) => {
+     try {
+       const response: IResponse = await resendOtp({ token: `${token}` });
+       console.log(response);
+
+       if (
+         response.data?.succeeded === true &&
+         response.data?.statusCode === StatusCode.notFound
+       ) {
+         alert("Bad request");
+         navigate("/signup");
+       } else if (
+         response.data?.succeeded == true &&
+         response.data?.statusCode === StatusCode.duplicateRequest
+       ) {
+         alert("User already confirmed");
+         navigate("/login");
+       } else if (
+         response.data?.succeeded == true &&
+         response.data?.statusCode === StatusCode.deleted
+       ) {
+         alert("Otp Resend failed");
+       } else if (
+         response.data?.succeeded == true &&
+         response.data?.statusCode === StatusCode.ok
+       ) {
+         navigate(`/verify-account/${response.data.data}`, {
+           replace: true,
+         });
+       }
+       alert("Server error");
+     } catch (err) {
+       alert("Something went wrong");
+       console.log(err);
+     }
+   };
+
+  return { handleTokenValidation, handleResendOtp };
+}
+
+export default useTokenValidation

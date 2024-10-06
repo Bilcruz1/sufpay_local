@@ -2,6 +2,8 @@ import { Box, Button, Stack } from "@mui/material";
 import React, { FC, useState } from "react";
 import { PasswordChks, PasswordInputFeild } from "../components";
 import { passwordChangeSchema } from "./schema";
+import { changePassword } from "../Apis/onBoardingApi";
+import { useParams } from "react-router-dom";
 
 interface IFormData {
   password: string;
@@ -12,7 +14,6 @@ interface IShowPassword {
   password: boolean;
   confirmPassword: boolean;
 }
-
 
 export interface IPasswordChkProps {
   charCountChk: boolean;
@@ -27,18 +28,18 @@ const CreateNewPasswordForm: FC = () => {
     password: false,
     confirmPassword: false,
   });
-    const [btnIsClicked, setBtnIsClicked] = useState<boolean>(false)
+  const [btnIsClicked, setBtnIsClicked] = useState<boolean>(false);
   const [formData, setFormData] = useState<IFormData>({
     password: "",
     confirmPassword: "",
   });
-    
-    const [errors, setErrors] = useState<IFormData>({
-      password: "",
-      confirmPassword: "",
-    }); 
-    
-  
+
+  const { token } = useParams();
+
+  const [errors, setErrors] = useState<IFormData>({
+    password: "",
+    confirmPassword: "",
+  });
 
   const [validations, setValidations] = useState({
     hasMinLength: false,
@@ -51,42 +52,51 @@ const CreateNewPasswordForm: FC = () => {
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  }
+
+  async function submitForm() {
+    setBtnIsClicked(false);
+    setErrors((prev) => ({
+      password: "",
+      confirmPassword: "",
+    }));
+
+    if (formData.password !== formData.confirmPassword) {
+      setErrors((prev) => ({
+        ...prev,
+        confirmPassword: "Passwords do not match",
+      }));
+      return;
     }
+
+    const validationResult = passwordChangeSchema.safeParse(formData);
+
+    if (!validationResult.success) {
+      validationResult.error.errors.forEach((el) => {
+        setErrors((prev) => ({ ...prev, [el.path[0]]: el.message }));
+      });
+      setBtnIsClicked(true);
+      return;
+    }
+
+    // Submit the form if valid
+    const response = await changePassword({
+      newPassword: formData.password,
+      confirmPassword: formData.confirmPassword,
+      token: token ?? "",
+    });
+
+
+    console.log(response)
+
+    //chk for response
+
     
-    function submitForm() { 
-        setBtnIsClicked(false)
-        setErrors((prev) => ({
-            password: "",
-            confirmPassword: "",
-        }))
-
-        if (formData.password !== formData.confirmPassword) {
-            setErrors((prev) => ({...prev, confirmPassword: "Passwords do not match"}));
-            return;
-        }
-
-        const validationResult = passwordChangeSchema.safeParse(formData)
-
-        if (!validationResult.success) { 
-            validationResult.error.errors.forEach(el => {
-                setErrors((prev) => ({...prev, [el.path[0]]: el.message}))
-            })
-            setBtnIsClicked(true)
-            return;
-        }
-
-
-      // Submit the form if valid
-    }
+  }
 
   return (
     <Box>
-      <Box
-        display={"flex"}
-        flexDirection={"column"}
-        width={"100%"}
-        gap={1}
-      >
+      <Box display={"flex"} flexDirection={"column"} width={"100%"} gap={1}>
         <Stack direction={"column"} gap={2}>
           <PasswordInputFeild
             name={"password"}
@@ -118,9 +128,9 @@ const CreateNewPasswordForm: FC = () => {
               marginTop: "4rem",
             }}
             variant="contained"
-              onClick={submitForm}
-                      size={"large"}
-                      disabled={btnIsClicked}
+            onClick={submitForm}
+            size={"large"}
+            disabled={btnIsClicked}
           >
             Sign in
           </Button>

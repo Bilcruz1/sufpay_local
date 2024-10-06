@@ -1,32 +1,27 @@
 import React, { useState, useRef, ChangeEvent, KeyboardEvent } from "react";
 import { Box, Button, Link, TextField, Typography } from "@mui/material";
-import { useParams } from "react-router-dom";
-import {
-  completeVerification,
-} from "../Apis/onBoardingApi";
-import { useNavigate } from "react-router-dom";
-import { IResponse } from "../utils/interfaces";
+import { useNavigate, useParams } from "react-router-dom";
+import { completeVerification, resetPasswordOtp } from "../Apis/onBoardingApi";
 import { StatusCode } from "../utils/enums";
-// import { decryptData } from "../utils/aesEncryption";
-import { Loading } from "../components";
+import { IResponse } from "../utils/interfaces";
 import useTokenValidation from "../utils/hooks/useTokenValidation";
 
 interface IProps {
-  btnIsDisabled: boolean;
-  setBtnIsDisabled: React.Dispatch<React.SetStateAction<boolean>>;
+  btnDisabled: boolean;
+  setBtnDisabled: (disabled: boolean) => void;
 }
 
-const VerifyAccountForm: React.FC<IProps> = ({
-  btnIsDisabled,
-  setBtnIsDisabled,
+
+const ResetPasswordOtpForm: React.FC<IProps> = ({
+  btnDisabled,
+  setBtnDisabled,
 }) => {
   const [values, setValues] = useState<string[]>(Array(5).fill(""));
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
-  // const [btnIsDiabaled, setBtnIsDiabaled] = useState<boolean>(false);
-
-  const { token } = useParams();
   const navigate = useNavigate();
+  const { token } = useParams();
   const { handleResendOtp } = useTokenValidation();
+
 
   const handleChange = (
     index: number,
@@ -67,67 +62,60 @@ const VerifyAccountForm: React.FC<IProps> = ({
   };
 
   const handleSubmit = async () => {
-    setBtnIsDisabled(true);
+    setBtnDisabled(true);
     if (values.join("").length < 5) {
       alert("Input a valid OTP");
-      setBtnIsDisabled(false);
+      setBtnDisabled(false);
       return;
     }
 
     try {
-      const response: IResponse = await completeVerification({
+      const response: IResponse = await resetPasswordOtp({
         otp: `${values.join("")}`,
-        otpToken: `${token}`,
+        token: `${token}`,
       });
 
       console.log(response);
 
-      if (
-        response.data?.succeeded === true &&
-        response.data?.statusCode === StatusCode.notFound &&
-        response.data.data === false
-      ) {
-        setValues((prev) => Array(5).fill(""));
-        alert("OTP is incorrect");
-        setBtnIsDisabled(false);
-      } else if (
-        response.data?.succeeded === true &&
-        response.data?.statusCode == StatusCode.deleted &&
-        response.data?.data === true
-      ) {
-        navigate("/login", { replace: true });
-        alert("OPT has already been used");
-        setBtnIsDisabled(false);
-      } else if (
-        response.data?.succeeded === true &&
-        response.data?.statusCode === StatusCode.badRequest &&
-        response.data?.data === false
-      ) {
-        navigate(`resend-otp/${token}`, { replace: true });
-        alert("OPT has expired");
-        setBtnIsDisabled(false);
-      } else if (
-        response.data?.succeeded === true &&
-        response.data?.statusCode === StatusCode.unauthorized &&
-        response.data?.data === false
-      ) {
-        alert("Unauthorized");
-        navigate("/signup", { replace: true });
-        setBtnIsDisabled(false);
-      } else if (
-        response.data?.succeeded === true &&
-        response.data?.statusCode === StatusCode.ok &&
-        response.data?.data === true
-      ) {
-        navigate("/login", { replace: true });
-        setBtnIsDisabled(false);
+      if (response.data.succeeded && response.data.statusCode === StatusCode.badRequest) {
+        navigate("/")
+      setValues((prev) => Array(5).fill(""));
+
+         return
+      } else if (response.data.succeeded && response.data.statusCode === StatusCode.deleted) {
+        navigate("/login")
+      setValues((prev) => Array(5).fill(""));
+
+         return;
+
+      } else if (response.data.succeeded && response.data.statusCode === StatusCode.created) { 
+        navigate(`/resent-opt/${token}`)
+      setValues((prev) => Array(5).fill(""));
+
+         return;
+
+      } else if (response.data.statusCode === StatusCode.ok) {
+        navigate(`/change-password/${token}`)
+      setValues((prev) => Array(5).fill(""));
+
+         return;
+
+      } else if (response.data.statusCode === StatusCode.internalServerError) {
+        alert("Server error")
+      setValues((prev) => Array(5).fill(""));
+
+        return
       }
 
-      alert("error");
-      setBtnIsDisabled(false);
+      navigate("/login")
+      setValues((prev) => Array(5).fill(""));
+
+      return
+
     } catch (err) {
+      setValues((prev) => Array(5).fill(""));
       alert(err);
-      setBtnIsDisabled(false);
+      setBtnDisabled(false);
     }
   };
 
@@ -166,13 +154,13 @@ const VerifyAccountForm: React.FC<IProps> = ({
           borderRadius: "32px",
         }}
         variant="contained"
-        disabled={btnIsDisabled}
+        disabled={btnDisabled}
         onClick={handleSubmit}
       >
         Verify
       </Button>
       <Typography
-        mt={2}
+        mt={4}
         variant={"caption"}
         display={"block"}
         sx={{ textAlign: "center" }}
@@ -184,4 +172,4 @@ const VerifyAccountForm: React.FC<IProps> = ({
   );
 };
 
-export default VerifyAccountForm;
+export default ResetPasswordOtpForm;

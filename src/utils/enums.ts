@@ -17,3 +17,9 @@ export enum PasswordChkProperties {
   specialCharChk,
   OneNumberChk,
 }
+
+export enum UserType {
+  User = 1,
+  Merchant = 2,
+  Operation = 3,
+}

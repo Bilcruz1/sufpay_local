@@ -34,3 +34,6 @@ export { default as DashboardCards } from "./dashboard/landing/DashboardCards";
 
 // transactions 
 export { default as AirtimeTransactions } from "./dashboard/transactions/AirtimeTransactions";
+
+//lodaing
+export {default as Loading} from "./Loading";

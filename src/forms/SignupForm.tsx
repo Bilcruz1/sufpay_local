@@ -1,30 +1,23 @@
-import {
-  Box,
-  Button,
-  Link,
-  Stack,
-  Typography,
-  InputLabel,
-} from "@mui/material";
+import { Box, Button, Link, Stack, InputLabel } from "@mui/material";
 import React, { useState } from "react";
 import {
   InputFeild,
-  // PasswordChks,
+  Loading,
+  PasswordChks,
   PasswordInputFeild,
   PhoneNumberField,
 } from "../components";
 // import CountryCodePhoneNumberField from "./CountryCodePhoneNumberField";
-import googleImg from "../assets/img/google_img.svg";
+// import googleImg from "../assets/img/google_img.svg";
 import { IResponse } from "../utils/interfaces";
 import {
   register,
   verifyEmailUniqueness,
-  verifyPhoneNumberUniqueness
+  verifyPhoneNumberUniqueness,
 } from "../Apis/onBoardingApi";
 import { signupFormDataSchema } from "./schema";
-import  {useNavigate} from 'react-router-dom'
-import { StatusCode } from "../utils/enums";
-import PasswordChks from "../components/signup/PasswordChks";
+import { useNavigate } from "react-router-dom";
+import { StatusCode, UserType } from "../utils/enums";
 
 interface IForm {
   firstName: string;
@@ -32,28 +25,35 @@ interface IForm {
   countryCode: string;
   phoneNumber: string;
   password: string;
-  email: string
+  email: string;
+  userType: UserType;
 }
 
-const SignupForm = () => {
-  const [btnDisabled, setBtnDisabled] = useState<boolean>(false);
+interface IProps {
+  btnDisabled: boolean;
+  setBtnDisabled: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const SignupForm: React.FC<IProps> = ({ btnDisabled, setBtnDisabled }) => {
+  // const [btnDisabled, setBtnDisabled] = useState<boolean>(true);
   const [formData, setFormData] = useState<IForm>({
     firstName: "",
     lastName: "",
     countryCode: "+234",
     phoneNumber: "",
     password: "",
-    email: ""
+    email: "",
+    userType: UserType.User,
   });
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-  const [formErrors, setFormErrors] = useState<IForm>({
+  const [formErrors, setFormErrors] = useState({
     firstName: "",
     lastName: "",
     countryCode: "",
     phoneNumber: "",
     password: "",
-    email: ""
+    email: "",
   });
 
   // const [passwordChecks, setPasswordChecks] = useState<IPasswordChkProps>({
@@ -70,52 +70,51 @@ const SignupForm = () => {
   };
 
   const handleBlur = async (e: string) => {
-
     if (e === "email" && formData.email.length >= 3) {
-        setFormErrors((prev) => ({ ...prev, email: "" }))
-        const result: IResponse = await verifyEmailUniqueness(
-          { email: formData.email }
-        );
-        if (result.data?.data === false) {
-          setFormErrors((prev) => ({ ...prev, email: "Email already exists" }));
-        }
+      setFormErrors((prev) => ({ ...prev, email: "" }));
+      const result: IResponse = await verifyEmailUniqueness({
+        email: formData.email,
+      });
+      if (result.data?.data === false) {
+        setFormErrors((prev) => ({ ...prev, email: "Email already exists" }));
       }
+    }
     if (e === "phoneNumber" && formData.phoneNumber.length >= 3) {
-      setFormErrors((prev) => ({ ...prev, phoneNumber: "" }))
-        
-        const result: IResponse =
-          await verifyPhoneNumberUniqueness({ phoneNumber: formData.phoneNumber });
-        if (result.data?.data === false) {
-          setFormErrors((prev) => ({
-            ...prev,
-            phoneNumber: "Phone number already exists",
-          }));
-        }
+      setFormErrors((prev) => ({ ...prev, phoneNumber: "" }));
+
+      const result: IResponse = await verifyPhoneNumberUniqueness({
+        phoneNumber: formData.phoneNumber,
+      });
+      if (result.data?.data === false) {
+        setFormErrors((prev) => ({
+          ...prev,
+          phoneNumber: "Phone number already exists",
+        }));
       }
-
+    }
   };
-
 
   // form submission
   const submitForm = async () => {
-    setBtnDisabled(prev => true)
-    setFormErrors(prev => ({
+    setBtnDisabled((prev) => true);
+    setFormErrors((prev) => ({
       firstName: "",
       lastName: "",
       countryCode: "",
       phoneNumber: "",
       password: "",
-      email: ""
-    }))
+      email: "",
+    }));
 
-    const validationResult = signupFormDataSchema.safeParse(formData)
+    const validationResult = signupFormDataSchema.safeParse(formData);
 
     if (!validationResult.success) {
       validationResult.error.errors.forEach((error) => {
         setFormErrors((prev) => ({ ...prev, [error.path[0]]: error.message }));
-      })
+        setBtnDisabled(false)
+      });
 
-      return 
+      return;
     }
 
     try {
@@ -125,45 +124,35 @@ const SignupForm = () => {
         email: formData.email,
         phoneNumber: formData.countryCode + formData.phoneNumber,
         password: formData.password,
+        userType: formData.userType,
       });
 
       console.log(response);
 
-      if (response.data?.statusCode === StatusCode.duplicateRequest
-      ) {
+      if (response.data?.statusCode === StatusCode.duplicateRequest) {
         // alert the user to the fail
         alert("email or phone number has already been used");
-        setBtnDisabled((prev) => false)
-      } else if (response.data?.statusCode === StatusCode.badRequest) { 
-        alert("failed to register user")
-        setBtnDisabled((prev) => false)
+        setBtnDisabled((prev) => false);
+      } else if (response.data?.statusCode === StatusCode.badRequest) {
+        alert("failed to register user");
+        setBtnDisabled((prev) => false);
       } else if (response.data?.statusCode === StatusCode.internalServerError) {
-        alert("server error")
-        setBtnDisabled((prev) => false)
+        alert("server error");
+        setBtnDisabled((prev) => false);
       }
 
       navigate(`/verify-account/${response.data.data}`, {
         replace: true,
       });
       setBtnDisabled((prev) => false);
-
     } catch (err) {
-      console.log(err)
+      console.log(err);
       alert("An error occurred, _form submission failed");
     }
-   
-  }
-
-
+  };
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-      }}
-      gap={2}
-    >
+    <>
       <Box
         sx={{
           display: "flex",
@@ -171,74 +160,82 @@ const SignupForm = () => {
         }}
         gap={2}
       >
-        <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
-          <InputFeild
-            name={"firstName"}
-            value={formData.firstName || ""}
-            handleChange={handleChange}
-            label={"First name"}
-            error={formErrors.firstName}
-          />
-          <InputFeild
-            name={"lastName"}
-            value={formData.lastName}
-            handleChange={handleChange}
-            label={"Last name"}
-            error={formErrors.lastName}
-          />
-        </Stack>
-        <InputFeild
-          name={"email"}
-          value={formData.email}
-          handleChange={handleChange}
-          label={"Email"}
-          error={formErrors.email}
-          handdleBlur={() => handleBlur("email")}
-        />
-        <PhoneNumberField
-          countryCode={formData.countryCode}
-          phoneNumber={formData.phoneNumber}
-          handleChange={handleChange}
-          name={"phoneNumber"}
-          // handleCountryCodeChange={handleCountryCodeChange}
-          label={"Phone number"}
-          handdleBlur={() => handleBlur("phoneNumber")}
-          error={formErrors.phoneNumber}
-        />
-        <PasswordInputFeild
-          name={"password"}
-          value={formData.password}
-          handleChange={handleChange}
-          label={"Password"}
-          error={formErrors.password}
-        />
-        <PasswordChks password={formData.password} />
-      </Box>
-
-      <Stack direction={"column"} gap={2} mt={4}>
-        <InputLabel component={"span"}>
-          By creating an account, you agree to the <Link>Terms of use</Link> and{" "}
-          <Link>Privacy Policy.</Link>
-        </InputLabel>
-
-        <Button
+        <Box
           sx={{
-            background: "#aac645",
-            borderRadius: "1rem",
+            display: "flex",
+            flexDirection: "column",
           }}
-          variant="contained"
-          onClick={submitForm}
-          size={"large"}
-          disabled={btnDisabled}
+          gap={2}
         >
-          Create an account
-        </Button>
-        <InputLabel sx={{ textAlign: "center" }}>
-          Already have an ccount? Log in{" "}
-          <Link onClick={() => navigate("/login")}>Login</Link>
-        </InputLabel>
-      </Stack>
-    </Box>
+          <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
+            <InputFeild
+              name={"firstName"}
+              value={formData.firstName || ""}
+              handleChange={handleChange}
+              label={"First name"}
+              error={formErrors.firstName}
+            />
+            <InputFeild
+              name={"lastName"}
+              value={formData.lastName}
+              handleChange={handleChange}
+              label={"Last name"}
+              error={formErrors.lastName}
+            />
+          </Stack>
+          <InputFeild
+            name={"email"}
+            value={formData.email}
+            handleChange={handleChange}
+            label={"Email"}
+            error={formErrors.email}
+            handdleBlur={() => handleBlur("email")}
+          />
+          <PhoneNumberField
+            countryCode={formData.countryCode}
+            phoneNumber={formData.phoneNumber}
+            handleChange={handleChange}
+            name={"phoneNumber"}
+            // handleCountryCodeChange={handleCountryCodeChange}
+            label={"Phone number"}
+            handdleBlur={() => handleBlur("phoneNumber")}
+            error={formErrors.phoneNumber}
+          />
+          <PasswordInputFeild
+            name={"password"}
+            value={formData.password}
+            handleChange={handleChange}
+            label={"Password"}
+            error={formErrors.password}
+          />
+          <PasswordChks password={formData.password} />
+        </Box>
+
+        <Stack direction={"column"} gap={2} mt={4}>
+          <InputLabel component={"span"}>
+            By creating an account, you agree to the <Link>Terms of use</Link>{" "}
+            and <Link>Privacy Policy.</Link>
+          </InputLabel>
+
+          <Button
+            sx={{
+              background: "#aac645",
+              borderRadius: "1rem",
+            }}
+            variant="contained"
+            onClick={submitForm}
+            size={"large"}
+            disabled={btnDisabled}
+          >
+            Create an account
+          </Button>
+          <InputLabel sx={{ textAlign: "center" }}>
+            Already have an ccount? Log in{" "}
+            <Link onClick={() => navigate("/login")}>Login</Link>
+          </InputLabel>
+        </Stack>
+      </Box>
+    </>
   );
 };
 
