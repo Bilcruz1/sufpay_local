@@ -1,16 +1,16 @@
 import React, { useState, useRef, ChangeEvent, KeyboardEvent } from "react";
 import { Box, Button, Link, TextField, Typography } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
-import { completeVerification, resetPasswordOtp } from "../Apis/onBoardingApi";
+import { resetPasswordOtp } from "../Apis/onBoardingApi";
 import { StatusCode } from "../utils/enums";
 import { IResponse } from "../utils/interfaces";
 import useTokenValidation from "../utils/hooks/useTokenValidation";
+import useNotification from "../utils/hooks/useNotification";
 
 interface IProps {
   btnDisabled: boolean;
   setBtnDisabled: (disabled: boolean) => void;
 }
-
 
 const ResetPasswordOtpForm: React.FC<IProps> = ({
   btnDisabled,
@@ -21,7 +21,11 @@ const ResetPasswordOtpForm: React.FC<IProps> = ({
   const navigate = useNavigate();
   const { token } = useParams();
   const { handleResendOtp } = useTokenValidation();
-
+  const {
+    showSuccessNotification,
+    showErrorNotification,
+    showWarningNotification,
+  } = useNotification();
 
   const handleChange = (
     index: number,
@@ -32,15 +36,14 @@ const ResetPasswordOtpForm: React.FC<IProps> = ({
       const newValues = [...values];
       newValues[index] = value;
       setValues(newValues);
-      // Move to the next input if current input has a valid single digit
       if (index < inputsRef.current.length - 1) {
         inputsRef.current[index + 1]?.focus();
       }
     } else {
-      // Clear the input if invalid value is entered
       event.target.value = "";
     }
   };
+
 
   const handleKeyDown = (
     index: number,
@@ -50,12 +53,11 @@ const ResetPasswordOtpForm: React.FC<IProps> = ({
     if (event.key === "Backspace") {
       if (!target.value && index > 0) {
         inputsRef.current[index - 1]?.focus();
-      } else {
-        const newValues = [...values];
-        newValues[index] = "";
-        setValues(newValues);
-        target.value = ""; // Clear the current input
       }
+      const newValues = [...values];
+      newValues[index] = "";
+      setValues(newValues);
+      target.value = "";
     } else if (!/^\d$/.test(event.key)) {
       event.preventDefault();
     }
@@ -64,7 +66,7 @@ const ResetPasswordOtpForm: React.FC<IProps> = ({
   const handleSubmit = async () => {
     setBtnDisabled(true);
     if (values.join("").length < 5) {
-      alert("Input a valid OTP");
+      showWarningNotification("Input a valid OTP");
       setBtnDisabled(false);
       return;
     }
@@ -75,65 +77,35 @@ const ResetPasswordOtpForm: React.FC<IProps> = ({
         token: `${token}`,
       });
 
-      console.log(response);
-
-      if (response.data.succeeded && response.data.statusCode === StatusCode.badRequest) {
-        navigate("/")
-      setValues((prev) => Array(5).fill(""));
-
-         return
-      } else if (response.data.succeeded && response.data.statusCode === StatusCode.deleted) {
-        navigate("/login")
-      setValues((prev) => Array(5).fill(""));
-
-         return;
-
-      } else if (response.data.succeeded && response.data.statusCode === StatusCode.created) { 
-        navigate(`/resent-opt/${token}`)
-      setValues((prev) => Array(5).fill(""));
-
-         return;
-
-      } else if (response.data.statusCode === StatusCode.ok) {
-        navigate(`/change-password/${token}`)
-      setValues((prev) => Array(5).fill(""));
-
-         return;
-
-      } else if (response.data.statusCode === StatusCode.internalServerError) {
-        alert("Server error")
-      setValues((prev) => Array(5).fill(""));
-
-        return
+      if (
+        response.data.succeeded &&
+        response.data.statusCode === StatusCode.ok
+      ) {
+        navigate(`/change-password/${token}`);
+        setValues(Array(5).fill(""));
+        return;
       }
 
-      navigate("/login")
-      setValues((prev) => Array(5).fill(""));
+      if (response.data.statusCode === StatusCode.internalServerError) {
+        showErrorNotification();
+      }
 
-      return
-
+      setValues(Array(5).fill(""));
+      setBtnDisabled(false);
     } catch (err) {
-      setValues((prev) => Array(5).fill(""));
-      alert(err);
+      setValues(Array(5).fill(""));
+      showErrorNotification();
       setBtnDisabled(false);
     }
   };
 
   return (
     <Box>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alginItems: "center",
-          gap: 1,
-        }}
-      >
+      <Box sx={{ display: "flex", justifyContent: "space-between", gap: 1 }}>
         {Array.from({ length: 5 }).map((_, index) => (
           <TextField
             key={index}
             inputRef={(el) => (inputsRef.current[index] = el)}
-            id={`outlined-basic-${index}`}
             variant="outlined"
             inputProps={{
               maxLength: 1,
@@ -161,8 +133,8 @@ const ResetPasswordOtpForm: React.FC<IProps> = ({
       </Button>
       <Typography
         mt={4}
-        variant={"caption"}
-        display={"block"}
+        variant="caption"
+        display="block"
         sx={{ textAlign: "center" }}
       >
         I didn’t receive a code{" "}

@@ -1,6 +1,6 @@
 import { Box, Typography } from '@mui/material';
 import React from 'react'
-import logo_img from '../assets/img/logo.svg'
+import logo_img from '../assets/img/sufpay_logo_black.svg'
 import ResetPasswordOtpForm from '../forms/ResetPasswordOtpForm';
 import { Loading } from '../components';
 import useTokenValidation from '../utils/hooks/useTokenValidation';
@@ -18,7 +18,7 @@ const ResetPaswordOtpPage = () => {
   });
 
    if (showLodaingPage)
-     return <Loading isLoading={btnDisabled} position={"absolute"} />;
+     return <Loading isLoading={btnDisabled} position={"absolute"} />
 
   
   return (
@@ -38,9 +38,10 @@ const ResetPaswordOtpPage = () => {
       <Box
         sx={{
           maxWidth: "600px",
+          textAlign: "center",
         }}
       >
-        <img src={logo_img} alt={"logo"} />
+        <Box component={"img"} src={logo_img} alt={"logo"} />
 
         <Typography
           variant={"h3"}

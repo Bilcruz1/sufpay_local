@@ -38,7 +38,9 @@ const LoginForm: React.FC = () => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
 
-  const submitForm = async() => {
+  const submitForm = async () => {
+    // !! pls remove the below currently bypassing login process
+     navigate("/dashboard");
     setBtnDisabled(true)
     setErrors(prev => ({
       credentials: "",

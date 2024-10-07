@@ -96,9 +96,9 @@ export const resendOtp = async (data: IResendOtp): Promise<IResponse> => {
 export const loginUser = async (data: ILogin): Promise<IResponse> => {
   try {
     const res = await http.post("/Authentication/login", data);
-    return { error: null, data: res.data };
+    return { error: null, data: res.data }
   } catch (err) {
-    return handleApiError(err);
+    return handleApiError(err)
   }
 }
 
@@ -109,11 +109,11 @@ export const forgotPassword = async (data: {email: string}): Promise<IResponse> 
       data
     );
     if (res.status >= 200  && res.status < 300) {
-      return { error: null, data: res.data };
+      return { error: null, data: res.data }
     } 
       return { error: res.data.errors || "An error occurred", data: res.data };
   } catch (err) {
-    return handleApiError(err);
+    return handleApiError(err)
   }
 }
 
@@ -124,11 +124,11 @@ export const resetPasswordOtp = async (data: {
   try {
     const res = await http.post("/Authentication/reset-password-otp", data);
     if (res.status >= 200 && res.status < 300) {
-      return { error: null, data: res.data };
+      return { error: null, data: res.data }
     }
     return { error: res.data.errors || "An error occurred", data: res.data };
   } catch (err) {
-    return handleApiError(err);
+    return handleApiError(err)
   }
 };
 

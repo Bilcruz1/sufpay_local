@@ -18,6 +18,7 @@ import {
 import { signupFormDataSchema } from "./schema";
 import { useNavigate } from "react-router-dom";
 import { StatusCode, UserType } from "../utils/enums";
+import useNotification from "../utils/hooks/useNotification";
 
 interface IForm {
   firstName: string;
@@ -55,6 +56,11 @@ const SignupForm: React.FC<IProps> = ({ btnDisabled, setBtnDisabled }) => {
     password: "",
     email: "",
   });
+
+    const {
+    showSuccessNotification,
+    showErrorNotification,
+  } = useNotification()
 
   // const [passwordChecks, setPasswordChecks] = useState<IPasswordChkProps>({
   //   charCountChk: false,
@@ -94,6 +100,7 @@ const SignupForm: React.FC<IProps> = ({ btnDisabled, setBtnDisabled }) => {
     }
   };
 
+
   // form submission
   const submitForm = async () => {
     setBtnDisabled((prev) => true);
@@ -113,7 +120,7 @@ const SignupForm: React.FC<IProps> = ({ btnDisabled, setBtnDisabled }) => {
         setFormErrors((prev) => ({ ...prev, [error.path[0]]: error.message }));
         setBtnDisabled(false)
       });
-
+      showErrorNotification("Please fill all fields correctly");
       return;
     }
 
@@ -131,23 +138,26 @@ const SignupForm: React.FC<IProps> = ({ btnDisabled, setBtnDisabled }) => {
 
       if (response.data?.statusCode === StatusCode.duplicateRequest) {
         // alert the user to the fail
-        alert("email or phone number has already been used");
+        showErrorNotification("Email or Phone number has already been used");
         setBtnDisabled((prev) => false);
       } else if (response.data?.statusCode === StatusCode.badRequest) {
-        alert("failed to register user");
+        showErrorNotification("Bad request please contact surport");
         setBtnDisabled((prev) => false);
       } else if (response.data?.statusCode === StatusCode.internalServerError) {
-        alert("server error");
+        showErrorNotification();
         setBtnDisabled((prev) => false);
       }
 
       navigate(`/verify-account/${response.data.data}`, {
         replace: true,
       });
+      showSuccessNotification()
       setBtnDisabled((prev) => false);
+      return
+
     } catch (err) {
-      console.log(err);
-      alert("An error occurred, _form submission failed");
+      // console.log(err);
+      showErrorNotification();
     }
   };
 

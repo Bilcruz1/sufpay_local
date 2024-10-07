@@ -3,10 +3,17 @@ import { StatusCode } from '../enums';
 import { useNavigate } from 'react-router-dom';
 import { IResponse } from '../interfaces';
 import { resendOtp, validateToken } from '../../Apis/onBoardingApi';
+import useNotification from './useNotification';
 
 const useTokenValidation = () => {
 
-    const navigate = useNavigate()
+  const navigate = useNavigate()
+  const {
+    showSuccessNotification,
+    showErrorNotification,
+    showInfoNotification,
+    showWarningNotification
+  } = useNotification();
 
  async function handleTokenValidation(
    token: string,
@@ -20,33 +27,34 @@ const useTokenValidation = () => {
        response.data?.statusCode === StatusCode.notFound &&
        response.data.data === false
      ) {
-       alert("Token is invalid");
+       showWarningNotification("Sign up is required. Please sign up");
        navigate("/signup", { replace: true });
      } else if (
        response.data?.succeeded === true &&
        response.data?.statusCode === StatusCode.deleted &&
        response.data?.data === false
      ) {
-       alert("Token is used");
+       showWarningNotification("Token expired. Please login");
        navigate("/login", { replace: true });
      } else if (
        response.data?.succeeded === true &&
        response.data?.statusCode === StatusCode.badRequest &&
        response.data?.data === false
      ) {
-       alert("Token timed out");
+       showWarningNotification("Otp timed out");
        navigate(`/resend-otp/${token}`);
      } else if (
        response.data?.succeeded === true &&
        response.data?.statusCode === StatusCode.ok &&
        response.data.data === true
      ) {
+        showSuccessNotification();
        setShowLoadingPage(false);
      }
 
      return response;
    } catch (err) {
-     alert("Something went wrong");
+     showErrorNotification();
      console.log(err);
      return {
        error: null,

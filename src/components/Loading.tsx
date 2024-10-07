@@ -1,7 +1,7 @@
 // LoadingPage.js
 import { Box } from "@mui/material";
 import React from "react";
-import { ThreeCircles } from "react-loader-spinner"; 
+import { Triangle } from "react-loader-spinner"; 
 import logo from '../assets/img/sufpay_logo_black.svg';
 
 interface LoadingProps {
@@ -39,12 +39,13 @@ const Loading: React.FC<LoadingProps> = ({
       }}
     >
       {/* <Box component="img" src={logo} alt={"company logo"} /> */}
-      <ThreeCircles
+
+      <Triangle
         visible={true}
-        height="100"
-        width="100"
+        height="80"
+        width="80"
         color="#AAC645"
-        ariaLabel="three-circles-loading"
+        ariaLabel="triangle-loading"
         wrapperStyle={{}}
         wrapperClass=""
       />

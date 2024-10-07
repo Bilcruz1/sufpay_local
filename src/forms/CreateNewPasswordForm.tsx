@@ -1,9 +1,12 @@
 import { Box, Button, Stack } from "@mui/material";
 import React, { FC, useState } from "react";
-import { PasswordChks, PasswordInputFeild } from "../components";
+import { Loading, PasswordChks, PasswordInputFeild } from "../components";
 import { passwordChangeSchema } from "./schema";
 import { changePassword } from "../Apis/onBoardingApi";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import { StatusCode } from "../utils/enums";
+import useNotification from "../utils/hooks/useNotification";
+
 
 interface IFormData {
   password: string;
@@ -35,6 +38,12 @@ const CreateNewPasswordForm: FC = () => {
   });
 
   const { token } = useParams();
+  const {
+    showWarningNotification,
+    showErrorNotification,
+    showSuccessNotification,
+  } = useNotification();
+  const navigate = useNavigate();
 
   const [errors, setErrors] = useState<IFormData>({
     password: "",
@@ -80,64 +89,103 @@ const CreateNewPasswordForm: FC = () => {
     }
 
     // Submit the form if valid
-    const response = await changePassword({
+
+    try {
+ const response = await changePassword({
       newPassword: formData.password,
       confirmPassword: formData.confirmPassword,
       token: token ?? "",
     });
 
 
-    console.log(response)
-
-    //chk for response
-
-    
+    if (
+      response.data?.succeeded &&
+      response.data?.data === false &&
+      response.data?.statusCode === StatusCode.notFound) {
+        showWarningNotification("Sign up is required. Please sign up");
+        setBtnIsClicked(false)
+        return navigate("/signup", { replace: true })
+    } else if (
+      response.data?.succeeded &&
+      response.data?.data === false &&
+      response.data?.statusCode === StatusCode.unauthorized
+    ) {
+        showWarningNotification("Login is required. Please login")
+        setBtnIsClicked(false)
+        return navigate("/signup", { replace: true });
+    } else if (
+      response.data?.succeeded &&
+      response.data?.data === true &&
+      response.data?.statusCode === StatusCode.ok
+    ) {
+       showWarningNotification("Sign up is required. Please sign up");
+       setBtnIsClicked(false);
+       return navigate("/login", { replace: true });
+    }else if (
+      response.data?.succeeded &&
+      response.data?.data === true &&
+      response.data?.statusCode === StatusCode.internalServerError
+    ) {
+        showWarningNotification("Token expired. Please login");
+        setBtnIsClicked(false);
+        return navigate("/login", { replace: true });
+    } else {
+      showWarningNotification("Something went wrong")
+      setBtnIsClicked(false)
+      return navigate(-1)
+    }
+    } catch (err) {
+      showErrorNotification()
+       setBtnIsClicked(false);
+       return navigate("/login", { replace: true })
+    }
   }
 
-  return (
-    <Box>
-      <Box display={"flex"} flexDirection={"column"} width={"100%"} gap={1}>
-        <Stack direction={"column"} gap={2}>
-          <PasswordInputFeild
-            name={"password"}
-            value={formData.password}
-            handleChange={handleChange}
-            label={"Password"}
-          />
+  if (btnIsClicked) return <Loading isLoading={btnIsClicked} />;
+    return (
+      <Box>
+        <Box display={"flex"} flexDirection={"column"} width={"100%"} gap={1}>
+          <Stack direction={"column"} gap={2}>
+            <PasswordInputFeild
+              name={"password"}
+              value={formData.password}
+              handleChange={handleChange}
+              label={"Password"}
+            />
 
-          <PasswordInputFeild
-            name={"confirmPassword"}
-            value={formData.confirmPassword}
-            handleChange={handleChange}
-            label={"Confirm Password"}
-          />
+            <PasswordInputFeild
+              name={"confirmPassword"}
+              value={formData.confirmPassword}
+              handleChange={handleChange}
+              label={"Confirm Password"}
+            />
 
-          <Box
-            display={{ xs: "none", md: "block" }}
-            textAlign={"left"}
-            color={"#666666"}
-          >
-            <PasswordChks password={formData.password} />
-          </Box>
+            <Box
+              display={{ xs: "none", md: "block" }}
+              textAlign={"left"}
+              color={"#666666"}
+            >
+              <PasswordChks password={formData.password} />
+            </Box>
 
-          <Button
-            sx={{
-              background: "#aac645",
-              borderRadius: "1rem",
-              width: "100%",
-              marginTop: "4rem",
-            }}
-            variant="contained"
-            onClick={submitForm}
-            size={"large"}
-            disabled={btnIsClicked}
-          >
-            Sign in
-          </Button>
-        </Stack>
+            <Button
+              sx={{
+                background: "#aac645",
+                borderRadius: "1rem",
+                width: "100%",
+                marginTop: "4rem",
+              }}
+              variant="contained"
+              onClick={submitForm}
+              size={"large"}
+              disabled={btnIsClicked}
+            >
+              Sign in
+            </Button>
+          </Stack>
+        </Box>
       </Box>
-    </Box>
-  );
+    );
 };
 
 export default CreateNewPasswordForm;

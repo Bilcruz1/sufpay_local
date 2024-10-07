@@ -19,9 +19,9 @@ API.interceptors.response.use(
       error.response &&
       error.response.status >= 400 &&
       error.response.status < 500;
-    if (!expectedError) {
-      alert("An unexpected error occurred from response.");
-    }
+    // if (!expectedError) {
+    //   alert("An unexpected error occurred from response.");
+    // }
     return Promise.reject(error);
   }
 );
@@ -31,7 +31,7 @@ export default {
   post: API.post,
   put: API.put,
   delete: API.delete,
-};
+}
 
 export const handleApiError = (
   error: any
