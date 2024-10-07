@@ -2,13 +2,12 @@ import {
   IResponse,
 } from "../utils/interfaces";
 import http, { handleApiError } from "./httpService";
-import { ILogin, IResendOtp, ISigupForm, IVerifyAccount, IVerifyEmailUniqueness, IVerifyPhoneNumberUniqueness } from "./requestInterface";
+import { IChangePassword, ILogin, IResendOtp, ISigupForm, IValidateToken, IVerifyAccount, IVerifyEmailUniqueness, IVerifyPhoneNumberUniqueness } from "./requestInterface";
 
 
 export const register = async (
   data: ISigupForm
 ): Promise<IResponse> => {
-  // console.log(data)
   try {
     const res = await http.post(
       "/Authentication/register",
@@ -58,9 +57,22 @@ export const verifyEmailUniqueness = async (
   }
 };
 
+export const validateToken = async (data: IValidateToken): Promise<IResponse> => {
+  try {
+    const res = await http.post("/Authentication/validate-token", data);
+    if (res.status >= 200 && res.status < 300) {
+      return { error: null, data: res.data };
+    }
+    return { error: res.data.errors || "An error occurred", data: res.data };
+  } catch (err) {
+    return handleApiError(err);
+  }
+};
+
 export const completeVerification = async (
   data: IVerifyAccount
 ): Promise<IResponse> => {
+  console.log(data)
   try {
     const res = await http.post("/authentication/complete-verification", data);
     if (res.status >= 200 && res.status < 300) {
@@ -84,20 +96,57 @@ export const resendOtp = async (data: IResendOtp): Promise<IResponse> => {
 export const loginUser = async (data: ILogin): Promise<IResponse> => {
   try {
     const res = await http.post("/Authentication/login", data);
-    return { error: null, data: res.data };
+    return { error: null, data: res.data }
   } catch (err) {
-    return handleApiError(err);
+    return handleApiError(err)
   }
 }
 
 export const forgotPassword = async (data: {email: string}): Promise<IResponse> => {
   try {
-    const res = await http.post("/authentication/forgot-password", data);
-    return { error: null, data: res.data };
+    const res = await http.post(
+      "/Authentication/forgot-password-request",
+      data
+    );
+    if (res.status >= 200  && res.status < 300) {
+      return { error: null, data: res.data }
+    } 
+      return { error: res.data.errors || "An error occurred", data: res.data };
+  } catch (err) {
+    return handleApiError(err)
+  }
+}
+
+export const resetPasswordOtp = async (data: {
+  otp: string;
+  token: string;
+}): Promise<IResponse> => {
+  try {
+    const res = await http.post("/Authentication/reset-password-otp", data);
+    if (res.status >= 200 && res.status < 300) {
+      return { error: null, data: res.data }
+    }
+    return { error: res.data.errors || "An error occurred", data: res.data };
+  } catch (err) {
+    return handleApiError(err)
+  }
+};
+
+export const changePassword = async (data: IChangePassword): Promise<IResponse> => {
+  try {
+    const res = await http.post(
+      "/Authentication/forgot-password",
+      data
+    );
+    if (res.status >= 200 && res.status < 300) {
+      return { error: null, data: res.data };
+    }
+    return { error: res.data.errors || "An error occurred", data: res.data };
   } catch (err) {
     return handleApiError(err);
   }
-};
+}
+
 
 // export const logoutUser = async (data: any): Promise<IResponse> => {
 //   try {

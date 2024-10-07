@@ -11,14 +11,19 @@ const Rhs: React.FC = () => {
         backgroundImage: `url(${img})`,
         backgroundRepeat: "no-repeat",
         backgroundSize: "cover",
+        padding: "1rem"
       }}
       display={"flex"}
       justifyContent={"center"}
-      alignItems={"center"}
       color={"#fff"}
     >
       <Box>
-        <Typography component={"h1"} variant="h2" gutterBottom>
+        <Typography
+          component={"h1"}
+          variant="h2"
+          gutterBottom
+          sx={{ color: "#fff", marginTop: "30%" }}
+        >
           Welcome to Sufpay
         </Typography>
         <Typography
@@ -28,6 +33,7 @@ const Rhs: React.FC = () => {
             width: "100%",
             display: "block",
             textAlign: "right",
+            color: "white",
           }}
         >
           ...easy pay

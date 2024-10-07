@@ -1,3 +1,4 @@
+import { UserType } from "../utils/enums";
 
 
 export interface IVerifyEmailUniqueness {
@@ -9,11 +10,12 @@ export interface IVerifyPhoneNumberUniqueness {
 }
 
 export interface ISigupForm {
-    firstName: string;
-    lastName: string;
-    phoneNumber: string;
-    password: string;
-    email: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  password: string;
+  email: string;
+  userType: UserType;
 }
 
 export interface IVerifyAccount {
@@ -29,3 +31,17 @@ export interface ILogin {
   emailAddress: string,
   password: string
 }
+
+export interface IValidateToken {
+  token: string,
+}
+
+export interface IChangePassword {
+  newPassword: string,
+  confirmPassword: string,
+  token: string
+}
+
+
+
+

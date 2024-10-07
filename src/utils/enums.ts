@@ -9,3 +9,17 @@ export enum StatusCode {
   duplicateRequest = 7,
   internalServerError = 8,
 }
+
+export enum PasswordChkProperties {
+  PasswordCount,
+  upperCaseChk,
+  lowerCaseChk,
+  specialCharChk,
+  OneNumberChk,
+}
+
+export enum UserType {
+  User = 1,
+  Merchant = 2,
+  Operation = 3,
+}

@@ -4,7 +4,7 @@ export { default as Rhs } from "./signup/Rhs";
 export { default as InputFeild } from "./signup/InputFeild";
 export { default as PasswordInputFeild } from "./signup/PasswordInputFeild";
 export { default as PhoneNumberField } from "./signup/PhoneNumberField";
-export { default as PasswordChks } from "./signup/PasswordChks";
+export { default as PasswordChks } from "./signup/PasswordChks"//"./signup/PasswordChks";
 export { default as TextAreaInputFeild } from "./signup/TextAreaInputFeild";
 
 //landing
@@ -34,3 +34,8 @@ export { default as DashboardCards } from "./dashboard/landing/DashboardCards";
 
 // transactions 
 export { default as AirtimeTransactions } from "./dashboard/transactions/AirtimeTransactions";
+
+//utils
+export { default as Loading } from "./Loading";
+export {default as Notification} from "./Notification";
+

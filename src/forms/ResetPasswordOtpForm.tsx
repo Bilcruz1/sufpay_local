@@ -1,32 +1,31 @@
 import React, { useState, useRef, ChangeEvent, KeyboardEvent } from "react";
 import { Box, Button, Link, TextField, Typography } from "@mui/material";
-import { useParams } from "react-router-dom";
-import { completeVerification } from "../Apis/onBoardingApi";
-import { useNavigate } from "react-router-dom";
-import { IResponse } from "../utils/interfaces";
+import { useNavigate, useParams } from "react-router-dom";
+import { resetPasswordOtp } from "../Apis/onBoardingApi";
 import { StatusCode } from "../utils/enums";
+import { IResponse } from "../utils/interfaces";
 import useTokenValidation from "../utils/hooks/useTokenValidation";
+import useNotification from "../utils/hooks/useNotification";
 
 interface IProps {
-  btnIsDisabled: boolean;
-  setBtnIsDisabled: React.Dispatch<React.SetStateAction<boolean>>;
+  btnDisabled: boolean;
+  setBtnDisabled: (disabled: boolean) => void;
 }
 
-const VerifyAccountForm: React.FC<IProps> = ({
-  btnIsDisabled,
-  setBtnIsDisabled,
+const ResetPasswordOtpForm: React.FC<IProps> = ({
+  btnDisabled,
+  setBtnDisabled,
 }) => {
   const [values, setValues] = useState<string[]>(Array(5).fill(""));
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
-
-  // Option 1: Provide a default value
-  const { token = "" } = useParams<{ token?: string }>();
-
-  // Option 2: Use a type assertion (ensure token is present)
-  // const { token } = useParams<{ token: string }>();
-
   const navigate = useNavigate();
+  const { token } = useParams();
   const { handleResendOtp } = useTokenValidation();
+  const {
+    showSuccessNotification,
+    showErrorNotification,
+    showWarningNotification,
+  } = useNotification();
 
   const handleChange = (
     index: number,
@@ -45,12 +44,12 @@ const VerifyAccountForm: React.FC<IProps> = ({
     }
   };
 
+
   const handleKeyDown = (
     index: number,
     event: KeyboardEvent<HTMLDivElement>
   ) => {
     const target = event.currentTarget as HTMLInputElement;
-
     if (event.key === "Backspace") {
       if (!target.value && index > 0) {
         inputsRef.current[index - 1]?.focus();
@@ -58,78 +57,51 @@ const VerifyAccountForm: React.FC<IProps> = ({
       const newValues = [...values];
       newValues[index] = "";
       setValues(newValues);
+      target.value = "";
     } else if (!/^\d$/.test(event.key)) {
       event.preventDefault();
     }
   };
 
   const handleSubmit = async () => {
-    setBtnIsDisabled(true);
+    setBtnDisabled(true);
     if (values.join("").length < 5) {
-      alert("Input a valid OTP");
-      setBtnIsDisabled(false);
+      showWarningNotification("Input a valid OTP");
+      setBtnDisabled(false);
       return;
     }
 
     try {
-      const response: IResponse = await completeVerification({
-        otp: values.join(""),
-        otpToken: token, // token can be an empty string or the actual token
+      const response: IResponse = await resetPasswordOtp({
+        otp: `${values.join("")}`,
+        token: `${token}`,
       });
 
       if (
-        response.data?.succeeded === true &&
-        response.data?.statusCode === StatusCode.notFound &&
-        response.data.data === false
+        response.data.succeeded &&
+        response.data.statusCode === StatusCode.ok
       ) {
+        navigate(`/change-password/${token}`);
         setValues(Array(5).fill(""));
-        alert("OTP is incorrect");
-      } else if (
-        response.data?.succeeded === true &&
-        response.data?.statusCode === StatusCode.deleted &&
-        response.data?.data === true
-      ) {
-        navigate("/login", { replace: true });
-        alert("OTP has already been used");
-      } else if (
-        response.data?.succeeded === true &&
-        response.data?.statusCode === StatusCode.badRequest &&
-        response.data?.data === false
-      ) {
-        navigate(`resend-otp/${token}`, { replace: true });
-        alert("OTP has expired");
-      } else if (
-        response.data?.succeeded === true &&
-        response.data?.statusCode === StatusCode.unauthorized &&
-        response.data?.data === false
-      ) {
-        alert("Unauthorized");
-        navigate("/signup", { replace: true });
-      } else if (
-        response.data?.succeeded === true &&
-        response.data?.statusCode === StatusCode.ok &&
-        response.data?.data === true
-      ) {
-        navigate("/login", { replace: true });
+        return;
       }
 
-      setBtnIsDisabled(false);
+      if (response.data.statusCode === StatusCode.internalServerError) {
+        showErrorNotification();
+      }
+
+      setValues(Array(5).fill(""));
+      setBtnDisabled(false);
     } catch (err) {
-      alert(err);
-      setBtnIsDisabled(false);
+      setValues(Array(5).fill(""));
+      showErrorNotification();
+      setBtnDisabled(false);
     }
   };
 
   return (
     <Box>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alginItems: "center",
-          gap: 1,
-        }}
-      >
+      <Box sx={{ display: "flex", justifyContent: "space-between", gap: 1 }}>
         {Array.from({ length: 5 }).map((_, index) => (
           <TextField
             key={index}
@@ -154,22 +126,22 @@ const VerifyAccountForm: React.FC<IProps> = ({
           borderRadius: "32px",
         }}
         variant="contained"
-        disabled={btnIsDisabled}
+        disabled={btnDisabled}
         onClick={handleSubmit}
       >
         Verify
       </Button>
       <Typography
-        mt={2}
-        variant={"caption"}
-        display={"block"}
+        mt={4}
+        variant="caption"
+        display="block"
         sx={{ textAlign: "center" }}
       >
         I didn’t receive a code{" "}
-        <Link onClick={() => handleResendOtp(token)}>Resend</Link>
+        <Link onClick={() => handleResendOtp(`${token}`)}>Resend</Link>
       </Typography>
     </Box>
   );
 };
 
-export default VerifyAccountForm;
+export default ResetPasswordOtpForm;
