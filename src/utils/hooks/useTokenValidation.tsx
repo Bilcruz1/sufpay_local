@@ -72,25 +72,25 @@ const useTokenValidation = () => {
    const handleResendOtp = async (token: string) => {
      try {
        const response: IResponse = await resendOtp({ token: `${token}` });
-       console.log(response);
+      //  console.log(response);
 
        if (
          response.data?.succeeded === true &&
          response.data?.statusCode === StatusCode.notFound
        ) {
-         alert("Bad request");
+         showErrorNotification("Bad request");
          navigate("/signup");
        } else if (
          response.data?.succeeded == true &&
          response.data?.statusCode === StatusCode.duplicateRequest
        ) {
-         alert("User already confirmed");
+         showWarningNotification("Otp already confirmed");
          navigate("/login");
        } else if (
          response.data?.succeeded == true &&
          response.data?.statusCode === StatusCode.deleted
        ) {
-         alert("Otp Resend failed");
+         showErrorNotification("OTP Resend failed");
        } else if (
          response.data?.succeeded == true &&
          response.data?.statusCode === StatusCode.ok
@@ -99,9 +99,9 @@ const useTokenValidation = () => {
            replace: true,
          });
        }
-       alert("Server error");
+       showErrorNotification("Something went wrong. Try again!");
      } catch (err) {
-       alert("Something went wrong");
+       showErrorNotification("Something went wrong. Try again!");
        console.log(err);
      }
    };

@@ -15,7 +15,7 @@ import ResendOtpPage from "../pages/ResendOtpPage";
 const LandingRoutes = () => {
   return (
     <Routes>
-      {/* <Route path={"/"} element={<LandingPage />} /> */}
+      <Route path={"/"} element={<LandingPage />} />
       {/* <Route path={"splash"} element={<SplashScreen />} /> */}
       <Route path={"login"} element={<SignInPage />} />
       <Route path={"signup"} element={<SignUpPage />} />
@@ -29,9 +29,7 @@ const LandingRoutes = () => {
         element={<CreateNewPasswordPage />}
       />
       <Route path={"verify-account/:token"} element={<VerifyAccountPage />} />
-      {/* routeto below whenn otp has expired */}
-      {/* <Route path={"resend-otp/:token"} element={<ResendOtpPage />} /> */}
-      <Route path={"/"} element={<ResendOtpPage />} />
+      <Route path={"resend-otp/:token"} element={<ResendOtpPage />} />
     </Routes>
   );
 };
