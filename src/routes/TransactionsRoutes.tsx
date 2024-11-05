@@ -4,6 +4,7 @@ import { Route, Routes } from 'react-router-dom';
 import { DashboardLanding } from '../components';
 import AirtimeComp from '../components/dashboard/transactions/AirtimeTransactions';
 import DataTransactions from '../components/dashboard/transactions/DataTransactions';
+import UtilityPage from '../components/dashboard/transactions/UtilityPage';
 
 const TransactionsRoutes = () => (
 	<Routes>
@@ -20,7 +21,10 @@ const TransactionsRoutes = () => (
 			element={<DataTransactions />}
 		/>
 		{/* <Route path="buy/cable-tv" element={<CableTVPage />} /> */}
-		{/* <Route path="buy/utility" element={<UtilityPage />} /> */}
+		<Route
+			path="buy/utility"
+			element={<UtilityPage />}
+		/>
 		{/* <Route path="buy/transport" element={<TransportPage />} /> */}
 		<Route
 			path="buy/events"

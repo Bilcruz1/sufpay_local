@@ -61,6 +61,7 @@ const DataTransactions: React.FC = () => {
 	const handleCancelDataSelection = () => {
 		setDataInput('');
 		setDataAmount('');
+		navigate(-1);
 	};
 
 	const handleOpenModal = () => {

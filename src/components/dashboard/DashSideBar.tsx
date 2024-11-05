@@ -1,4 +1,5 @@
 import React from 'react';
+import { useEffect, useState } from 'react';
 import {
 	List,
 	ListItem,
@@ -20,11 +21,25 @@ interface DashSideBarProps {
 const DashSideBar: React.FC<DashSideBarProps> = ({ toggleSidebar }) => {
 	const navigate = useNavigate();
 	const location = useLocation();
+	const [selectedPath, setSelectedPath] = useState(location.pathname);
+
+	const getPrimaryPath = (path: string) => {
+		// Determine primary category based on the path
+		if (path.startsWith('/transaction')) return '/transaction';
+		return path;
+	};
 
 	const handleListItemClick = (link: string) => {
+		// Set the selected path to the primary category link
+		setSelectedPath(getPrimaryPath(link));
 		navigate(link);
 		toggleSidebar();
 	};
+
+	useEffect(() => {
+		// Update `selectedPath` based on the current location
+		setSelectedPath(getPrimaryPath(location.pathname));
+	}, [location.pathname]);
 
 	return (
 		<Box
@@ -56,15 +71,17 @@ const DashSideBar: React.FC<DashSideBarProps> = ({ toggleSidebar }) => {
 						onClick={() => handleListItemClick(el.link)}
 						sx={{
 							backgroundColor:
-								location.pathname === el.link ? '#8CAE14' : 'inherit',
+								selectedPath === getPrimaryPath(el.link)
+									? '#8CAE14'
+									: 'inherit',
 							color: '#fff',
 							borderRadius: '.3rem',
 							cursor: 'pointer',
 						}}
 					>
-						<ListItemIcon>
+						<ListItemIcon sx={{ minWidth: 0, marginRight: 2 }}>
 							<Box
-								component={'img'}
+								component="img"
 								src={el.icon}
 								alt={`${el.title}_icon`}
 							/>
