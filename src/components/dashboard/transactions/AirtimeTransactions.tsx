@@ -44,6 +44,7 @@ const AirtimeTransactions: React.FC = () => {
 		{ value: 'AIRTEL', label: 'AIRTEL', logo: airtelLogo },
 	];
 	const navigate = useNavigate();
+
 	const handleCarrierChange = (carrier: CarrierOption) => {
 		setSelectedCarrier(carrier.value);
 		setCarrierLogo(carrier.logo);
@@ -52,6 +53,7 @@ const AirtimeTransactions: React.FC = () => {
 
 	const handleCancelAirtimeSelection = () => {
 		setAirtimeAmount('');
+		navigate(-1);
 	};
 
 	const handleOpenModal = () => {
