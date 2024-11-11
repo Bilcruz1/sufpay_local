@@ -22,7 +22,7 @@ const TransactionsRoutes = () => (
 		/>
 		{/* <Route path="buy/cable-tv" element={<CableTVPage />} /> */}
 		<Route
-			path="buy/utility"
+			path="/buy/utility"
 			element={<UtilityBillsLanding />}
 		/>
 		{/* <Route path="buy/transport" element={<TransportPage />} /> */}

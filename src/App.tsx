@@ -9,6 +9,7 @@ import {
 } from './components';
 // import DashboardRoutes from "./routes/DashboardRoutes";
 import TransactionsRoutes from './routes/TransactionsRoutes';
+import UtilityRoutes from './routes/UtilityRoutes';
 import LandingRoutes from './routes/LandingRoutes';
 
 function App() {
@@ -27,6 +28,10 @@ function App() {
 				<Route
 					path={'/transactions/*'}
 					element={<DashboardTemplate view={<TransactionsRoutes />} />}
+				/>
+				<Route
+					path={'/transactions/buy/utility/*'}
+					element={<DashboardTemplate view={<UtilityRoutes />} />}
 				/>
 				<Route
 					path={'/settings'}

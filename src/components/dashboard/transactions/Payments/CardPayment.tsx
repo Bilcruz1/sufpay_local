@@ -42,18 +42,10 @@ const cards = [
 ];
 
 interface PaymentDetailsProps {
-	phoneNumber: string;
-	networkProvider: string;
-	plan: string;
-	amount: string;
+	orderDetails: { label: string; value: string }[];
 }
 
-const CardPayment: React.FC<PaymentDetailsProps> = ({
-	phoneNumber,
-	networkProvider,
-	plan,
-	amount,
-}) => {
+const CardPayment: React.FC<PaymentDetailsProps> = ({ orderDetails }) => {
 	const [paymentMethod, setPaymentMethod] = useState<string>('Pay with card');
 
 	const handlePaymentMethodChange = (event: SelectChangeEvent<string>) => {
@@ -225,28 +217,44 @@ const CardPayment: React.FC<PaymentDetailsProps> = ({
 				>
 					<Box
 						sx={{
-							display: 'flex',
-							gap: { xs: '0.5rem', md: '1rem', lg: '2rem' },
+							width: { xs: '100%', md: '100%', lg: '50%' },
+							marginTop: { xs: '1rem', md: '1rem', lg: '1.25rem' },
 						}}
 					>
-						<Typography sx={{ minWidth: '150px' }}>Phone number:</Typography>
-						<Typography sx={{ textAlign: 'left' }}>{phoneNumber}</Typography>
-					</Box>
-					<Box sx={{ display: 'flex', gap: '2rem' }}>
-						<Typography sx={{ minWidth: '150px' }}>
-							Network Provider:
+						<Typography
+							variant="h6"
+							sx={{ color: '#666666', fontSize: '1rem' }}
+						>
+							Review your order
 						</Typography>
-						<Typography sx={{ textAlign: 'left' }}>
-							{networkProvider}
-						</Typography>
-					</Box>
-					<Box sx={{ display: 'flex', gap: '2rem' }}>
-						<Typography sx={{ minWidth: '150px' }}>Plan:</Typography>
-						<Typography sx={{ textAlign: 'left' }}>{plan}</Typography>
-					</Box>
-					<Box sx={{ display: 'flex', gap: '2rem' }}>
-						<Typography sx={{ minWidth: '150px' }}>Amount:</Typography>
-						<Typography sx={{ textAlign: 'left' }}>{amount}</Typography>
+						<Box
+							sx={{
+								borderRadius: '8px',
+								display: 'grid',
+								gap: '2.2rem',
+								marginTop: '1.25rem',
+							}}
+						>
+							{orderDetails.map((detail, index) => (
+								<Box
+									key={index}
+									sx={{ display: 'flex', gap: '2rem' }}
+								>
+									<Typography sx={{ minWidth: '150px', color: '#636559' }}>
+										{detail.label}:
+									</Typography>
+									<Typography
+										sx={{
+											textAlign: 'left',
+											color: '#353535',
+											fontWeight: 'medium',
+										}}
+									>
+										{detail.value}
+									</Typography>
+								</Box>
+							))}
+						</Box>
 					</Box>
 				</Box>
 			</Box>

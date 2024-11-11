@@ -13,14 +13,14 @@ const TransactionsCards: React.FC<{
 	return (
 		<Box
 			sx={{
-				height: '13.25rem',
+				height: ['12.25rem', '12.25rem'],
 				display: 'flex',
 				gap: '.8rem',
 				border: '1px solid #66666628',
 				borderRadius: '5px',
 				color: 'black',
 				flexDirection: 'column',
-				padding: '1rem',
+				padding: ['0.5rem', '1rem'],
 				// paddingBottom: '2.8rem',
 				cursor: 'pointer',
 			}}
