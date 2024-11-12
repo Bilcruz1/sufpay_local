@@ -19,7 +19,8 @@ import airtelLogo from '../../../assets/icons/airtel-logo.svg';
 import { useNavigate } from 'react-router-dom';
 import succ from '../../../assets/icons/success.svg';
 import AirtimePaymentDetails from './Payments/AirtimePaymentDetails';
-import AirtimeCardPayment from './Payments/AirtimeCardPayment';
+import CardPayment from './Payments/CardPayment';
+import PaymentDetails from './Payments/PaymentDetails';
 
 // Define type for carrier options
 interface CarrierOption {
@@ -280,10 +281,12 @@ const AirtimeTransactions: React.FC = () => {
 									gap: '2.5rem',
 								}}
 							>
-								<AirtimePaymentDetails
-									phoneNumber={phoneNumber}
-									networkProvider={selectedCarrier}
-									amount={AirtimeAmount}
+								<PaymentDetails
+									orderDetails={[
+										{ label: 'Phone number', value: phoneNumber },
+										{ label: 'Network Provider', value: selectedCarrier },
+										{ label: 'Amount', value: AirtimeAmount },
+									]}
 								/>
 								<Box
 									sx={{
@@ -330,11 +333,19 @@ const AirtimeTransactions: React.FC = () => {
 									gap: '2.5rem',
 								}}
 							>
-								<AirtimeCardPayment
+								{/* <AirtimeCardPayment
 									phoneNumber={phoneNumber} // Pass phoneNumber here
 									networkProvider={selectedCarrier} // Pass selectedCarrier here
 									amount={AirtimeAmount}
+								/> */}
+								<CardPayment
+									orderDetails={[
+										{ label: 'Phone number', value: phoneNumber },
+										{ label: 'Network Provider', value: selectedCarrier },
+										{ label: 'Amount', value: AirtimeAmount },
+									]}
 								/>
+
 								<Box
 									sx={{
 										display: 'flex',

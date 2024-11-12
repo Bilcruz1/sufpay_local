@@ -4,7 +4,7 @@ import { Route, Routes } from 'react-router-dom';
 import { DashboardLanding } from '../components';
 import AirtimeComp from '../components/dashboard/transactions/AirtimeTransactions';
 import DataTransactions from '../components/dashboard/transactions/DataTransactions';
-import UtilityPage from '../components/dashboard/transactions/UtilityPage';
+import UtilityBillsLanding from '../components/dashboard/transactions/UtilityBillsPages/UtilityBillsLanding';
 
 const TransactionsRoutes = () => (
 	<Routes>
@@ -22,8 +22,8 @@ const TransactionsRoutes = () => (
 		/>
 		{/* <Route path="buy/cable-tv" element={<CableTVPage />} /> */}
 		<Route
-			path="buy/utility"
-			element={<UtilityPage />}
+			path="/buy/utility"
+			element={<UtilityBillsLanding />}
 		/>
 		{/* <Route path="buy/transport" element={<TransportPage />} /> */}
 		<Route

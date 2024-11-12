@@ -1,71 +1,78 @@
 import React, { useState } from 'react';
+import { z } from 'zod';
 import {
 	TextField,
 	MenuItem,
-	InputAdornment,
-	IconButton,
 	Typography,
 	Button,
 	Dialog,
 	DialogContent,
 	Divider,
+	Select,
 } from '@mui/material';
 import { Box } from '@mui/system';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import mtnLogo from '../../../assets/icons/mtn-logo.svg';
-import gloLogo from '../../../assets/icons/glo-logo.svg';
-import mobile9Logo from '../../../assets/icons/9mobile-logo.svg';
-import airtelLogo from '../../../assets/icons/airtel-logo.svg';
-import DataPlansTabs from './DataPage/DataPlanTabs';
+import { SelectChangeEvent } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import PaymentDetails from './Payments/PaymentDetails';
-import CardPayment from './Payments/CardPayment';
-import succ from '../../../assets/icons/success.svg';
+import succ from '../../../../assets/icons/success.svg';
+import CardPayment from '.././Payments/CardPayment';
+import PaymentDetails from '../Payments/PaymentDetails';
 
-// Define type for carrier options
-interface CarrierOption {
-	value: string;
-	label: string;
-	logo: string;
-}
+const formSchema = z.object({
+	provider: z.string().min(1, 'Please select a provider'),
+	meterType: z.string().min(1, 'Meter type is required'),
+	meterNumber: z
+		.string()
+		.min(1, 'Meter number is required')
+		.regex(/^\d+$/, 'Meter number should be a number'), // Ensures it’s a number
+	amount: z
+		.string()
+		.min(1, 'Amount is required')
+		.regex(/^\d+$/, 'Amount should be a valid number'), // Checks if it’s numeric
+});
 
-const DataTransactions: React.FC = () => {
+const ElectricityBills: React.FC = () => {
 	const isfirstTime = true;
-	const [selectedCarrier, setSelectedCarrier] = useState<string>('MTN');
-	const [carrierLogo, setCarrierLogo] = useState<string>(mtnLogo); // Default to MTN
-	const [openDropdown, setOpenDropdown] = useState<boolean>(false);
-	const [phoneNumber, setPhoneNumber] = useState<string>('');
-	const [dataInput, setDataInput] = useState<string>('');
-	const [dataAmount, setDataAmount] = useState<string>('');
+	const [selectedProvider, setSelectedProvider] = useState<string>('');
+	const [electricityAmount, setElectricityAmount] = useState<string>('');
+	const [meterType, setMeterType] = useState<string>('');
+	const [meterNumber, setMeterNumber] = useState<string>('');
 	const [stage, setStage] = useState(isfirstTime ? 1 : 2);
 	const [openModal, setOpenModal] = useState(false);
-	const carrierOptions: CarrierOption[] = [
-		{ value: 'MTN', label: 'MTN', logo: mtnLogo },
-		{ value: 'GLO', label: 'GLO', logo: gloLogo },
-		{ value: '9 MOBILE', label: '9 MOBILE', logo: mobile9Logo },
-		{ value: 'AIRTEL', label: 'AIRTEL', logo: airtelLogo },
-	];
+	const providerOptions = ['AEDC', 'BEDC', 'NERC'];
+	const [errors, setErrors] = useState<Record<string, string>>({});
 	const navigate = useNavigate();
-	const handleCarrierChange = (carrier: CarrierOption) => {
-		setSelectedCarrier(carrier.value);
-		setCarrierLogo(carrier.logo);
-		setOpenDropdown(false);
+
+	const handleProviderChange = (event: SelectChangeEvent<string>) => {
+		setSelectedProvider(event.target.value as string);
 	};
 
-	// This function updates dataInput and dataAmount when a plan is selected
-	const handleDataSelection = (data: string, price: string) => {
-		setDataInput(data);
-		setDataAmount(price);
-	};
-
-	const handleCancelDataSelection = () => {
-		setDataInput('');
-		setDataAmount('');
+	const handleCancelAirtimeSelection = () => {
 		navigate(-1);
 	};
 
 	const handleOpenModal = () => {
-		setOpenModal(true);
+		const formData = {
+			provider: selectedProvider,
+			meterType,
+			meterNumber,
+			amount: electricityAmount,
+		};
+
+		// Validate form data with Zod
+		const validation = formSchema.safeParse(formData);
+
+		if (!validation.success) {
+			// Set errors if validation fails
+			const fieldErrors: Record<string, string> = {};
+			validation.error.errors.forEach(error => {
+				fieldErrors[error.path[0]] = error.message;
+			});
+			setErrors(fieldErrors);
+		} else {
+			// Clear errors and proceed if validation is successful
+			setErrors({});
+			setOpenModal(true);
+		}
 	};
 
 	const handleCloseModal = () => {
@@ -105,7 +112,7 @@ const DataTransactions: React.FC = () => {
 								fontWeight: 'medium',
 							}}
 						>
-							Data
+							Electricity
 						</Typography>
 					</Box>
 					<Box
@@ -127,32 +134,39 @@ const DataTransactions: React.FC = () => {
 									paddingBottom: '0.38rem',
 								}}
 							>
-								Phone Number
+								Provider
 							</Typography>
-							<TextField
+							<Select
 								fullWidth
+								value={selectedProvider}
+								onChange={handleProviderChange}
+								displayEmpty
 								variant="outlined"
-								type="number"
-								value={phoneNumber}
-								onChange={e => setPhoneNumber(e.target.value)}
-								InputProps={{
-									startAdornment: (
-										<InputAdornment position="start">
-											<IconButton
-												onClick={() => setOpenDropdown(!openDropdown)}
-											>
-												<img
-													src={carrierLogo}
-													alt="carrier logo"
-													style={{ width: 24, height: 24 }}
-												/>
-												<ArrowDropDownIcon />
-											</IconButton>
-										</InputAdornment>
-									),
-								}}
-								placeholder="Enter phone number"
-							/>
+							>
+								<MenuItem
+									value=""
+									disabled
+								>
+									Select a provider
+								</MenuItem>
+								{providerOptions.map(option => (
+									<MenuItem
+										key={option}
+										value={option}
+									>
+										{option}
+									</MenuItem>
+								))}
+							</Select>
+							{errors.provider && (
+								<Typography
+									color="error"
+									sx={{ fontSize: '0.8rem' }}
+								>
+									{errors.provider}
+								</Typography>
+							)}
+
 							<Typography
 								sx={{
 									fontSize: '0.88rem',
@@ -162,14 +176,26 @@ const DataTransactions: React.FC = () => {
 									paddingBottom: '0.38rem',
 								}}
 							>
-								Data
+								Meter Type
 							</Typography>
 							<TextField
 								fullWidth
 								variant="outlined"
-								value={dataInput} // Will update when a data plan is selected
-								placeholder="Select a data plan"
+								onChange={e => setMeterType(e.target.value)}
+								value={meterType}
+								placeholder="Enter meter type"
+								error={!!errors.meterType}
+								// helperText={errors.meterType}
 							/>
+							{errors.meterType && (
+								<Typography
+									color="error"
+									sx={{ fontSize: '0.8rem' }}
+								>
+									{errors.meterType}
+								</Typography>
+							)}
+
 							<Typography
 								sx={{
 									fontSize: '0.88rem',
@@ -177,6 +203,36 @@ const DataTransactions: React.FC = () => {
 									paddingTop: '1.5rem',
 									lineHeight: '1.25rem',
 									paddingBottom: '0.38rem',
+								}}
+							>
+								Meter Number
+							</Typography>
+							<TextField
+								fullWidth
+								variant="outlined"
+								onChange={e => setMeterNumber(e.target.value)}
+								value={meterNumber}
+								placeholder="Enter meter number"
+								error={!!errors.meterNumber}
+								// helperText={errors.meterNumber}
+							/>
+							{errors.meterNumber && (
+								<Typography
+									color="error"
+									sx={{ fontSize: '0.8rem' }}
+								>
+									{errors.meterNumber}
+								</Typography>
+							)}
+
+							<Typography
+								sx={{
+									fontSize: '0.88rem',
+									color: '#636559',
+									paddingTop: '1.5rem',
+									lineHeight: '1.25rem',
+									paddingBottom: '0.38rem',
+									placeholder: 'Enter number',
 								}}
 							>
 								Amount
@@ -184,46 +240,22 @@ const DataTransactions: React.FC = () => {
 							<TextField
 								fullWidth
 								variant="outlined"
-								value={dataAmount} // Will update when a data plan is selected
+								onChange={e => setElectricityAmount(e.target.value)}
+								value={electricityAmount}
+								placeholder="Enter amount"
+								error={!!errors.electricityAmount}
+								// helperText={errors.electricityAmount}
 							/>
+							{errors.amount && (
+								<Typography
+									color="error"
+									sx={{ fontSize: '0.8rem' }}
+								>
+									{errors.amount}
+								</Typography>
+							)}
 						</Box>
-
-						{/* Dropdown for carrier selection */}
-						{openDropdown && (
-							<Box
-								position="absolute"
-								top={70}
-								left={0}
-								bgcolor="white"
-								boxShadow={3}
-								zIndex={10}
-								borderRadius="5px"
-								sx={{ width: { lg: '15%' } }}
-							>
-								{carrierOptions.map(carrier => (
-									<MenuItem
-										key={carrier.value}
-										onClick={() => handleCarrierChange(carrier)}
-										sx={{
-											paddingY: '0.88rem',
-											fontSize: '1rem',
-											color: '#636559',
-											fontWeight: 'medium',
-										}}
-									>
-										<img
-											src={carrier.logo}
-											alt={carrier.label}
-											style={{ width: 24, height: 24, marginRight: 8 }}
-										/>
-										{carrier.label}
-									</MenuItem>
-								))}
-							</Box>
-						)}
 					</Box>
-					{/* Data Plans Tabs Component */}
-					<DataPlansTabs onSelectData={handleDataSelection} />
 				</Box>
 
 				{/* Button to open modal */}
@@ -239,7 +271,7 @@ const DataTransactions: React.FC = () => {
 						}}
 					>
 						<Button
-							onClick={handleCancelDataSelection}
+							onClick={handleCancelAirtimeSelection}
 							variant="outlined"
 							sx={{
 								paddingX: '1.5rem',
@@ -305,10 +337,10 @@ const DataTransactions: React.FC = () => {
 							>
 								<PaymentDetails
 									orderDetails={[
-										{ label: 'Phone Number', value: phoneNumber },
-										{ label: 'Network Provider', value: selectedCarrier },
-										{ label: 'plan', value: dataInput },
-										{ label: 'Amount', value: dataAmount },
+										{ label: 'Provider', value: selectedProvider },
+										{ label: 'Meter Type', value: meterType },
+										{ label: 'Meter Number', value: meterNumber },
+										{ label: 'Amount', value: electricityAmount },
 									]}
 								/>
 
@@ -359,18 +391,13 @@ const DataTransactions: React.FC = () => {
 							>
 								<CardPayment
 									orderDetails={[
-										{ label: 'Phone Number', value: phoneNumber },
-										{ label: 'Network Provider', value: selectedCarrier },
-										{ label: 'Plan', value: dataInput },
-										{ label: 'Amount', value: dataAmount },
+										{ label: 'Provider', value: selectedProvider },
+										{ label: 'Meter Type', value: meterType },
+										{ label: 'Meter Number', value: meterNumber },
+										{ label: 'Amount', value: electricityAmount },
 									]}
 								/>
-								{/* <CardPayment
-									phoneNumber={phoneNumber} // Pass phoneNumber here
-									networkProvider={selectedCarrier} // Pass selectedCarrier here
-									plan={dataInput} // Pass the selected data plan
-									amount={dataAmount}
-								/> */}
+
 								<Box
 									sx={{
 										display: 'flex',
@@ -405,8 +432,6 @@ const DataTransactions: React.FC = () => {
 										Next
 									</Button>
 								</Box>
-								{/* <button onClick={() => setStage(1)}>Back</button>
-								<button onClick={() => setStage(3)}>Next</button> */}
 							</Box>
 						)}
 						{stage === 3 && (
@@ -596,4 +621,4 @@ const DataTransactions: React.FC = () => {
 	);
 };
 
-export default DataTransactions;
+export default ElectricityBills;

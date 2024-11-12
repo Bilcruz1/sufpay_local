@@ -15,18 +15,10 @@ import {
 import visa from '../../../../assets/icons/visa-icon.svg';
 
 interface PaymentDetailsProps {
-	phoneNumber: string;
-	networkProvider: string;
-	plan: string;
-	amount: string;
+	orderDetails: { label: string; value: string }[];
 }
 
-const PaymentDetails: React.FC<PaymentDetailsProps> = ({
-	phoneNumber,
-	networkProvider,
-	plan,
-	amount,
-}) => {
+const PaymentDetails: React.FC<PaymentDetailsProps> = ({ orderDetails }) => {
 	const [paymentMethod, setPaymentMethod] = useState<string>('Pay with card');
 
 	const handlePaymentMethodChange = (event: SelectChangeEvent<string>) => {
@@ -220,31 +212,25 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({
 							marginTop: '1.25rem',
 						}}
 					>
-						<Box
-							sx={{
-								display: 'flex',
-								gap: { xs: '0.5rem', md: '1rem', lg: '2rem' },
-							}}
-						>
-							<Typography sx={{ minWidth: '150px' }}>Phone number:</Typography>
-							<Typography sx={{ textAlign: 'left' }}>{phoneNumber}</Typography>
-						</Box>
-						<Box sx={{ display: 'flex', gap: '2rem' }}>
-							<Typography sx={{ minWidth: '150px' }}>
-								Network Provider:
-							</Typography>
-							<Typography sx={{ textAlign: 'left' }}>
-								{networkProvider}
-							</Typography>
-						</Box>
-						<Box sx={{ display: 'flex', gap: '2rem' }}>
-							<Typography sx={{ minWidth: '150px' }}>Plan:</Typography>
-							<Typography sx={{ textAlign: 'left' }}>{plan}</Typography>
-						</Box>
-						<Box sx={{ display: 'flex', gap: '2rem' }}>
-							<Typography sx={{ minWidth: '150px' }}>Amount:</Typography>
-							<Typography sx={{ textAlign: 'left' }}>{amount}</Typography>
-						</Box>
+						{orderDetails.map((detail, index) => (
+							<Box
+								key={index}
+								sx={{ display: 'flex', gap: '2rem' }}
+							>
+								<Typography sx={{ minWidth: '150px', color: '#636559' }}>
+									{detail.label}:
+								</Typography>
+								<Typography
+									sx={{
+										textAlign: 'left',
+										color: '#353535',
+										fontWeight: 'medium',
+									}}
+								>
+									{detail.value}
+								</Typography>
+							</Box>
+						))}
 					</Box>
 				</Box>
 			</Box>

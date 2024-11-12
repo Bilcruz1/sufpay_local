@@ -36,6 +36,10 @@ import dash_card_3 from '../assets/icons/dash_card_3.svg';
 import dash_card_4 from '../assets/icons/dash_card_4.svg';
 import dash_card_5 from '../assets/icons/dash_card_5.svg';
 import dash_card_6 from '../assets/icons/dash_card_6.svg';
+
+import utility_card_1 from '../assets/icons/utility_card_2.svg';
+import utility_card_2 from '../assets/icons/utility_card_1.svg';
+import utility_card_3 from '../assets/icons/utility_card_3.svg';
 import { PasswordChkProperties } from './enums';
 
 // export const passwordChecks: {
@@ -300,6 +304,26 @@ export const DashboardCardsContent = [
 		title: 'Events',
 		icon: dash_card_6,
 		link: '/transactions/events',
+	},
+];
+export const TransactionsCardsContent = [
+	{
+		title: 'Water',
+		icon: utility_card_1,
+		link: '/transactions/buy/utility/water',
+		text: 'Flow without interruption- Manage your water bills digitally with SUFPAY',
+	},
+	{
+		title: 'Electricity',
+		icon: utility_card_2,
+		link: '/transactions/buy/utility/electricity',
+		text: 'Seamless electricity payments any day any time.',
+	},
+	{
+		title: 'Waste',
+		icon: utility_card_3,
+		link: '/transactions/buy/utility/waste',
+		text: 'Settle your waste management bills for a clean city, and clean future.',
 	},
 ];
 
