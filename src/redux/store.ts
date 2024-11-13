@@ -1,9 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
 import notificationReducer from './slices/notificationSlice'
+import tokenReducer from "./slices/tokenSlice"; 
 
 export const store = configureStore({
-    reducer: {
-      notification: notificationReducer,
+  reducer: {
+    notification: notificationReducer,
+    token: tokenReducer,
   },
 });
 
