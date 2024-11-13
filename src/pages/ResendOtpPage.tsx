@@ -18,7 +18,7 @@ const ResendOtpPage: React.FC = () => {
   const [redirectToHome, setRedirectToHome] = useState(false)
 
   const navigate = useNavigate()
-  const {token: string} = useParams()
+  const { token: string } = useParams()
 
   useEffect(() => {
     handleTokenValidation(`${token}`, setShowLoadingPage);
@@ -32,29 +32,29 @@ const ResendOtpPage: React.FC = () => {
       const response: IResponse = await validateToken({ token: `${token}` });
       console.log(response);
 
-      const responseChks =  ( response.data?.succeeded === true &&
+      const responseChks = (response.data?.succeeded === true &&
         response.data?.statusCode === StatusCode.notFound &&
         response.data.data === false
       ) || (
-        response.data?.succeeded === true &&
-        response.data?.statusCode === StatusCode.deleted &&
-        response.data?.data === false
-      ) ||  (
-        response.data?.succeeded === true &&
-        response.data?.statusCode === StatusCode.deleted &&
-        response.data?.data === false
-      ) ||  (
-        response.data?.succeeded === true &&
-        response.data?.statusCode === StatusCode.badRequest &&
-        response.data?.data === false
-      ) || (
-        response.data?.succeeded === true &&
-        response.data?.statusCode === StatusCode.ok &&
-        response.data.data === true
-      )
+          response.data?.succeeded === true &&
+          response.data?.statusCode === StatusCode.deleted &&
+          response.data?.data === false
+        ) || (
+          response.data?.succeeded === true &&
+          response.data?.statusCode === StatusCode.deleted &&
+          response.data?.data === false
+        ) || (
+          response.data?.succeeded === true &&
+          response.data?.statusCode === StatusCode.badRequest &&
+          response.data?.data === false
+        ) || (
+          response.data?.succeeded === true &&
+          response.data?.statusCode === StatusCode.ok &&
+          response.data.data === true
+        )
 
       if (responseChks) {
-       setShowLoadingPage(false)
+        setShowLoadingPage(false)
       } else {
         navigate(-1);
       }
@@ -75,7 +75,7 @@ const ResendOtpPage: React.FC = () => {
       };
     }
   }
- 
+
   async function handleOtpRequest() {
     const response: IResponse = await resendOtp({ token: `${token}` });
 
@@ -117,8 +117,8 @@ const ResendOtpPage: React.FC = () => {
           // background: `url(${bg_img}) no-repeat center center`,
         }}
       >
-       
-        { 
+
+        {
           redirectToHome ?
             <>
               <Typography variant="h5" component={"h5"} mb={2}>OTP Expired click the button to resend.</Typography>
@@ -130,12 +130,17 @@ const ResendOtpPage: React.FC = () => {
               >
                 Resend OTP
               </Button>
-            
+
             </> :
 
             <>
               <Typography variant="h5" component={"h5"} mb={2}>OTP has been sent please check your mail.</Typography>
-              <Button onClick={() => { navigate("/"), setRedirectToHome(false) }}>Go to home page</Button>
+
+              <Button onClick={() => {
+                navigate("/");
+                setRedirectToHome(false);
+              }}>Go to home page</Button>
+
             </>
         }
       </Paper>
