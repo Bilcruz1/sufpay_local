@@ -303,14 +303,14 @@ const DataTransactions: React.FC = () => {
 									gap: '2.5rem',
 								}}
 							>
-								<PaymentDetails
+								{/* <PaymentDetails
 									orderDetails={[
 										{ label: 'Phone Number', value: phoneNumber },
 										{ label: 'Network Provider', value: selectedCarrier },
 										{ label: 'plan', value: dataInput },
 										{ label: 'Amount', value: dataAmount },
 									]}
-								/>
+								/> */}
 
 								<Box
 									sx={{

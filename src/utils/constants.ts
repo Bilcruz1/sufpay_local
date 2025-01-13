@@ -40,6 +40,9 @@ import dash_card_6 from '../assets/icons/dash_card_6.svg';
 import utility_card_1 from '../assets/icons/utility_card_2.svg';
 import utility_card_2 from '../assets/icons/utility_card_1.svg';
 import utility_card_3 from '../assets/icons/utility_card_3.svg';
+
+import transport_card_1 from '../assets/icons/transport_card_2.svg';
+import transport_card_2 from '../assets/icons/transport_card_1.svg';
 import { PasswordChkProperties } from './enums';
 
 // export const passwordChecks: {
@@ -290,21 +293,21 @@ export const DashboardCardsContent = [
 		icon: dash_card_3,
 		link: '/transactions/buy/utility',
 	},
-	{
-		title: 'Cable and Tv',
-		icon: dash_card_4,
-		link: '/transactions/buy/cable',
-	},
-	{
-		title: 'Transport',
-		icon: dash_card_5,
-		link: '/transactions/buy/transport',
-	},
-	{
-		title: 'Events',
-		icon: dash_card_6,
-		link: '/transactions/events',
-	},
+	// {
+	// 	title: 'Cable and Tv',
+	// 	icon: dash_card_4,
+	// 	link: '/transactions/buy/cable',
+	// },
+	// {
+	// 	title: 'Transport',
+	// 	icon: dash_card_5,
+	// 	link: '/transactions/buy/transport',
+	// },
+	// {
+	// 	title: 'Events',
+	// 	icon: dash_card_6,
+	// 	link: '/transactions/events',
+	// },
 ];
 export const TransactionsCardsContent = [
 	{
@@ -327,10 +330,29 @@ export const TransactionsCardsContent = [
 	},
 ];
 
+export const TransportCardsContent = [
+	{
+		title: 'Inter city',
+		icon: transport_card_1,
+		link: '/transactions/buy/transport/intercity',
+		text: 'Pay and Travel across cities with ease',
+	},
+	{
+		title: 'Town service',
+		icon: transport_card_2,
+		link: '/transactions/buy/transport/townservice',
+		text: 'Pay for intracity transport services in seconds',
+	},
+];
+
 export const transactionsTile = [
 	{ title: 'Recent transactions', linkUrl: '/dashboard/transactions/recent' },
 	{
 		title: 'Upcoming transactions',
 		linkUrl: '/dashboard/trasactions/upcoming',
 	},
+];
+
+export const WalletTransactionsTile = [
+	{ title: 'Recent transactions', linkUrl: '/dashboard/transactions/recent' },
 ];

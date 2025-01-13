@@ -16,10 +16,26 @@ import { useNavigate } from 'react-router-dom';
 import succ from '../../../../assets/icons/success.svg';
 import CardPayment from '.././Payments/CardPayment';
 import PaymentDetails from '../Payments/PaymentDetails';
+import { useRequest } from '../../../../hooks/use-request';
+import { useFetcher } from '../../../../hooks/use-fetcher';
+import {
+	fetchEnums,
+	fetchprepaidElectricBillers,
+	fetchpostpaidElectricBillers,
+	initiatePaystackElectricity,
+	initiateWalletElectricity,
+} from '../../../../Apis/card-payment';
+import { toast, ToastContainer } from 'react-toastify';
 
 const formSchema = z.object({
-	provider: z.string().min(1, 'Please select a provider'),
+	provider: z.object({
+		id: z.number().min(1, 'Provider ID is required'),
+		name: z.string().min(1, 'Provider name is required'),
+	}),
 	meterType: z.string().min(1, 'Meter type is required'),
+	// selectedDisco: z.number({
+	// 	required_error: 'Distribution company is required',
+	// }),
 	meterNumber: z
 		.string()
 		.min(1, 'Meter number is required')
@@ -30,22 +46,72 @@ const formSchema = z.object({
 		.regex(/^\d+$/, 'Amount should be a valid number'), // Checks if it’s numeric
 });
 
+interface Biller {
+	billerId: number;
+	name: string;
+	countryCode: string;
+	countryName: string;
+	type: string;
+}
+
+interface DiscoOption {
+	name: string;
+	value: number;
+}
+
+const getDeviceInformation = async () => {
+	const response = await fetch('https://ipapi.co/json/');
+	const location = await response.json();
+
+	return {
+		httpBrowserLanguage: navigator.language,
+		httpBrowserJavaEnabled: navigator.javaEnabled() ? 'true' : 'false',
+		httpBrowserJavaScriptEnabled: 'true', // JS is enabled if this code runs
+		httpBrowserColorDepth: window.screen.colorDepth,
+		httpBrowserScreenHeight: window.screen.height,
+		httpBrowserScreenWidth: window.screen.width,
+		httpBrowserTimeDifference: new Date().getTimezoneOffset().toString(),
+		userAgentBrowserValue: navigator.userAgent,
+		deviceChannel: 'Web',
+		locationInformation: {
+			ipAddress: location.ip,
+			country: location.country_name,
+			region: location.region,
+			city: location.city,
+			latitude: location.latitude,
+			longitude: location.longitude,
+			isp: location.org,
+		},
+	};
+};
+
 const ElectricityBills: React.FC = () => {
 	const isfirstTime = true;
-	const [selectedProvider, setSelectedProvider] = useState<string>('');
+	const [selectedProvider, setSelectedProvider] = useState<{
+		id: number;
+		name: string;
+	} | null>(null);
+	const [selectedDisco, setSelectedDisco] = useState<string>('');
 	const [electricityAmount, setElectricityAmount] = useState<string>('');
 	const [meterType, setMeterType] = useState<string>('');
 	const [meterNumber, setMeterNumber] = useState<string>('');
 	const [stage, setStage] = useState(isfirstTime ? 1 : 2);
 	const [openModal, setOpenModal] = useState(false);
-	const providerOptions = ['AEDC', 'BEDC', 'NERC'];
+
+	const [paymentMethod, setPaymentMethod] = useState('Pay with Paystack');
 	const [errors, setErrors] = useState<Record<string, string>>({});
 	const navigate = useNavigate();
 
-	const handleProviderChange = (event: SelectChangeEvent<string>) => {
-		setSelectedProvider(event.target.value as string);
+	// const handleProviderChange = (event: SelectChangeEvent<string>) => {
+	// 	setSelectedProvider(event.target.value as string);
+	// };
+	const handleProviderChange = (value: string) => {
+		setSelectedProvider(JSON.parse(value));
 	};
 
+	const handleDiscoChange = (event: SelectChangeEvent<string>) => {
+		setSelectedDisco(event.target.value as string);
+	};
 	const handleCancelAirtimeSelection = () => {
 		navigate(-1);
 	};
@@ -53,6 +119,7 @@ const ElectricityBills: React.FC = () => {
 	const handleOpenModal = () => {
 		const formData = {
 			provider: selectedProvider,
+			disco: selectedDisco,
 			meterType,
 			meterNumber,
 			amount: electricityAmount,
@@ -90,6 +157,204 @@ const ElectricityBills: React.FC = () => {
 		//make api call
 		//if successful
 		setStage(2);
+	};
+
+	const handlePaymentMethodChange = (method: string) => {
+		setPaymentMethod(method);
+	};
+
+	const {
+		isLoading: isLoadingAllEnum,
+		response: AllEnumResponse,
+		makeRequest: makeAllEnumRequest,
+	} = useFetcher(fetchEnums);
+
+	AllEnumResponse && console.log(AllEnumResponse[9]?.values, 'AllEnumRESPONSE');
+	const allDiscoEnumOptions =
+		AllEnumResponse && AllEnumResponse[9]?.values
+			? AllEnumResponse[9]?.values
+			: [];
+
+	const {
+		isLoading: isLoadingprepaidElectricBillers,
+		response: prepaidElectricBillersResponse,
+		makeRequest: makeprepaidElectricBillersRequest,
+	} = useFetcher(fetchprepaidElectricBillers);
+
+	console.log(prepaidElectricBillersResponse, 'PREPAIDRESPONSE');
+
+	// const prepaidProviderOptions =
+	// 	prepaidElectricBillersResponse?.data.map(
+	// 		(biller: { name: string }) => biller.name
+	// 	) || [];
+	const prepaidProviderOptions =
+		prepaidElectricBillersResponse?.data.map(
+			(biller: { name: string; billerId: string }) => ({
+				name: biller.name,
+				id: biller.billerId,
+			})
+		) || [];
+
+	const {
+		isLoading: isLoadingpostpaidElectricBillers,
+		response: postpaidElectricBillersResponse,
+		makeRequest: makepostpaidElectricBillersRequest,
+	} = useFetcher(fetchpostpaidElectricBillers);
+
+	console.log(postpaidElectricBillersResponse, 'POSTRESPONSE');
+
+	// const postpaidProviderOptions =
+	// 	postpaidElectricBillersResponse?.data.map(
+	// 		(biller: { name: string }) => biller.name
+	// 	) || [];
+	const postpaidProviderOptions =
+		postpaidElectricBillersResponse?.data.map(
+			(biller: { name: string; billerId: string }) => ({
+				name: biller.name,
+				id: biller.billerId,
+			})
+		) || [];
+
+	const providerOptions =
+		meterType === '0' ? prepaidProviderOptions : postpaidProviderOptions;
+
+	const {
+		isLoading: isLoadingWallet,
+		response: walletResponse,
+		makeRequest: makeWalletRequest,
+	} = useRequest(initiateWalletElectricity);
+	const {
+		isLoading: isLoadingPaystack,
+		response: paystackResponse,
+		makeRequest: makePaystackRequest,
+	} = useRequest(initiatePaystackElectricity);
+
+	const handlePay = async () => {
+		try {
+			// Load user profile
+			const userProfileItem = localStorage.getItem('userProfile');
+			if (!userProfileItem) {
+				toast.error('User profile not found');
+				return;
+			}
+			const userProfile = JSON.parse(userProfileItem);
+
+			// Ensure required fields are present
+			if (
+				!selectedProvider?.id ||
+				!meterNumber ||
+				!electricityAmount ||
+				!meterType
+			) {
+				toast.error('Please fill all required fields for electricity payment');
+				return;
+			}
+
+			// Prepare device information
+			const deviceInformation = await getDeviceInformation();
+
+			// Construct payloads
+			const electricityWalletPayload = {
+				userId: userProfile.userId,
+				transactionDetails: {
+					meterNumber,
+					state: 'null', // Placeholder for state if not needed
+					amount: electricityAmount,
+					billerId: String(selectedProvider.id),
+					distributionCompany: selectedDisco,
+					subscriptionType: Number(meterType),
+					serviceProviderName: selectedProvider.name,
+					description: 'Electric bill',
+				},
+				deviceInformation,
+				serviceProviderName: selectedProvider.name,
+				passKey: null, // Placeholder for passKey if required later
+			} as {
+				userId: string;
+				transactionDetails: {
+					meterNumber: string;
+					state: string;
+					amount: string;
+					billerId: string;
+					distributionCompany: string;
+					subscriptionType: number;
+					serviceProviderName: string;
+					description: string;
+				};
+				deviceInformation: Record<string, unknown>;
+				serviceProviderName: string;
+				passKey: string | null;
+				walletIdentifier?: string;
+			};
+
+			const electricityPaystackPayload = {
+				userId: userProfile.userId,
+				transactionDetails: {
+					meterNumber,
+					state: 'null',
+					amount: electricityAmount,
+					billerId: String(selectedProvider.id), // Convert to string
+					distributionCompany: selectedDisco,
+					subscriptionType: Number(meterType), // Convert to number
+					serviceProviderName: selectedProvider.name,
+					description: 'Electric bill',
+				},
+				deviceInformation,
+				serviceProviderName: selectedProvider.name,
+			} as {
+				userId: string;
+				transactionDetails: {
+					meterNumber: string;
+					state: string;
+					amount: string;
+					billerId: string; // Remains as string
+					distributionCompany: string;
+					subscriptionType: number; // Must be a number
+					serviceProviderName: string;
+					description: string;
+				};
+				deviceInformation: Record<string, unknown>;
+				serviceProviderName: string;
+			};
+
+			// Handle payment method
+			if (paymentMethod === 'Pay with wallet') {
+				electricityWalletPayload.walletIdentifier =
+					userProfile.wallet.walletIdentifier;
+				const [apiResponse, error] = await makeWalletRequest(
+					electricityWalletPayload
+				);
+				handleApiResponse(apiResponse, error);
+				setOpenModal(false);
+			} else if (paymentMethod === 'Pay with Paystack') {
+				const [apiResponse, error] = await makePaystackRequest(
+					electricityPaystackPayload
+				);
+
+				if (apiResponse?.data?.data?.authorizationUrl) {
+					window.location.href = apiResponse.data.data.authorizationUrl;
+				} else {
+					toast.error('Failed to initiate payment with Paystack');
+				}
+			}
+		} catch (error) {
+			console.error('Payment failed:', error);
+			toast.error('Payment failed. Please try again.');
+		}
+	};
+	const handleApiResponse = (apiResponse: any, error?: any) => {
+		if (error) {
+			toast.error(error.message || 'An unexpected error occurred');
+			return;
+		}
+		if (apiResponse?.succeeded) {
+			toast.success('Operation successful');
+		} else {
+			toast.error(apiResponse?.message || 'An unexpected error occurred');
+			if (apiResponse?.errors?.length > 0) {
+				apiResponse.errors.forEach((err: string) => toast.error(err));
+			}
+		}
 	};
 
 	return (
@@ -134,27 +399,67 @@ const ElectricityBills: React.FC = () => {
 									paddingBottom: '0.38rem',
 								}}
 							>
-								Provider
+								Meter Type
 							</Typography>
 							<Select
 								fullWidth
-								value={selectedProvider}
-								onChange={handleProviderChange}
+								value={meterType}
+								onChange={e => setMeterType(e.target.value)}
 								displayEmpty
 								variant="outlined"
+								error={!!errors.meterType}
 							>
 								<MenuItem
 									value=""
 									disabled
 								>
-									Select a provider
+									Select a meter type
 								</MenuItem>
-								{providerOptions.map(option => (
+								<MenuItem value="0">PREPAID</MenuItem>
+								<MenuItem value="1">POSTPAID</MenuItem>
+							</Select>
+
+							{errors.meterType && (
+								<Typography
+									color="error"
+									sx={{ fontSize: '0.8rem' }}
+								>
+									{errors.meterType}
+								</Typography>
+							)}
+							<Typography
+								sx={{
+									fontSize: '0.88rem',
+									color: '#636559',
+									paddingTop: '1.5rem',
+									lineHeight: '1.25rem',
+									paddingBottom: '0.38rem',
+								}}
+							>
+								Provider
+							</Typography>
+							<Select
+								fullWidth
+								value={selectedProvider ? JSON.stringify(selectedProvider) : ''}
+								onChange={event => handleProviderChange(event.target.value)}
+								displayEmpty
+								variant="outlined"
+								disabled={!meterType}
+							>
+								<MenuItem
+									value=""
+									disabled
+								>
+									{meterType
+										? 'Select a provider'
+										: 'Choose a meter type first'}
+								</MenuItem>
+								{providerOptions.map((option: any) => (
 									<MenuItem
-										key={option}
-										value={option}
+										key={option.id}
+										value={JSON.stringify(option)}
 									>
-										{option}
+										{option.name}
 									</MenuItem>
 								))}
 							</Select>
@@ -176,23 +481,37 @@ const ElectricityBills: React.FC = () => {
 									paddingBottom: '0.38rem',
 								}}
 							>
-								Meter Type
+								Distribution Company
 							</Typography>
-							<TextField
+							<Select
 								fullWidth
+								value={selectedDisco}
+								onChange={handleDiscoChange}
+								displayEmpty
 								variant="outlined"
-								onChange={e => setMeterType(e.target.value)}
-								value={meterType}
-								placeholder="Enter meter type"
-								error={!!errors.meterType}
-								// helperText={errors.meterType}
-							/>
-							{errors.meterType && (
+							>
+								<MenuItem
+									value=""
+									disabled
+								>
+									Please select distribution company
+								</MenuItem>
+								{allDiscoEnumOptions.map((option: DiscoOption) => (
+									<MenuItem
+										key={option.value}
+										value={option.value}
+									>
+										{option.name}
+									</MenuItem>
+								))}
+							</Select>
+
+							{errors.provider && (
 								<Typography
 									color="error"
 									sx={{ fontSize: '0.8rem' }}
 								>
-									{errors.meterType}
+									{errors.selectedDisco}
 								</Typography>
 							)}
 
@@ -224,7 +543,6 @@ const ElectricityBills: React.FC = () => {
 									{errors.meterNumber}
 								</Typography>
 							)}
-
 							<Typography
 								sx={{
 									fontSize: '0.88rem',
@@ -337,11 +655,16 @@ const ElectricityBills: React.FC = () => {
 							>
 								<PaymentDetails
 									orderDetails={[
-										{ label: 'Provider', value: selectedProvider },
+										{
+											label: 'Provider',
+											value: selectedProvider ? selectedProvider.name : '',
+										}, // Extract name if available
 										{ label: 'Meter Type', value: meterType },
 										{ label: 'Meter Number', value: meterNumber },
 										{ label: 'Amount', value: electricityAmount },
 									]}
+									paymentMethod={paymentMethod}
+									onPaymentMethodChange={handlePaymentMethodChange}
 								/>
 
 								<Box
@@ -367,7 +690,8 @@ const ElectricityBills: React.FC = () => {
 									</Button>
 									<Button
 										variant="contained"
-										onClick={changeStage}
+										// onClick={changeStage}
+										onClick={handlePay}
 										sx={{
 											color: 'white',
 											backgroundColor: '#AAC645',
@@ -391,7 +715,10 @@ const ElectricityBills: React.FC = () => {
 							>
 								<CardPayment
 									orderDetails={[
-										{ label: 'Provider', value: selectedProvider },
+										{
+											label: 'Provider',
+											value: selectedProvider ? selectedProvider.name : '',
+										},
 										{ label: 'Meter Type', value: meterType },
 										{ label: 'Meter Number', value: meterNumber },
 										{ label: 'Amount', value: electricityAmount },

@@ -264,14 +264,14 @@ const WasteBills: React.FC = () => {
 									gap: '2.5rem',
 								}}
 							>
-								<PaymentDetails
+								{/* <PaymentDetails
 									orderDetails={[
 										{ label: 'Provider', value: selectedProvider },
 										{ label: 'Meter Type', value: meterType },
 										{ label: 'Meter Number', value: meterNumber },
 										{ label: 'Amount', value: electricityAmount },
 									]}
-								/>
+								/> */}
 
 								<Box
 									sx={{

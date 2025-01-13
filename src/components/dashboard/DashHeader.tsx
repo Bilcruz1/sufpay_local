@@ -9,17 +9,29 @@ import {
 	useMediaQuery,
 	useTheme,
 } from '@mui/material';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import MenuIcon from '@mui/icons-material/Menu';
 import notification_icon from '../../assets/icons/notification_icon.svg';
 
 interface DashHeaderProps {
-	toggleSidebar: () => void; // Ensure toggleSidebar is typed as a function
+	toggleSidebar: () => void;
 }
 
 const DashHeader: React.FC<DashHeaderProps> = ({ toggleSidebar }) => {
 	const theme = useTheme();
 	const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+	// State for user name
+	const [firstName, setFirstName] = useState<string>('User');
+	const [lastName, setLastName] = useState<string>('');
+
+	useEffect(() => {
+		// Fetch user info from local storage
+		const fetchedFirstName = localStorage.getItem('firstName') || 'User';
+		const fetchedLastName = localStorage.getItem('lastName') || '';
+		setFirstName(fetchedFirstName);
+		setLastName(fetchedLastName);
+	}, []);
 
 	return (
 		<AppBar
@@ -46,7 +58,7 @@ const DashHeader: React.FC<DashHeaderProps> = ({ toggleSidebar }) => {
 						variant="h5"
 						color="textPrimary"
 					>
-						Welcome, Abdulsamad
+						Welcome, {lastName}
 					</Typography>
 				</Box>
 
@@ -79,11 +91,11 @@ const DashHeader: React.FC<DashHeaderProps> = ({ toggleSidebar }) => {
 								gap="12px"
 							>
 								<Avatar
-									alt="Hassan Garba"
+									alt={`${firstName} ${lastName}`}
 									sx={{ width: '24px', height: '24px' }}
 								/>
 								<Typography sx={{ fontWeight: 600, fontSize: '12px' }}>
-									Hassan Garba
+									{firstName} {lastName}
 								</Typography>
 							</Box>
 						</Box>
@@ -99,7 +111,7 @@ const DashHeader: React.FC<DashHeaderProps> = ({ toggleSidebar }) => {
 							gap="12px"
 						>
 							<Avatar
-								alt="Hassan Garba"
+								alt={`${firstName} ${lastName}`}
 								sx={{ width: '1.5rem', height: '1.5rem' }}
 							/>
 						</Box>

@@ -302,13 +302,13 @@ const WaterBills: React.FC = () => {
 									gap: '2.5rem',
 								}}
 							>
-								<PaymentDetails
+								{/* <PaymentDetails
 									orderDetails={[
 										{ label: 'Provider', value: selectedProvider },
 										{ label: 'Account ID', value: accountID },
 										{ label: 'Amount', value: waterAmount },
 									]}
-								/>
+								/> */}
 
 								<Box
 									sx={{
