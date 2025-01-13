@@ -3,27 +3,27 @@ import UtilityBillsLanding from '../components/dashboard/transactions/UtilityBil
 import WaterBills from '../components/dashboard/transactions/UtilityBillsPages/WaterBills';
 import ElectricityBills from '../components/dashboard/transactions/UtilityBillsPages/ElectricityBills';
 import WasteBills from '../components/dashboard/transactions/UtilityBillsPages/WasteBills';
+import TransportLandingPage from '../components/dashboard/transactions/TransportPages/TransportLandingPage';
 
-const UtilityRoutes = () => (
+const TransportRoutes = () => (
 	<Routes>
 		<Route
 			path="/"
-			element={<UtilityBillsLanding />}
+			element={<TransportLandingPage />}
 		/>
 		<Route
-			path="/water"
+			path="/intercity"
 			element={<WaterBills />}
 		/>
 		<Route
-			path="/electricity"
+			path="/townservice"
 			element={<ElectricityBills />}
 		/>
-
 		<Route
-			path="/waste"
-			element={<WasteBills />}
+			path="/townservice"
+			element={<ElectricityBills />}
 		/>
 	</Routes>
 );
 
-export default UtilityRoutes;
+export default TransportRoutes;

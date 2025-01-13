@@ -12,8 +12,8 @@ const DashboardCards: React.FC<{
 	return (
 		<Box
 			sx={{
-				Width: '11rem',
-				Height: '6rem',
+				Width: '100%',
+				Height: '100%',
 				display: 'flex',
 				alignItems: 'center',
 				justifyContent: 'center',

@@ -14,15 +14,29 @@ import {
 } from '@mui/material';
 import visa from '../../../../assets/icons/visa-icon.svg';
 
+// interface PaymentDetailsProps {
+// 	orderDetails: { label: string; value: string }[];
+// }
+
+// const PaymentDetails: React.FC<PaymentDetailsProps> = ({ orderDetails }) => {
+// 	const [paymentMethod, setPaymentMethod] = useState<string>('Pay with card');
+
+// 	const handlePaymentMethodChange = (event: SelectChangeEvent<string>) => {
+// 		setPaymentMethod(event.target.value as string);
+// 	};
 interface PaymentDetailsProps {
 	orderDetails: { label: string; value: string }[];
+	paymentMethod: string;
+	onPaymentMethodChange: (method: string) => void;
 }
 
-const PaymentDetails: React.FC<PaymentDetailsProps> = ({ orderDetails }) => {
-	const [paymentMethod, setPaymentMethod] = useState<string>('Pay with card');
-
+const PaymentDetails: React.FC<PaymentDetailsProps> = ({
+	orderDetails,
+	paymentMethod,
+	onPaymentMethodChange,
+}) => {
 	const handlePaymentMethodChange = (event: SelectChangeEvent<string>) => {
-		setPaymentMethod(event.target.value as string);
+		onPaymentMethodChange(event.target.value as string);
 	};
 
 	return (
@@ -74,109 +88,17 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({ orderDetails }) => {
 										fullWidth
 										label=""
 									>
-										<MenuItem value="Pay with card">Pay with card</MenuItem>
-										<MenuItem value="Pay with bank transfer">
+										{/* <MenuItem value="Pay with bank transfer">
 											Pay with bank transfer
+										</MenuItem> */}
+										<MenuItem value="Pay with wallet">Pay with wallet</MenuItem>
+										<MenuItem value="Pay with Paystack">
+											Pay with Paystack
 										</MenuItem>
-										<MenuItem value="Pay with bank transfer">
-											Pay Saved Card
-										</MenuItem>
-										<MenuItem value="Pay with bank transfer">
-											Pay with wallet
-										</MenuItem>
+
+										<MenuItem value="Pay with card">Pay with card</MenuItem>
 									</Select>
 								</FormControl>
-							</Grid>
-							<Grid
-								item
-								xs={12}
-							>
-								<Typography
-									sx={{
-										color: '#666666',
-										fontSize: '1rem',
-										paddingBottom: '0.75rem',
-										paddingTop: '1.25rem',
-									}}
-								>
-									Name on card
-								</Typography>
-								<TextField
-									label=""
-									fullWidth
-									placeholder="Kuma wayo"
-									variant="outlined"
-									sx={{}}
-								/>
-							</Grid>
-							<Grid
-								item
-								xs={12}
-							>
-								<Typography
-									sx={{
-										color: '#666666',
-										fontSize: '1rem',
-										paddingBottom: '0.75rem',
-										paddingTop: '1.25rem',
-									}}
-								>
-									Card number
-								</Typography>
-								<TextField
-									label=""
-									fullWidth
-									placeholder="9801 2345 6789 0901"
-									variant="outlined"
-									InputProps={{
-										endAdornment: (
-											<img
-												src={visa}
-												alt="Visa logo"
-											/>
-										),
-									}}
-								/>
-							</Grid>
-							<Grid
-								item
-								xs={6}
-							>
-								<Typography
-									sx={{
-										color: '#666666',
-										fontSize: '1rem',
-										paddingBottom: '0.75rem',
-									}}
-								>
-									Expiration
-								</Typography>
-								<TextField
-									label=""
-									fullWidth
-									placeholder="21/25"
-									variant="outlined"
-								/>
-							</Grid>
-							<Grid
-								item
-								xs={6}
-							>
-								<Typography
-									sx={{
-										color: '#666666',
-										fontSize: '1rem',
-										paddingBottom: '0.75rem',
-									}}
-								>
-									CVV
-								</Typography>
-								<TextField
-									label=""
-									fullWidth
-									placeholder="790"
-									variant="outlined"
-								/>
 							</Grid>
 						</Grid>
 					</Box>

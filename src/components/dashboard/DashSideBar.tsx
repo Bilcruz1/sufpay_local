@@ -1,5 +1,4 @@
-import React from 'react';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
 	List,
 	ListItem,
@@ -9,6 +8,7 @@ import {
 	Typography,
 	Box,
 } from '@mui/material';
+import AuthContext from '../../context/auth-context';
 import { DashboadNav } from '../../utils/constants';
 import { useNavigate, useLocation } from 'react-router-dom';
 import dash_logo from '../../assets/img/dash_Sufpay.svg';
@@ -21,24 +21,35 @@ interface DashSideBarProps {
 const DashSideBar: React.FC<DashSideBarProps> = ({ toggleSidebar }) => {
 	const navigate = useNavigate();
 	const location = useLocation();
+	const { logout } = AuthContext.useContainer();
 	const [selectedPath, setSelectedPath] = useState(location.pathname);
 
+	// State to store user information
+	const [userName, setUserName] = useState<string>('User');
+
 	const getPrimaryPath = (path: string) => {
-		// Determine primary category based on the path
 		if (path.startsWith('/transaction')) return '/transaction';
 		return path;
 	};
 
 	const handleListItemClick = (link: string) => {
-		// Set the selected path to the primary category link
 		setSelectedPath(getPrimaryPath(link));
 		navigate(link);
 		toggleSidebar();
 	};
 
+	const handleLogout = () => {
+		logout();
+		navigate('/login');
+	};
+
 	useEffect(() => {
-		// Update `selectedPath` based on the current location
 		setSelectedPath(getPrimaryPath(location.pathname));
+
+		// Fetch user info from local storage
+		const firstName = localStorage.getItem('firstName') || 'User';
+		const lastName = localStorage.getItem('lastName') || '';
+		setUserName(`${firstName} ${lastName}`.trim());
 	}, [location.pathname]);
 
 	return (
@@ -64,7 +75,6 @@ const DashSideBar: React.FC<DashSideBarProps> = ({ toggleSidebar }) => {
 					/>
 				</ListItem>
 
-				{/* Map through the dashboard navigation links */}
 				{DashboadNav.map((el, ind) => (
 					<ListItem
 						key={ind}
@@ -113,14 +123,14 @@ const DashSideBar: React.FC<DashSideBarProps> = ({ toggleSidebar }) => {
 					}}
 				>
 					<Avatar
-						alt="Hassan Garba"
+						alt={userName}
 						src="/static/images/avatar/1.jpg"
 					/>
 					<Typography
 						variant="caption"
 						sx={{ color: '#fff' }}
 					>
-						Hassan Garba
+						{userName}
 					</Typography>
 				</Box>
 
@@ -129,6 +139,7 @@ const DashSideBar: React.FC<DashSideBarProps> = ({ toggleSidebar }) => {
 					src={exit_icon}
 					alt={'exit_icon'}
 					sx={{ cursor: 'pointer', width: '1rem', height: '1rem' }}
+					onClick={handleLogout}
 				/>
 			</Box>
 		</Box>

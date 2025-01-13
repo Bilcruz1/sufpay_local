@@ -18,9 +18,15 @@ import mobile9Logo from '../../../assets/icons/9mobile-logo.svg';
 import airtelLogo from '../../../assets/icons/airtel-logo.svg';
 import { useNavigate } from 'react-router-dom';
 import succ from '../../../assets/icons/success.svg';
-import AirtimePaymentDetails from './Payments/AirtimePaymentDetails';
 import CardPayment from './Payments/CardPayment';
 import PaymentDetails from './Payments/PaymentDetails';
+import { useRequest } from '../../../hooks/use-request';
+import {
+	initiateWalletAirtime,
+	initiatePaystackAirtime,
+} from '../../../Apis/card-payment';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // Define type for carrier options
 interface CarrierOption {
@@ -29,9 +35,35 @@ interface CarrierOption {
 	logo: string;
 }
 
+const getDeviceInformation = async () => {
+	const response = await fetch('https://ipapi.co/json/');
+	const location = await response.json();
+
+	return {
+		httpBrowserLanguage: navigator.language,
+		httpBrowserJavaEnabled: navigator.javaEnabled() ? 'true' : 'false',
+		httpBrowserJavaScriptEnabled: 'true', // JS is enabled if this code runs
+		httpBrowserColorDepth: window.screen.colorDepth,
+		httpBrowserScreenHeight: window.screen.height,
+		httpBrowserScreenWidth: window.screen.width,
+		httpBrowserTimeDifference: new Date().getTimezoneOffset().toString(),
+		userAgentBrowserValue: navigator.userAgent,
+		deviceChannel: 'Web',
+		locationInformation: {
+			ipAddress: location.ip,
+			country: location.country_name,
+			region: location.region,
+			city: location.city,
+			latitude: location.latitude,
+			longitude: location.longitude,
+			isp: location.org,
+		},
+	};
+};
+
 const AirtimeTransactions: React.FC = () => {
 	const isfirstTime = true;
-	const [selectedCarrier, setSelectedCarrier] = useState<string>('MTN');
+	const [selectedCarrier, setSelectedCarrier] = useState<string>('MTN Nigeria');
 	const [carrierLogo, setCarrierLogo] = useState<string>(mtnLogo); // Default to MTN
 	const [openDropdown, setOpenDropdown] = useState<boolean>(false);
 	const [phoneNumber, setPhoneNumber] = useState<string>('');
@@ -39,10 +71,14 @@ const AirtimeTransactions: React.FC = () => {
 	const [stage, setStage] = useState(isfirstTime ? 1 : 2);
 	const [openModal, setOpenModal] = useState(false);
 	const carrierOptions: CarrierOption[] = [
-		{ value: 'MTN', label: 'MTN', logo: mtnLogo },
-		{ value: 'GLO', label: 'GLO', logo: gloLogo },
-		{ value: '9 MOBILE', label: '9 MOBILE', logo: mobile9Logo },
-		{ value: 'AIRTEL', label: 'AIRTEL', logo: airtelLogo },
+		{ value: 'MTN Nigeria', label: 'MTN', logo: mtnLogo },
+		{ value: 'Glo Nigeria', label: 'GLO', logo: gloLogo },
+		{
+			value: '9Mobile (Etisalat) Nigeria',
+			label: '9 MOBILE',
+			logo: mobile9Logo,
+		},
+		{ value: 'Airtel Nigeria', label: 'AIRTEL', logo: airtelLogo },
 	];
 	const navigate = useNavigate();
 
@@ -78,6 +114,145 @@ const AirtimeTransactions: React.FC = () => {
 		setStage(2);
 	};
 
+	const getBillerId = (selectedCarrier: string): string => {
+		const billerIdMap: { [key: string]: string } = {
+			'MTN Nigeria': '341',
+			'Glo Nigeria': '344',
+			'Airtel Nigeria': '342',
+			'9Mobile (Etisalat) Nigeria': '340',
+		};
+
+		return billerIdMap[selectedCarrier] || 'unknown'; // Default to 'unknown' if no match
+	};
+
+	// const { isLoading, response, makeRequest } = useRequest(
+	// 	initiatePaystackAirtime,
+	// 	initiateWalletAirtime
+	// );
+	const {
+		isLoading: isLoadingWallet,
+		response: walletResponse,
+		makeRequest: makeWalletRequest,
+	} = useRequest(initiateWalletAirtime);
+	const {
+		isLoading: isLoadingPaystack,
+		response: paystackResponse,
+		makeRequest: makePaystackRequest,
+	} = useRequest(initiatePaystackAirtime);
+
+	const [paymentMethod, setPaymentMethod] = useState('Pay with Paystack');
+
+	const handlePaymentMethodChange = (method: string) => {
+		setPaymentMethod(method);
+	};
+
+	const handlePay = async () => {
+		try {
+			// Load user profile
+			const userProfileItem = localStorage.getItem('userProfile');
+			if (!userProfileItem) {
+				toast.error('User profile not found');
+				return;
+			}
+			const userProfile = JSON.parse(userProfileItem);
+
+			// Prepare common payload
+			const deviceInformation = await getDeviceInformation();
+			const billerId = getBillerId(selectedCarrier);
+			if (billerId === 'unknown') {
+				toast.error('Invalid carrier selected');
+				return;
+			}
+
+			const airtimeWalletPayload = {
+				userId: userProfile.userId,
+				transactionDetails: {
+					phoneNumber: phoneNumber, // Dynamic phone number
+					amount: AirtimeAmount, // Dynamic airtime amount
+					billerId,
+					description: 'Airtime purchase',
+				},
+				deviceInformation,
+				serviceProviderName: selectedCarrier,
+				passKey: null,
+			} as {
+				userId: string;
+				transactionDetails: {
+					phoneNumber: string;
+					amount: string;
+					billerId: string;
+					description: string;
+				};
+				deviceInformation: Record<string, unknown>;
+				serviceProviderName: string;
+				passKey: string | null;
+				// passKey?: null;
+				walletIdentifier?: string;
+			};
+
+			const airtimePaystackPayload = {
+				userId: userProfile.userId,
+				transactionDetails: {
+					phoneNumber: phoneNumber, // Dynamic phone number
+					amount: AirtimeAmount, // Dynamic airtime amount
+					billerId,
+					description: 'Airtime purchase',
+				},
+				deviceInformation,
+				serviceProviderName: selectedCarrier,
+			} as {
+				userId: string;
+				transactionDetails: {
+					phoneNumber: string;
+					amount: string;
+					billerId: string;
+					description: string;
+				};
+				deviceInformation: Record<string, unknown>;
+				serviceProviderName: string;
+			};
+
+			// Conditional endpoint call
+			if (paymentMethod === 'Pay with wallet') {
+				airtimeWalletPayload.walletIdentifier =
+					userProfile.wallet.walletIdentifier;
+				const [apiResponse, error] = await makeWalletRequest(
+					airtimeWalletPayload
+				);
+				handleApiResponse(apiResponse, error);
+				setOpenModal(false);
+			} else {
+				if (paymentMethod === 'Pay with Paystack') {
+					const [apiResponse, error] = await makePaystackRequest(
+						airtimePaystackPayload
+					);
+
+					window.location.href = apiResponse.data.data.authorizationUrl;
+					// handleApiResponse(apiResponse, error);
+					// setOpenModal(false);
+				}
+			}
+		} catch (error) {
+			// console.error('Payment failed:', error);
+			// toast.error('Payment failed.');
+		}
+	};
+
+	const handleApiResponse = (apiResponse: any, error?: any) => {
+		if (error) {
+			toast.error(error.message || 'An unexpected error occurred');
+			return;
+		}
+		if (apiResponse?.succeeded) {
+			toast.success('Operation successful');
+		} else {
+			toast.error(apiResponse?.message || 'An unexpected error occurred');
+			if (apiResponse?.errors?.length > 0) {
+				apiResponse.errors.forEach((err: string) => toast.error(err));
+			}
+		}
+	};
+
 	return (
 		<>
 			<Box
@@ -89,6 +264,19 @@ const AirtimeTransactions: React.FC = () => {
 					gap: '2rem',
 				}}
 			>
+				<Box sx={{ position: 'absolute', top: '0px' }}>
+					<ToastContainer
+						position="top-right"
+						autoClose={5000}
+						hideProgressBar={false}
+						newestOnTop={true}
+						closeOnClick
+						rtl={false}
+						pauseOnFocusLoss
+						draggable
+						pauseOnHover
+					/>
+				</Box>
 				<Box>
 					<Box>
 						<Typography
@@ -200,8 +388,6 @@ const AirtimeTransactions: React.FC = () => {
 							</Box>
 						)}
 					</Box>
-					{/* Data Plans Tabs Component */}
-					{/* <DataPlansTabs onSelectData={handleDataSelection} /> */}
 				</Box>
 
 				{/* Button to open modal */}
@@ -235,6 +421,7 @@ const AirtimeTransactions: React.FC = () => {
 						<Button
 							onClick={handleOpenModal}
 							variant="outlined"
+							// disabled={isLoading}
 							sx={{
 								paddingX: '1.5rem',
 								paddingY: '0.75rem',
@@ -247,7 +434,8 @@ const AirtimeTransactions: React.FC = () => {
 								},
 							}}
 						>
-							Proceed to Payment
+							{/* {isLoading ? 'Loading...' : 'Proceed to payment'} */}
+							Proceed to payment
 						</Button>
 					</Box>
 				</Box>
@@ -287,6 +475,8 @@ const AirtimeTransactions: React.FC = () => {
 										{ label: 'Network Provider', value: selectedCarrier },
 										{ label: 'Amount', value: AirtimeAmount },
 									]}
+									paymentMethod={paymentMethod}
+									onPaymentMethodChange={handlePaymentMethodChange}
 								/>
 								<Box
 									sx={{
@@ -311,7 +501,8 @@ const AirtimeTransactions: React.FC = () => {
 									</Button>
 									<Button
 										variant="contained"
-										onClick={changeStage}
+										// onClick={changeStage}
+										onClick={handlePay}
 										sx={{
 											color: 'white',
 											backgroundColor: '#AAC645',
@@ -333,11 +524,6 @@ const AirtimeTransactions: React.FC = () => {
 									gap: '2.5rem',
 								}}
 							>
-								{/* <AirtimeCardPayment
-									phoneNumber={phoneNumber} // Pass phoneNumber here
-									networkProvider={selectedCarrier} // Pass selectedCarrier here
-									amount={AirtimeAmount}
-								/> */}
 								<CardPayment
 									orderDetails={[
 										{ label: 'Phone number', value: phoneNumber },
