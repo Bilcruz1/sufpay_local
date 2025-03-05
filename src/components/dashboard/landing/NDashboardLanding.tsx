@@ -67,6 +67,16 @@ const NDashboardLanding = () => {
 	});
 
 	console.log(response, 'RESPONSE');
+	const [firstName, setFirstName] = useState<string>('User');
+	const [lastName, setLastName] = useState<string>('');
+
+	useEffect(() => {
+		// Fetch user info from local storage
+		const fetchedFirstName = localStorage.getItem('firstName') || 'User';
+		const fetchedLastName = localStorage.getItem('lastName') || '';
+		setFirstName(fetchedFirstName);
+		setLastName(fetchedLastName);
+	}, []);
 
 	return (
 		<Box
@@ -76,14 +86,13 @@ const NDashboardLanding = () => {
 				display: 'flex',
 				flexDirection: 'column',
 				alignItems: 'center',
-
 				padding: '1rem',
 			}}
 		>
 			{/* Main Layout */}
 			<Grid
 				container
-				spacing={3} // Adds spacing between grid items
+				spacing={4} // Increased spacing between grid items
 				sx={{
 					width: '100%',
 				}}
@@ -178,6 +187,7 @@ const NDashboardLanding = () => {
 						flexDirection: 'column', // Arrange items vertically
 						justifyContent: 'space-between', // Space between text and image
 						minHeight: '400px',
+						marginBottom: '0', // Ensure no extra space at the bottom
 					}}
 				>
 					<Box sx={{ textAlign: 'center' }}>
@@ -196,7 +206,7 @@ const NDashboardLanding = () => {
 								variant="h6"
 								fontWeight="bold"
 							>
-								Hassan Garba
+								{firstName} {lastName}
 							</Typography>
 
 							<Typography
