@@ -219,6 +219,7 @@ const AirtimeTransactions: React.FC = () => {
 				const [apiResponse, error] = await makeWalletRequest(
 					airtimeWalletPayload
 				);
+
 				handleApiResponse(apiResponse, error);
 				setOpenModal(false);
 			} else {
@@ -277,6 +278,7 @@ const AirtimeTransactions: React.FC = () => {
 						pauseOnHover
 					/>
 				</Box>
+
 				<Box>
 					<Box>
 						<Typography
