@@ -88,7 +88,7 @@ const ContactUs: React.FC<IHeaderProps> = ({id}) => {
                   Address
                 </Typography>
                 <Typography variant="body1" component={"p"} color={"#fff"}>
-                  86 Lome Crescent Wuse Zone 7, wupa. Abuja.
+                48 Anthony Enahoro Street Utako, Abuja.
                 </Typography>
               </Box>
             </Box>
@@ -105,7 +105,7 @@ const ContactUs: React.FC<IHeaderProps> = ({id}) => {
                 +234-123-4567
               </Typography> */}
               <Typography variant="h6" color={"#fff"}>
-                info@sufpay.com
+              info@sufpay.ng
               </Typography>
               <Box
                 sx={{
