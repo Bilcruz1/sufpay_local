@@ -95,6 +95,7 @@ export const theme = createTheme({
   },
 
   components: {
+    
     MuiChip: {
       styleOverrides: {
         root: {
@@ -114,6 +115,7 @@ export const theme = createTheme({
     MuiButton: {
       styleOverrides: {
         root: {
+          color: "#fff",
           textTransform: "capitalize",
           fontSize: "1rem", // 16px
           px: "2.5rem", // 40px

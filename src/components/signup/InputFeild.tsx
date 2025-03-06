@@ -6,7 +6,9 @@ interface IProps {
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   label: string;
   error?: string;
-  placeholder?: string
+  placeholder?: string;
+  handdleBlur?: (e: string) => void;
+  size?: "small" | "medium" | undefined;
 }
 const InputFeild: React.FC<IProps> = ({
   name,
@@ -15,6 +17,8 @@ const InputFeild: React.FC<IProps> = ({
   label,
   error,
   placeholder,
+  handdleBlur,
+  size = undefined,
 }) => {
   return (
     <Box
@@ -24,7 +28,9 @@ const InputFeild: React.FC<IProps> = ({
       gap={1.3}
       textAlign={"left"}
     >
-      <InputLabel htmlFor={name}>{label}</InputLabel>
+      <InputLabel sx={{ marginLeft: 1 }} htmlFor={name}>
+        {label}
+      </InputLabel>
       <TextField
         id={name}
         variant="outlined"
@@ -34,6 +40,8 @@ const InputFeild: React.FC<IProps> = ({
         error={!!error}
         helperText={error}
         placeholder={placeholder}
+        onBlur={() => handdleBlur?.(name)}
+        size={size}
       />
     </Box>
   );
