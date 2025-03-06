@@ -6,7 +6,7 @@ import WasteBills from '../components/dashboard/transactions/UtilityBillsPages/W
 
 const UtilityRoutes = () => (
 	<Routes>
-		<Route
+		{/* <Route
 			path="/"
 			element={<UtilityBillsLanding />}
 		/>
@@ -22,7 +22,7 @@ const UtilityRoutes = () => (
 		<Route
 			path="/waste"
 			element={<WasteBills />}
-		/>
+		/> */}
 	</Routes>
 );
 

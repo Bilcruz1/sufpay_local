@@ -17,9 +17,9 @@ const ContactUsFormContainer = styled(Box)({
 
 
 const formDataSchema = z.object({
-  name: z.string().min(1, "Name is required"),
+  name: z.string().min(3, "Name is required"),
   email: z.string().email("Invalid email address"),
-  message: z.string().min(1, "Message is required"),
+  message: z.string().min(3, "Message is required"),
 });
 
 
@@ -37,7 +37,8 @@ const ContactUsForm = () => {
   });
   
   const [btnDisabled, setBtnDisabled] = useState<boolean>(false);
-    
+  const [disableTimeout, setDisableTimeout] = useState<NodeJS.Timeout | null>(null);
+
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setBtnDisabled(prev => false)
     const { name, value } = e.target;
@@ -61,7 +62,6 @@ const ContactUsForm = () => {
         setErrors((prev) => ({ ...prev, [el.path[0]]: el.message }))
       })
       setBtnDisabled(true);
-      console.log(validationResult)
       return;
     }
 
@@ -73,10 +73,19 @@ const ContactUsForm = () => {
         email: "",
         message: "",
       })
-      console.log("sent")
+
+      if (disableTimeout) clearTimeout(disableTimeout);
+
+      const timeoutId = setTimeout(() => {
+        setBtnDisabled(false);
+      }, 4000);
+
+      setDisableTimeout(timeoutId);
+
+      return;
     }
     else if (messageStatus === false) {
-      console.log("failed")
+      // console.log("failed")
     }
   }
 
@@ -146,7 +155,7 @@ const ContactUsForm = () => {
               disabled={btnDisabled}
               sx={{color: "#fff"}}
             >
-              Send
+              {!btnDisabled? "Send" : "Message sent"}
             </Button>
           </Box>
         </Stack>

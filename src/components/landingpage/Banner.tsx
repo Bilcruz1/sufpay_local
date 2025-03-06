@@ -74,7 +74,7 @@ const Banner = () => {
 					mt: '3.75rem',
 				}}
 			>
-				<Button
+				{/* <Button
 					variant="contained"
 					size="large"
 					// onClick={() => navigate("/signup")}
@@ -89,7 +89,7 @@ const Banner = () => {
 					onClick={() => handleNavClick('contact')}
 				>
 					Log in
-				</Button>
+				</Button> */}
 			</Box>
 
 			<Box mt={{ xs: '2rem', md: '6rem' }}>

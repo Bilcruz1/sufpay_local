@@ -10,7 +10,7 @@ import FundWalletForm from '../components/dashboard/transactions/FundWalletForm'
 
 const TransactionsRoutes = () => (
 	<Routes>
-		<Route
+		{/* <Route
 			path="/"
 			element={<DashboardLanding />}
 		/>
@@ -25,9 +25,9 @@ const TransactionsRoutes = () => (
 		<Route
 			path="buy/data"
 			element={<DataTransactions />}
-		/>
+		/> */}
 		{/* <Route path="buy/cable-tv" element={<CableTVPage />} /> */}
-		<Route
+		{/* <Route
 			path="/buy/utility"
 			element={<UtilityBillsLanding />}
 		/>
@@ -38,7 +38,7 @@ const TransactionsRoutes = () => (
 		<Route
 			path="buy/events"
 			element={<DashboardLanding />}
-		/>
+		/>  */}
 	</Routes>
 );
 
