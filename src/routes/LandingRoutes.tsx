@@ -17,7 +17,7 @@ const LandingRoutes = () => {
     <Routes>
       <Route path={"/"} element={<LandingPage />} />
       {/* <Route path={"splash"} element={<SplashScreen />} /> */}
-      <Route path={"login"} element={<SignInPage />} />
+      {/* <Route path={"login"} element={<SignInPage />} />
       <Route path={"signup"} element={<SignUpPage />} />
       <Route path={"forget-password"} element={<ForgetPasswordPage />} />
       <Route
@@ -29,7 +29,7 @@ const LandingRoutes = () => {
         element={<CreateNewPasswordPage />}
       />
       <Route path={"verify-account/:token"} element={<VerifyAccountPage />} />
-      <Route path={"resend-otp/:token"} element={<ResendOtpPage />} />
+      <Route path={"resend-otp/:token"} element={<ResendOtpPage />} /> */}
     </Routes>
   );
 };
