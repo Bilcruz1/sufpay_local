@@ -18,10 +18,10 @@ import serv_1_img from '../assets/img/serv_1_img.png';
 import serv_2_img from '../assets/img/serv_2_img.png';
 import serv_3_img from '../assets/img/serv_3_img.png';
 import serv_4_img from '../assets/img/serv_4_img.png';
-import serv_5_img from '../assets/img/serv_5_img.png';
+import serv_5_img from '../assets/img/serv_5_img.jpg';
 import serv_6_img from '../assets/img/serv_6_img.png';
 import serv_7_img from '../assets/img/serv_7_img.png';
-import serv_8_img from '../assets/img/serv_8_img.png';
+import serv_8_img from '../assets/img/serv_8_img.jpg';
 import serv_9_img from '../assets/img/serv_9_img.png';
 
 import dash_1 from '../assets/icons/dash_1.svg';
@@ -123,7 +123,7 @@ export const ourServices: IServices[] = [
 	{
 		title: 'Security Solutions',
 		content:
-			'Procurement and Supply: We source high-quality tactical equipment from reputable manufacturers, ensuring compliance with international standards and regulations. Our offerings include body armor, helmets, tactical gloves, and boots, tailored to meet specific client requirements',
+			'We provide high-quality tactical gear and surveillance solutions, including body  communication devices, non-lethal deterrents, and CCTV systems. Sourced from trusted manufacturers, our equipment ensures superior protection, monitoring, and operational efficiency for security forces and organizations.',
 		img: serv_5_img,
 	},
 
