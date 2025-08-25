@@ -74,22 +74,22 @@ const Banner = () => {
 					mt: '3.75rem',
 				}}
 			>
-				{/* <Button
+				<Button
 					variant="contained"
 					size="large"
-					// onClick={() => navigate("/signup")}
-					onClick={() => handleNavClick('contact')}
+					onClick={() => navigate('/signup')}
+					// onClick={() => handleNavClick('contact')}
 				>
 					Get started
 				</Button>
 				<Button
 					variant="outlined"
 					size="large"
-					// onClick={() => navigate("/login")}
-					onClick={() => handleNavClick('contact')}
+					onClick={() => navigate('/login')}
+					// onClick={() => handleNavClick('contact')}
 				>
 					Log in
-				</Button> */}
+				</Button>
 			</Box>
 
 			<Box mt={{ xs: '2rem', md: '6rem' }}>

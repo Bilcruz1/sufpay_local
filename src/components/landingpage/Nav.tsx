@@ -118,24 +118,24 @@ const Nav = () => {
 							</Link>
 						))}
 					</Box>
-					{/* <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: '.7rem' }}>
+					<Box sx={{ display: { xs: 'none', md: 'flex' }, gap: '.7rem' }}>
 						<Button
 							variant="text"
 							size="small"
-							// onClick={() => navigate("/login")}
-							onClick={() => handleNavClick('contact')}
+							onClick={() => navigate('/login')}
+							// onClick={() => handleNavClick('contact')}
 						>
 							Login
 						</Button>
 						<Button
 							variant="contained"
 							size="small"
-							// onClick={() => navigate("/signup")}
-							onClick={() => handleNavClick('contact')}
+							onClick={() => navigate('/signup')}
+							// onClick={() => handleNavClick('contact')}
 						>
 							sign up
 						</Button>
-					</Box> */}
+					</Box>
 
 					{/* sm menu */}
 					<Box sx={{ display: { xs: 'inline-block', md: 'none' } }}>
