@@ -311,10 +311,10 @@ export const DashboardCardsContent = [
 ];
 export const TransactionsCardsContent = [
 	{
-		title: 'Water',
+		title: 'Cable and Tv',
 		icon: utility_card_1,
-		link: '/transactions/buy/utility/water',
-		text: 'Flow without interruption- Manage your water bills digitally with SUFPAY',
+		link: '/transactions/buy/utility/cable',
+		text: 'Watch without worries – Pay your cable bills instantly with SUFPAY',
 	},
 	{
 		title: 'Electricity',

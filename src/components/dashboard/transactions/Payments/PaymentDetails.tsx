@@ -92,11 +92,13 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({
 											Pay with bank transfer
 										</MenuItem> */}
 										<MenuItem value="Pay with wallet">Pay with wallet</MenuItem>
-										<MenuItem value="Pay with Paystack">
-											Pay with Paystack
-										</MenuItem>
 
 										<MenuItem value="Pay with card">Pay with card</MenuItem>
+										<MenuItem value="Pay with bank transfer">
+											Pay with bank transfer
+										</MenuItem>
+
+										<MenuItem value="Pay with ussd">USSD</MenuItem>
 									</Select>
 								</FormControl>
 							</Grid>

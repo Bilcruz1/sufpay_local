@@ -126,6 +126,7 @@ const SignupForm: React.FC<IProps> = ({ btnDisabled, setBtnDisabled }) => {
 				firstName: formData.firstName,
 				lastName: formData.lastName,
 				email: formData.email,
+				countryCode: formData.countryCode,
 				phoneNumber: formData.countryCode + formData.phoneNumber,
 				password: formData.password,
 				userType: formData.userType,

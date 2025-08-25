@@ -7,7 +7,7 @@ import TransportLandingPage from '../components/dashboard/transactions/Transport
 
 const TransportRoutes = () => (
 	<Routes>
-		{/* <Route
+		<Route
 			path="/"
 			element={<TransportLandingPage />}
 		/>
@@ -22,7 +22,7 @@ const TransportRoutes = () => (
 		<Route
 			path="/townservice"
 			element={<ElectricityBills />}
-		/> */}
+		/>
 	</Routes>
 );
 

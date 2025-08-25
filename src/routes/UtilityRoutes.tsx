@@ -3,16 +3,17 @@ import UtilityBillsLanding from '../components/dashboard/transactions/UtilityBil
 import WaterBills from '../components/dashboard/transactions/UtilityBillsPages/WaterBills';
 import ElectricityBills from '../components/dashboard/transactions/UtilityBillsPages/ElectricityBills';
 import WasteBills from '../components/dashboard/transactions/UtilityBillsPages/WasteBills';
+import CableTvPage from '../components/dashboard/transactions/UtilityBillsPages/cable/cable';
 
 const UtilityRoutes = () => (
 	<Routes>
-		{/* <Route
+		<Route
 			path="/"
 			element={<UtilityBillsLanding />}
 		/>
 		<Route
-			path="/water"
-			element={<WaterBills />}
+			path="/cable"
+			element={<CableTvPage />}
 		/>
 		<Route
 			path="/electricity"
@@ -22,7 +23,7 @@ const UtilityRoutes = () => (
 		<Route
 			path="/waste"
 			element={<WasteBills />}
-		/> */}
+		/>
 	</Routes>
 );
 

@@ -4,10 +4,10 @@ import { Notifications } from '@mui/icons-material';
 
 const NotificationsRoutes = () => (
 	<Routes>
-		{/* <Route
+		<Route
 			path="/"
 			element={<Notifications />}
-		/> */}
+		/>
 	</Routes>
 );
 

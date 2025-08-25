@@ -221,7 +221,7 @@ const LoginForm: React.FC = () => {
 								sx={{ color: '#fff' }}
 							/>
 						) : (
-							'Create an account'
+							'Login'
 						)}
 					</Button>
 					<InputLabel sx={{ textAlign: 'center' }}>
