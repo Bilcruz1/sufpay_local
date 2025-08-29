@@ -1,5 +1,5 @@
 import { Box, Button, Link, Stack, InputLabel } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
 	InputFeild,
 	Loading,
@@ -7,8 +7,6 @@ import {
 	PasswordInputFeild,
 	PhoneNumberField,
 } from '../components';
-// import CountryCodePhoneNumberField from "./CountryCodePhoneNumberField";
-// import googleImg from "../assets/img/google_img.svg";
 import { IResponse } from '../utils/interfaces';
 import {
 	register,
@@ -37,7 +35,6 @@ interface IProps {
 }
 
 const SignupForm: React.FC<IProps> = ({ btnDisabled, setBtnDisabled }) => {
-	// const [btnDisabled, setBtnDisabled] = useState<boolean>(true);
 	const [formData, setFormData] = useState<IForm>({
 		firstName: '',
 		lastName: '',
@@ -58,49 +55,138 @@ const SignupForm: React.FC<IProps> = ({ btnDisabled, setBtnDisabled }) => {
 		email: '',
 	});
 
+	// Add state to track password validation
+	const [isPasswordValid, setIsPasswordValid] = useState(false);
+	const [isSubmitting, setIsSubmitting] = useState(false);
+
 	const { showSuccessNotification, showErrorNotification } = useNotification();
 
-	// const [passwordChecks, setPasswordChecks] = useState<IPasswordChkProps>({
-	//   charCountChk: false,
-	//   lowerCaseChk: false,
-	//   upperCaseChk: false,
-	//   specialCaseChk: false,
-	//   OneNumberChk: false,
-	// });
+	// Check if form is valid for submission
+	const isFormValid = () => {
+		// Check if phone number is numeric and has at least 11 digits
+		const isPhoneValid =
+			/^\d+$/.test(formData.phoneNumber) && formData.phoneNumber.length >= 11;
+
+		return (
+			formData.firstName.trim() !== '' &&
+			formData.lastName.trim() !== '' &&
+			formData.email.trim() !== '' &&
+			formData.phoneNumber.trim() !== '' &&
+			isPhoneValid && // Add phone number validation
+			formData.password.trim() !== '' &&
+			isPasswordValid &&
+			Object.values(formErrors).every(error => error === '')
+		);
+	};
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;
-		setFormData(prev => ({ ...prev, [name]: value }));
+
+		// For phone number field, only allow numeric input and validate
+		if (name === 'phoneNumber') {
+			// Allow only numbers
+			const numericValue = value.replace(/\D/g, '');
+			setFormData(prev => ({ ...prev, [name]: numericValue }));
+
+			// Validate phone number in real-time
+			if (numericValue && !/^\d+$/.test(numericValue)) {
+				setFormErrors(prev => ({
+					...prev,
+					phoneNumber: 'Phone number must contain only numbers',
+				}));
+			} else if (numericValue && numericValue.length < 11) {
+				setFormErrors(prev => ({
+					...prev,
+					phoneNumber: 'Phone number must be at least 11 digits',
+				}));
+			} else {
+				setFormErrors(prev => ({ ...prev, phoneNumber: '' }));
+			}
+		} else {
+			setFormData(prev => ({ ...prev, [name]: value }));
+
+			// Clear error when user starts typing
+			if (formErrors[name as keyof typeof formErrors]) {
+				setFormErrors(prev => ({ ...prev, [name]: '' }));
+			}
+		}
 	};
 
 	const handleBlur = async (e: string) => {
 		if (e === 'email' && formData.email.length >= 3) {
-			setFormErrors(prev => ({ ...prev, email: '' }));
-			const result: IResponse = await verifyEmailUniqueness({
-				email: formData.email,
-			});
-			if (result.data?.data === false) {
-				setFormErrors(prev => ({ ...prev, email: 'Email already exists' }));
+			try {
+				const result: IResponse = await verifyEmailUniqueness({
+					email: formData.email,
+				});
+				if (result.data?.data === false) {
+					setFormErrors(prev => ({ ...prev, email: 'Email already exists' }));
+				} else {
+					setFormErrors(prev => ({ ...prev, email: '' }));
+				}
+			} catch (error) {
+				console.error('Email validation error:', error);
 			}
 		}
 		if (e === 'phoneNumber' && formData.phoneNumber.length >= 3) {
-			setFormErrors(prev => ({ ...prev, phoneNumber: '' }));
-
-			const result: IResponse = await verifyPhoneNumberUniqueness({
-				phoneNumber: formData.phoneNumber,
-			});
-			if (result.data?.data === false) {
+			// First validate phone number format
+			if (!/^\d+$/.test(formData.phoneNumber)) {
 				setFormErrors(prev => ({
 					...prev,
-					phoneNumber: 'Phone number already exists',
+					phoneNumber: 'Phone number must contain only numbers',
 				}));
+				return;
+			}
+
+			if (formData.phoneNumber.length < 11) {
+				setFormErrors(prev => ({
+					...prev,
+					phoneNumber: 'Phone number must be at least 11 digits',
+				}));
+				return;
+			}
+
+			// Only check uniqueness if the phone number is valid
+			try {
+				setFormErrors(prev => ({ ...prev, phoneNumber: '' }));
+				const result: IResponse = await verifyPhoneNumberUniqueness({
+					phoneNumber: formData.phoneNumber,
+				});
+				if (result.data?.data === false) {
+					setFormErrors(prev => ({
+						...prev,
+						phoneNumber: 'Phone number already exists',
+					}));
+				}
+			} catch (error) {
+				console.error('Phone validation error:', error);
 			}
 		}
 	};
 
 	// form submission
 	const submitForm = async () => {
-		setBtnDisabled(prev => true);
+		// Only proceed if form is valid
+		if (!isFormValid()) {
+			// Check specifically for phone number validation to show appropriate error
+			if (!/^\d+$/.test(formData.phoneNumber)) {
+				setFormErrors(prev => ({
+					...prev,
+					phoneNumber: 'Phone number must contain only numbers',
+				}));
+			} else if (formData.phoneNumber.length < 11) {
+				setFormErrors(prev => ({
+					...prev,
+					phoneNumber: 'Phone number must be at least 11 digits',
+				}));
+			}
+
+			showErrorNotification('Please fix all form errors before submitting');
+			return;
+		}
+
+		setIsSubmitting(true);
+		setBtnDisabled(true);
+
 		setFormErrors(prev => ({
 			firstName: '',
 			lastName: '',
@@ -115,9 +201,10 @@ const SignupForm: React.FC<IProps> = ({ btnDisabled, setBtnDisabled }) => {
 		if (!validationResult.success) {
 			validationResult.error.errors.forEach(error => {
 				setFormErrors(prev => ({ ...prev, [error.path[0]]: error.message }));
-				setBtnDisabled(false);
 			});
 			showErrorNotification('Please fill all fields correctly');
+			setIsSubmitting(false);
+			setBtnDisabled(false);
 			return;
 		}
 
@@ -135,26 +222,30 @@ const SignupForm: React.FC<IProps> = ({ btnDisabled, setBtnDisabled }) => {
 			console.log(response);
 
 			if (response.data?.statusCode === StatusCode.duplicateRequest) {
-				// alert the user to the fail
 				showErrorNotification('Email or Phone number has already been used');
-				setBtnDisabled(prev => false);
+				setIsSubmitting(false);
+				setBtnDisabled(false);
 			} else if (response.data?.statusCode === StatusCode.badRequest) {
-				showErrorNotification('Bad request please contact surport');
-				setBtnDisabled(prev => false);
+				showErrorNotification('Bad request please contact support');
+				setIsSubmitting(false);
+				setBtnDisabled(false);
 			} else if (response.data?.statusCode === StatusCode.internalServerError) {
 				showErrorNotification();
-				setBtnDisabled(prev => false);
+				setIsSubmitting(false);
+				setBtnDisabled(false);
+			} else {
+				navigate(`/verify-account/${response.data.data}`, {
+					replace: true,
+				});
+				showSuccessNotification();
+				setIsSubmitting(false);
+				setBtnDisabled(false);
 			}
-
-			navigate(`/verify-account/${response.data.data}`, {
-				replace: true,
-			});
-			showSuccessNotification();
-			setBtnDisabled(prev => false);
-			return;
 		} catch (err) {
-			// console.log(err);
+			console.error('Registration error:', err);
 			showErrorNotification();
+			setIsSubmitting(false);
+			setBtnDisabled(false);
 		}
 	};
 
@@ -206,7 +297,6 @@ const SignupForm: React.FC<IProps> = ({ btnDisabled, setBtnDisabled }) => {
 						phoneNumber={formData.phoneNumber}
 						handleChange={handleChange}
 						name={'phoneNumber'}
-						// handleCountryCodeChange={handleCountryCodeChange}
 						label={'Phone number'}
 						handdleBlur={() => handleBlur('phoneNumber')}
 						error={formErrors.phoneNumber}
@@ -218,7 +308,10 @@ const SignupForm: React.FC<IProps> = ({ btnDisabled, setBtnDisabled }) => {
 						label={'Password'}
 						error={formErrors.password}
 					/>
-					<PasswordChks password={formData.password} />
+					<PasswordChks
+						password={formData.password}
+						onValidationChange={setIsPasswordValid}
+					/>
 				</Box>
 
 				<Stack
@@ -235,16 +328,20 @@ const SignupForm: React.FC<IProps> = ({ btnDisabled, setBtnDisabled }) => {
 						sx={{
 							background: '#aac645',
 							borderRadius: '1rem',
+							'&:disabled': {
+								background: '#cccccc',
+								color: '#666666',
+							},
 						}}
 						variant="contained"
 						onClick={submitForm}
 						size={'large'}
-						disabled={btnDisabled}
+						disabled={btnDisabled || !isFormValid()}
 					>
-						Create an account
+						{isSubmitting ? 'Creating account...' : 'Create an account'}
 					</Button>
 					<InputLabel sx={{ textAlign: 'center' }}>
-						Already have an ccount? Log in{' '}
+						Already have an account? Log in{' '}
 						<Link onClick={() => navigate('/login')}>Login</Link>
 					</InputLabel>
 				</Stack>

@@ -29,7 +29,7 @@ import {
 	getAirtimeBillers,
 	initiateTransferAirtime,
 	initiateUssdAirtime,
-	getPhoneOperator, // Added import for phone validation
+	getPhoneOperator,
 } from '../../../Apis/card-payment';
 import mtnLogo from '../../../assets/icons/mtn-logo.svg';
 import gloLogo from '../../../assets/icons/glo-logo.svg';
@@ -155,7 +155,7 @@ const AirtimeTransactions: React.FC = () => {
 
 		// Check if the detected operator matches the manually selected carrier
 		const isValid =
-			operator.includes(selectedCarrierName.split(' ')[0]) || // Check first word (e.g., "mtn")
+			operator.includes(selectedCarrierName.split(' ')[0]) ||
 			selectedCarrierName.includes(operator) ||
 			(operator.includes('mtn') && selectedCarrierName.includes('mtn')) ||
 			(operator.includes('glo') && selectedCarrierName.includes('glo')) ||
@@ -196,7 +196,7 @@ const AirtimeTransactions: React.FC = () => {
 				return (
 					carrierName.includes(operator) ||
 					carrierLabel.includes(operator) ||
-					operator.includes(carrierName.split(' ')[0]) || // Match first word (e.g., "mtn")
+					operator.includes(carrierName.split(' ')[0]) ||
 					operator.includes(carrierLabel)
 				);
 			}) || null
@@ -267,9 +267,32 @@ const AirtimeTransactions: React.FC = () => {
 		}
 	};
 
+	// Convert phone number to payload format (+2348138735227)
+	const formatPhoneForPayload = (phone: string): string => {
+		if (!phone) return '';
+
+		// Remove all non-digit characters
+		let cleaned = phone.replace(/\D/g, '');
+
+		// If it starts with 0, convert to +234 format
+		if (cleaned.startsWith('0')) {
+			cleaned = '234' + cleaned.substring(1);
+		}
+
+		// Ensure it starts with 234
+		if (!cleaned.startsWith('234')) {
+			cleaned = '234' + cleaned;
+		}
+
+		// Add + prefix
+		return '+' + cleaned;
+	};
+
 	// Validate phone number and auto-select carrier
 	const validatePhoneNumber = async (phone: string) => {
-		if (!phone) {
+		const payloadPhone = formatPhoneForPayload(phone);
+
+		if (!payloadPhone) {
 			setPhoneValidation({
 				isValid: false,
 				isLoading: false,
@@ -282,23 +305,12 @@ const AirtimeTransactions: React.FC = () => {
 			return;
 		}
 
-		// Check if phone is in correct format
-		if (!phone.startsWith('+234') && !phone.startsWith('234')) {
+		// Check if phone number has correct length (14 characters: +234XXXXXXXXXX)
+		if (payloadPhone.length !== 14) {
 			setPhoneValidation({
 				isValid: false,
 				isLoading: false,
-				error: 'Phone number must start with +234 or 234',
-				detectedOperator: '',
-			});
-			return;
-		}
-
-		// Check if phone number is complete (should be 14 characters: +234XXXXXXXXX)
-		if (phone.length < 14) {
-			setPhoneValidation({
-				isValid: false,
-				isLoading: false,
-				error: '',
+				error: 'Phone number must be 11 digits',
 				detectedOperator: '',
 			});
 			return;
@@ -308,7 +320,7 @@ const AirtimeTransactions: React.FC = () => {
 
 		try {
 			const [response, error] = await makeValidationRequest({
-				phoneNumber: phone,
+				phoneNumber: payloadPhone,
 			});
 
 			if (error) {
@@ -384,7 +396,11 @@ const AirtimeTransactions: React.FC = () => {
 		// Basic field validation
 		if (!amount || !phoneNumber || !selectedCarrier) return false;
 
-		// Phone number validation
+		// Phone number validation - check if payload phone has correct length
+		const payloadPhone = formatPhoneForPayload(phoneNumber);
+		if (payloadPhone.length !== 14) return false;
+
+		// Phone validation errors
 		if (phoneValidation.error && !phoneValidation.isValid) return false;
 
 		// Amount validation
@@ -419,7 +435,9 @@ const AirtimeTransactions: React.FC = () => {
 
 	// Validate phone number when phone changes
 	useEffect(() => {
-		if (phoneNumber) {
+		const payloadPhone = formatPhoneForPayload(phoneNumber);
+
+		if (payloadPhone && payloadPhone.length === 14) {
 			// Debounce the validation to avoid too many API calls
 			const timeoutId = setTimeout(() => {
 				validatePhoneNumber(phoneNumber);
@@ -430,7 +448,7 @@ const AirtimeTransactions: React.FC = () => {
 			setPhoneValidation({
 				isValid: false,
 				isLoading: false,
-				error: '',
+				error: phoneNumber.length > 0 ? 'Phone number must be 11 digits' : '',
 				detectedOperator: '',
 			});
 			setSelectedCarrier('');
@@ -461,17 +479,15 @@ const AirtimeTransactions: React.FC = () => {
 	};
 
 	const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		let value = e.target.value.replace(/\D/g, ''); // Remove all non-digit characters
+		let value = e.target.value;
 
-		// Convert to international format if it starts with 0
-		if (value.startsWith('0') && value.length > 1) {
-			value = '+234' + value.substring(1);
+		// Remove all non-digit characters
+		value = value.replace(/\D/g, '');
+
+		// Limit to 11 digits maximum
+		if (value.length > 11) {
+			value = value.substring(0, 11);
 		}
-		// Ensure it starts with +234 if it starts with 234
-		else if (value.startsWith('234') && !value.startsWith('+234')) {
-			value = '+' + value;
-		}
-		// For other cases (like partial input), just keep the cleaned value
 
 		setPhoneNumber(value);
 	};
@@ -525,6 +541,17 @@ const AirtimeTransactions: React.FC = () => {
 		});
 		setTransferDetails(null);
 		setUssdCode('');
+		setPhoneNumber('');
+		setAmount('');
+		setSelectedCarrier('');
+		setCarrierLogo('');
+		setPhoneValidation({
+			isValid: false,
+			isLoading: false,
+			error: '',
+			detectedOperator: '',
+		});
+		// navigate('/dashboard');
 	};
 
 	const handlePaymentMethodChange = (event: SelectChangeEvent<string>) => {
@@ -545,11 +572,13 @@ const AirtimeTransactions: React.FC = () => {
 			if (!userProfileItem) throw new Error('User profile not found');
 			const userProfile = JSON.parse(userProfileItem);
 
+			const payloadPhone = formatPhoneForPayload(phoneNumber);
+
 			const payload = {
 				initialiseAirtimeTransaction: {
 					userId: userProfile.userId,
 					transactionDetails: {
-						phoneNumber,
+						phoneNumber: payloadPhone,
 						amount: parseInt(amount),
 						billerId: carrier.billerId,
 						serviceProviderName: selectedCarrier,
@@ -568,7 +597,7 @@ const AirtimeTransactions: React.FC = () => {
 				accountName: response.data.accountName || 'Not available',
 				amount: response.data.amount || amount,
 				reference: response.data.reference || 'Use your user ID',
-				expiration: response.data.expiration || 300, // 5 minutes default
+				expiration: response.data.expiration || 300,
 			};
 
 			setTransferDetails(transferDetails);
@@ -598,12 +627,14 @@ const AirtimeTransactions: React.FC = () => {
 			if (!userProfileItem) throw new Error('User profile not found');
 			const userProfile = JSON.parse(userProfileItem);
 
+			const payloadPhone = formatPhoneForPayload(phoneNumber);
+
 			const payload = {
 				AccountBank: selectedBank.code,
 				initialiseAirtimeTransaction: {
 					userId: userProfile.userId,
 					transactionDetails: {
-						phoneNumber,
+						phoneNumber: payloadPhone,
 						amount: parseInt(amount),
 						billerId: carrier.billerId,
 						serviceProviderName: selectedCarrier,
@@ -715,11 +746,14 @@ const AirtimeTransactions: React.FC = () => {
 			if (!userProfileItem) throw new Error('User profile not found');
 			const userProfile = JSON.parse(userProfileItem);
 
+			// Format phone number for payload
+			const payloadPhone = formatPhoneForPayload(phoneNumber);
+
 			// Common payload for all payment methods
 			const commonPayload = {
 				userId: userProfile.userId,
 				transactionDetails: {
-					phoneNumber,
+					phoneNumber: payloadPhone,
 					amount: parseInt(amount),
 					billerId: carrier.billerId,
 					serviceProviderName: selectedCarrier,
@@ -735,7 +769,7 @@ const AirtimeTransactions: React.FC = () => {
 						...commonPayload,
 						walletIdentifier: userProfile.wallet?.walletIdentifier,
 						serviceProviderName: selectedCarrier,
-						passKey: '111111', // Default passKey
+						passKey: '111111',
 					};
 
 					const [walletResponse, walletError] = await makeWalletRequest(
@@ -784,7 +818,7 @@ const AirtimeTransactions: React.FC = () => {
 						accountName: transferResponse.data.accountName || 'Not available',
 						amount: transferResponse.data.amount || amount,
 						reference: transferResponse.data.reference || 'Use your user ID',
-						expiration: transferResponse.data.expiration || 300, // 5 minutes default
+						expiration: transferResponse.data.expiration || 300,
 					};
 
 					setTransferDetails(transferDetails);
@@ -852,34 +886,22 @@ const AirtimeTransactions: React.FC = () => {
 							error={!!phoneValidation.error}
 							helperText={
 								phoneValidation.isLoading
-									? 'loading...'
+									? 'Loading...'
 									: phoneValidation.error
 									? phoneValidation.error
-									: phoneValidation.isValid &&
-									  phoneValidation.detectedOperator &&
-									  isCarrierAutoSelected
+									: phoneValidation.isValid
 									? ``
-									: phoneValidation.isValid &&
-									  phoneValidation.detectedOperator &&
-									  !isCarrierAutoSelected
-									? ``
-									: ''
+									: 'Enter your 11-digit phone number'
 							}
 							InputProps={{
-								startAdornment: carrierLogo && (
-									<InputAdornment position="start">
-										<img
-											src={carrierLogo}
-											alt="carrier logo"
-											style={{ width: 24, height: 24, marginRight: 8 }}
-										/>
-									</InputAdornment>
+								startAdornment: (
+									<InputAdornment position="start"></InputAdornment>
 								),
 								endAdornment: phoneValidation.isLoading ? (
 									<InputAdornment position="end">
 										<CircularProgress size={20} />
 									</InputAdornment>
-								) : phoneNumber && phoneNumber.length >= 14 ? (
+								) : phoneNumber && phoneNumber.length > 0 ? (
 									<InputAdornment position="end">
 										{phoneValidation.isValid ? (
 											<CheckCircleIcon color="success" />
@@ -889,8 +911,9 @@ const AirtimeTransactions: React.FC = () => {
 									</InputAdornment>
 								) : null,
 								inputProps: {
-									maxLength: 14, // +234XXXXXXXXX (1 + 3 + 10)
-									pattern: '^\\+?234\\d{10}$', // Optional: HTML5 validation pattern
+									maxLength: 11,
+									inputMode: 'numeric',
+									pattern: '[0-9]*',
 								},
 							}}
 						/>

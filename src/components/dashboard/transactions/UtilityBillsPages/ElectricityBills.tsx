@@ -34,16 +34,13 @@ import MethodSelection from '../../../payments/methodSelection';
 import Processing from '../../../payments/processing';
 import Success from '../../../payments/success';
 import Failed from '../../../payments/failed';
-import { stat } from 'fs';
 
 interface Provider {
 	id: number;
 	name: string;
-}
-
-interface DiscoOption {
-	name: string;
-	value: number;
+	discos: any; // This could be an array or a number
+	minLocalTransactionAmount: number;
+	maxLocalTransactionAmount: number;
 }
 
 interface TransferDetails {
@@ -67,7 +64,6 @@ const ElectricityBills: React.FC = () => {
 	const [selectedProvider, setSelectedProvider] = useState<Provider | null>(
 		null
 	);
-	const [selectedDisco, setSelectedDisco] = useState<string>('');
 	const [electricityAmount, setElectricityAmount] = useState<string>('');
 	const [meterType, setMeterType] = useState<string>('');
 	const [meterNumber, setMeterNumber] = useState<string>('');
@@ -153,11 +149,34 @@ const ElectricityBills: React.FC = () => {
 
 	// Handler functions
 	const handleProviderChange = (value: string) => {
-		setSelectedProvider(JSON.parse(value));
+		const provider = JSON.parse(value);
+		setSelectedProvider(provider);
 	};
 
-	const handleDiscoChange = (event: SelectChangeEvent<string>) => {
-		setSelectedDisco(event.target.value as string);
+	const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const value = e.target.value.replace(/[^0-9]/g, ''); // Only allow numbers
+		setElectricityAmount(value);
+
+		// Validate amount against provider limits
+		if (selectedProvider && value) {
+			const amount = parseFloat(value);
+			const min = selectedProvider.minLocalTransactionAmount;
+			const max = selectedProvider.maxLocalTransactionAmount;
+
+			if (amount < min) {
+				setErrors(prev => ({
+					...prev,
+					amount: `Amount must be at least ₦${min}`,
+				}));
+			} else if (amount > max) {
+				setErrors(prev => ({
+					...prev,
+					amount: `Amount cannot exceed ₦${max}`,
+				}));
+			} else {
+				setErrors(prev => ({ ...prev, amount: '' }));
+			}
+		}
 	};
 
 	const handleCardDetailChange =
@@ -182,15 +201,41 @@ const ElectricityBills: React.FC = () => {
 		};
 
 	const handleOpenModal = () => {
-		if (!selectedProvider || !meterNumber || !electricityAmount || !meterType) {
-			setErrors({
-				...(!selectedProvider && { provider: 'Provider is required' }),
-				...(!meterNumber && { meterNumber: 'Meter number is required' }),
-				...(!electricityAmount && { amount: 'Amount is required' }),
-				...(!meterType && { meterType: 'Meter type is required' }),
-			});
+		console.log('Opening modal with:', {
+			selectedProvider,
+			meterNumber,
+			electricityAmount,
+			meterType,
+			errors,
+		});
+
+		const newErrors: Record<string, string> = {};
+
+		if (!selectedProvider) newErrors.provider = 'Provider is required';
+		if (!meterNumber) newErrors.meterNumber = 'Meter number is required';
+		if (!electricityAmount) newErrors.amount = 'Amount is required';
+		if (!meterType) newErrors.meterType = 'Meter type is required';
+
+		// Validate amount against provider limits
+		if (selectedProvider && electricityAmount) {
+			const amount = parseFloat(electricityAmount);
+			const min = selectedProvider.minLocalTransactionAmount;
+			const max = selectedProvider.maxLocalTransactionAmount;
+
+			if (amount < min) {
+				newErrors.amount = `Amount must be at least ₦${min}`;
+			} else if (amount > max) {
+				newErrors.amount = `Amount cannot exceed ₦${max}`;
+			}
+		}
+
+		console.log('Validation errors:', newErrors);
+
+		if (Object.keys(newErrors).length > 0) {
+			setErrors(newErrors);
 			return;
 		}
+
 		setOpenModal(true);
 		setCurrentStage('method-selection');
 		setPaymentStatus('idle');
@@ -238,7 +283,7 @@ const ElectricityBills: React.FC = () => {
 						meterNumber,
 						amount: electricityAmount,
 						billerId: String(selectedProvider?.id),
-						distributionCompany: selectedDisco,
+						distributionCompany: selectedProvider?.discos, // Use the discos value from the provider
 						subscriptionType: Number(meterType),
 						serviceProviderName: selectedProvider?.name,
 						description: 'electricity',
@@ -288,7 +333,7 @@ const ElectricityBills: React.FC = () => {
 						meterNumber,
 						amount: electricityAmount,
 						billerId: String(selectedProvider?.id),
-						distributionCompany: selectedDisco,
+						distributionCompany: selectedProvider?.discos, // Use the discos value from the provider
 						subscriptionType: Number(meterType),
 						serviceProviderName: selectedProvider?.name,
 						description: 'electricity',
@@ -343,7 +388,7 @@ const ElectricityBills: React.FC = () => {
 					meterNumber,
 					amount: electricityAmount,
 					billerId: String(selectedProvider?.id),
-					distributionCompany: selectedDisco,
+					distributionCompany: selectedProvider?.discos, // Use the discos value from the provider
 					subscriptionType: Number(meterType),
 					serviceProviderName: selectedProvider?.name,
 					description: 'electricity',
@@ -400,24 +445,59 @@ const ElectricityBills: React.FC = () => {
 		}
 	};
 
-	// Data preparation
-	const discos = AllEnumResponse?.[15]?.values || [];
-
 	const prepaidProviderOptions =
-		prepaidElectricBillersResponse?.data.map(
-			(biller: { name: string; billerId: string }) => ({
-				name: biller.name,
-				id: biller.billerId,
-			})
-		) || [];
+		prepaidElectricBillersResponse?.data
+			.filter(
+				(biller: {
+					name: string;
+					billerId: string;
+					discos: any;
+					minLocalTransactionAmount: number;
+					maxLocalTransactionAmount: number;
+				}) => biller.discos !== 0
+			) // Filter out providers with discos value of 0
+			.map(
+				(biller: {
+					name: string;
+					billerId: string;
+					discos: any;
+					minLocalTransactionAmount: number;
+					maxLocalTransactionAmount: number;
+				}) => ({
+					name: biller.name,
+					id: biller.billerId,
+					discos: biller.discos,
+					minLocalTransactionAmount: biller.minLocalTransactionAmount,
+					maxLocalTransactionAmount: biller.maxLocalTransactionAmount,
+				})
+			) || [];
 
 	const postpaidProviderOptions =
-		postpaidElectricBillersResponse?.data.map(
-			(biller: { name: string; billerId: string }) => ({
-				name: biller.name,
-				id: biller.billerId,
-			})
-		) || [];
+		postpaidElectricBillersResponse?.data
+			.filter(
+				(biller: {
+					name: string;
+					billerId: string;
+					discos: any;
+					minLocalTransactionAmount: number;
+					maxLocalTransactionAmount: number;
+				}) => biller.discos !== 0
+			) // Filter out providers with discos value of 0
+			.map(
+				(biller: {
+					name: string;
+					billerId: string;
+					discos: any;
+					minLocalTransactionAmount: number;
+					maxLocalTransactionAmount: number;
+				}) => ({
+					name: biller.name,
+					id: biller.billerId,
+					discos: biller.discos,
+					minLocalTransactionAmount: biller.minLocalTransactionAmount,
+					maxLocalTransactionAmount: biller.maxLocalTransactionAmount,
+				})
+			) || [];
 
 	const providerOptions =
 		meterType === '0' ? prepaidProviderOptions : postpaidProviderOptions;
@@ -515,34 +595,6 @@ const ElectricityBills: React.FC = () => {
 							</Typography>
 						)}
 
-						{/* Distribution Company */}
-						<Typography
-							sx={{ fontSize: '0.88rem', color: '#636559', pt: 3, pb: 1 }}
-						>
-							Distribution Company
-						</Typography>
-						<Select
-							fullWidth
-							value={selectedDisco}
-							onChange={handleDiscoChange}
-							error={!!errors.selectedDisco}
-						>
-							<MenuItem
-								value=""
-								disabled
-							>
-								Select distribution company
-							</MenuItem>
-							{discos.map((option: DiscoOption) => (
-								<MenuItem
-									key={option.value}
-									value={option.value}
-								>
-									{option.name}
-								</MenuItem>
-							))}
-						</Select>
-
 						{/* Meter Number */}
 						<Typography
 							sx={{ fontSize: '0.88rem', color: '#636559', pt: 3, pb: 1 }}
@@ -576,14 +628,20 @@ const ElectricityBills: React.FC = () => {
 							fullWidth
 							variant="outlined"
 							value={electricityAmount}
-							onChange={e => setElectricityAmount(e.target.value)}
+							onChange={handleAmountChange}
 							placeholder="Enter amount"
+							type="text" // Use text to handle our custom formatting
+							inputMode="numeric" // Show numeric keyboard on mobile
 							InputProps={{
 								startAdornment: (
 									<InputAdornment position="start">₦</InputAdornment>
 								),
 							}}
 							error={!!errors.amount}
+							helperText={
+								selectedProvider &&
+								`Min: ₦${selectedProvider.minLocalTransactionAmount.toLocaleString()}, Max: ₦${selectedProvider.maxLocalTransactionAmount.toLocaleString()}`
+							}
 						/>
 						{errors.amount && (
 							<Typography
@@ -614,7 +672,8 @@ const ElectricityBills: React.FC = () => {
 								!selectedProvider ||
 								!meterNumber ||
 								!electricityAmount ||
-								!meterType
+								!meterType ||
+								!!errors.amount
 							}
 							sx={{
 								px: 3,
@@ -695,37 +754,3 @@ const ElectricityBills: React.FC = () => {
 };
 
 export default ElectricityBills;
-function makeTransferRequest(payload: {
-	initialiseElectricityTransaction: {
-		userId: any;
-		transactionDetails: {
-			meterNumber: string;
-			amount: string;
-			billerId: string;
-			distributionCompany: string;
-			subscriptionType: number;
-			serviceProviderName: string | undefined;
-			description: string;
-		};
-	};
-}): [any, any] | PromiseLike<[any, any]> {
-	throw new Error('Function not implemented.');
-}
-function makeUssdRequest(payload: {
-	initialiseElectricityTransaction: {
-		userId: any;
-		bankCode: string;
-		bankName: string;
-		transactionDetails: {
-			meterNumber: string;
-			amount: string;
-			billerId: string;
-			distributionCompany: string;
-			subscriptionType: number;
-			serviceProviderName: string | undefined;
-			description: string;
-		};
-	};
-}): [any, any] | PromiseLike<[any, any]> {
-	throw new Error('Function not implemented.');
-}
