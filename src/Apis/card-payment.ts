@@ -10,6 +10,19 @@ export function initialiseCardPayment(data: any) {
 		)
 	);
 }
+export function isPasskeySet(data: { id: string }) {
+	return handleRequest(() =>
+		clientRequest({ baseURL: BASE_URL }).get(
+			`/Wallet/is-passpin-set/${data.id}`
+		)
+	);
+}
+
+export function setPasskey(data: any) {
+	return handleRequest(() =>
+		clientRequest({ baseURL: BASE_URL }).post('/Wallet/set-passpin', data)
+	);
+}
 
 export function fundwallet(data: any) {
 	return handleRequest(() =>

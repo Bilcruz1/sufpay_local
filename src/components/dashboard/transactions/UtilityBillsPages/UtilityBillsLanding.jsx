@@ -12,7 +12,7 @@ import TransactionsCards from '../Cards/TransactionsCards';
 
 const UtilityBillsLanding = () => {
 	const theme = useTheme();
-	// Check if screen is medium size (md) or below
+
 	const isMdDown = useMediaQuery(theme.breakpoints.down('md'));
 
 	return (

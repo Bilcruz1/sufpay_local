@@ -30,6 +30,7 @@ import {
 	initiateTransferAirtime,
 	initiateUssdAirtime,
 	getPhoneOperator,
+	isPasskeySet,
 } from '../../../Apis/card-payment';
 import mtnLogo from '../../../assets/icons/mtn-logo.svg';
 import gloLogo from '../../../assets/icons/glo-logo.svg';
@@ -42,6 +43,7 @@ import Failed from '../../payments/failed';
 import Success from '../../payments/success';
 import Processing from '../../payments/processing';
 import MethodSelection from '../../payments/methodSelection';
+import PasskeyModal from '../../payments/passkeyModal';
 
 interface CarrierOption {
 	value: string;
@@ -73,6 +75,15 @@ interface PhoneValidation {
 	isLoading: boolean;
 	error: string;
 	detectedOperator?: string;
+}
+
+interface PasskeyState {
+	isSet: boolean;
+	checked: boolean;
+	modalOpen: boolean;
+	value: string;
+	error: string;
+	loading: boolean;
 }
 
 const AirtimeTransactions: React.FC = () => {
@@ -108,6 +119,14 @@ const AirtimeTransactions: React.FC = () => {
 		detectedOperator: '',
 	});
 	const [isCarrierAutoSelected, setIsCarrierAutoSelected] = useState(false);
+	const [passkeyState, setPasskeyState] = useState<PasskeyState>({
+		isSet: false,
+		checked: false,
+		modalOpen: false,
+		value: '',
+		error: '',
+		loading: false,
+	});
 
 	const {
 		isLoading: isLoadingCarriers,
@@ -123,6 +142,10 @@ const AirtimeTransactions: React.FC = () => {
 		useRequest(initiateUssdAirtime);
 	const { isLoading: isLoadingValidation, makeRequest: makeValidationRequest } =
 		useRequest(getPhoneOperator);
+	const {
+		isLoading: isLoadingPasskeyCheck,
+		makeRequest: makePasskeyCheckRequest,
+	} = useRequest(isPasskeySet);
 
 	// Logo mapping functions
 	const getCarrierLogo = (name: string): string => {
@@ -457,6 +480,52 @@ const AirtimeTransactions: React.FC = () => {
 		}
 	}, [phoneNumber]);
 
+	const checkPasskeySet = async () => {
+		try {
+			const userProfileItem = localStorage.getItem('userProfile');
+			if (!userProfileItem) {
+				console.error('User profile not found in localStorage');
+				setPasskeyState(prev => ({
+					...prev,
+					isSet: false,
+					checked: true,
+				}));
+				return;
+			}
+
+			const userProfile = JSON.parse(userProfileItem);
+
+			// Check if wallet and passPinIsSet exist in user profile
+			if (!userProfile.wallet) {
+				console.error('Wallet not found in user profile');
+				setPasskeyState(prev => ({
+					...prev,
+					isSet: false,
+					checked: true,
+				}));
+				return;
+			}
+
+			// Get passPinIsSet directly from localStorage user profile
+			const isPasskeySet = userProfile.wallet.passPinIsSet || false;
+
+			setPasskeyState(prev => ({
+				...prev,
+				isSet: isPasskeySet,
+				checked: true,
+			}));
+
+			console.log('Passkey status from localStorage:', isPasskeySet);
+		} catch (error) {
+			console.error('Error in checkPasskeySet:', error);
+			// Set as checked even if there's an error to avoid infinite loading
+			setPasskeyState(prev => ({
+				...prev,
+				isSet: false,
+				checked: true,
+			}));
+		}
+	};
 	const handleCarrierChange = (event: SelectChangeEvent<string>) => {
 		const value = event.target.value;
 		setSelectedCarrier(value);
@@ -519,13 +588,21 @@ const AirtimeTransactions: React.FC = () => {
 		navigate(-1);
 	};
 
-	const handleOpenModal = () => {
+	const handleOpenModal = async () => {
 		// Only open modal if form is valid
 		if (!isFormValid()) return;
 
-		setOpenModal(true);
-		setCurrentStage('method-selection');
-		setPaymentStatus('idle');
+		// Check if passkey is set before opening the modal
+		setPaymentStatus('processing');
+		try {
+			await checkPasskeySet();
+			setOpenModal(true);
+			setCurrentStage('method-selection');
+			setPaymentStatus('idle');
+		} catch (error) {
+			console.error('Error checking passkey:', error);
+			setPaymentStatus('idle');
+		}
 	};
 
 	const handleCloseModal = () => {
@@ -551,7 +628,6 @@ const AirtimeTransactions: React.FC = () => {
 			error: '',
 			detectedOperator: '',
 		});
-		// navigate('/dashboard');
 	};
 
 	const handlePaymentMethodChange = (event: SelectChangeEvent<string>) => {
@@ -700,6 +776,99 @@ const AirtimeTransactions: React.FC = () => {
 		return '';
 	};
 
+	const handleWalletPayment = async () => {
+		// Check passkey status from localStorage first
+		if (!passkeyState.checked) {
+			await checkPasskeySet();
+		}
+
+		// If passkey is not set, show modal to prompt user to set it
+		if (!passkeyState.isSet) {
+			setPasskeyState(prev => ({
+				...prev,
+				modalOpen: true,
+				error:
+					'You need to set up your wallet PIN before making payments. Please set your PIN first.',
+			}));
+			return;
+		}
+
+		// If passkey is set, proceed to show the passkey input modal
+		setPasskeyState(prev => ({
+			...prev,
+			modalOpen: true,
+			error: '',
+			value: '',
+		}));
+	};
+
+	const handlePasskeySubmit = async (passkey: string) => {
+		setPasskeyState(prev => ({ ...prev, loading: true, error: '' }));
+
+		try {
+			// Validate required fields
+			if (!amount || !phoneNumber || !selectedCarrier) {
+				throw new Error('Please fill all required fields');
+			}
+
+			// Get carrier details
+			const carrier = carrierOptions.find(c => c.value === selectedCarrier);
+			if (!carrier) throw new Error('Invalid carrier selected');
+
+			// Get user profile
+			const userProfileItem = localStorage.getItem('userProfile');
+			if (!userProfileItem) throw new Error('User profile not found');
+			const userProfile = JSON.parse(userProfileItem);
+
+			// Format phone number for payload
+			const payloadPhone = formatPhoneForPayload(phoneNumber);
+
+			// Wallet payment payload with passkey
+			const walletPayload = {
+				userId: userProfile.userId,
+				transactionDetails: {
+					phoneNumber: payloadPhone,
+					amount: parseInt(amount),
+					billerId: carrier.billerId,
+					serviceProviderName: selectedCarrier,
+					description: 'airtime',
+				},
+				walletIdentifier: userProfile.wallet?.walletIdentifier,
+				serviceProviderName: selectedCarrier,
+				passKey: passkey,
+			};
+
+			const [walletResponse, walletError] = await makeWalletRequest(
+				walletPayload
+			);
+			if (walletError) throw walletError;
+
+			setPaymentStatus('success');
+			setPasskeyState(prev => ({
+				...prev,
+				modalOpen: false,
+				loading: false,
+				value: '',
+			}));
+		} catch (error) {
+			console.error('Payment failed:', error);
+			setPasskeyState(prev => ({
+				...prev,
+				error: 'Invalid passkey or payment failed',
+				loading: false,
+			}));
+		}
+	};
+
+	const handlePasskeyClose = () => {
+		setPasskeyState(prev => ({
+			...prev,
+			modalOpen: false,
+			value: '',
+			error: '',
+		}));
+	};
+
 	const paymentMethods = [
 		{ id: 'wallet', label: 'Pay with Wallet' },
 		{ id: 'card', label: 'Pay with Card' },
@@ -764,21 +933,34 @@ const AirtimeTransactions: React.FC = () => {
 			// Handle each payment method differently
 			switch (paymentMethod) {
 				case 'wallet':
-					// Wallet payment payload
-					const walletPayload = {
-						...commonPayload,
-						walletIdentifier: userProfile.wallet?.walletIdentifier,
-						serviceProviderName: selectedCarrier,
-						passKey: '111111',
-					};
+					// Check if passkey is set from localStorage
+					if (!passkeyState.checked) {
+						await checkPasskeySet();
+					}
 
-					const [walletResponse, walletError] = await makeWalletRequest(
-						walletPayload
-					);
-					if (walletError) throw walletError;
-					setPaymentStatus('success');
+					// If passkey is not set, show error and prompt to set it
+					if (!passkeyState.isSet) {
+						setPaymentStatus('failed');
+						setPasskeyState(prev => ({
+							...prev,
+							modalOpen: true,
+							error:
+								'Please set up your wallet PIN first to use wallet payments.',
+						}));
+						return;
+					}
+
+					// If passkey is set, open passkey input modal
+					setPaymentStatus('idle');
+					setPasskeyState(prev => ({
+						...prev,
+						modalOpen: true,
+						error: '',
+						value: '',
+					}));
 					break;
 
+				// ... rest of the payment methods remain the same
 				case 'card':
 					// Card payment payload
 					const cardPayload = {
@@ -870,7 +1052,7 @@ const AirtimeTransactions: React.FC = () => {
 						<Typography
 							sx={{
 								fontSize: '0.88rem',
-								color: '#636559',
+								color: 'text.secondary',
 								lineHeight: '1.25rem',
 								pb: 1,
 							}}
@@ -923,7 +1105,7 @@ const AirtimeTransactions: React.FC = () => {
 						<Typography
 							sx={{
 								fontSize: '0.88rem',
-								color: '#636559',
+								color: 'text.secondary',
 								lineHeight: '1.25rem',
 								pb: 1,
 							}}
@@ -970,7 +1152,7 @@ const AirtimeTransactions: React.FC = () => {
 						<Typography
 							sx={{
 								fontSize: '0.88rem',
-								color: '#636559',
+								color: 'text.secondary',
 								lineHeight: '1.25rem',
 								pb: 1,
 							}}
@@ -1067,14 +1249,17 @@ const AirtimeTransactions: React.FC = () => {
 							handleProceedToCardDetails={handleProceedToCardDetails}
 							handleInitiateTransferPayment={handleInitiateTransferPayment}
 							handleInitiateUssdPayment={handleInitiateUssdPayment}
-							paymentMethod={paymentMethod}
 							handleSubmitPayment={handleSubmitPayment}
+							paymentMethod={paymentMethod}
 							amount={amount}
 							setCurrentStage={setCurrentStage}
 							serviceType="airtime"
 							identifier={phoneNumber}
 							selectedProvider={selectedCarrier}
 							setUssdCode={setUssdCode}
+							passkeyState={passkeyState}
+							checkPasskeySet={checkPasskeySet}
+							handleWalletPayment={handleWalletPayment}
 						/>
 					</>
 				) : currentStage === 'card-details' ? (
@@ -1110,6 +1295,15 @@ const AirtimeTransactions: React.FC = () => {
 					</>
 				) : null}
 			</Dialog>
+
+			{/* Passkey Modal */}
+			<PasskeyModal
+				open={passkeyState.modalOpen}
+				onClose={handlePasskeyClose}
+				onSubmit={handlePasskeySubmit}
+				error={passkeyState.error}
+				loading={passkeyState.loading}
+			/>
 		</>
 	);
 };

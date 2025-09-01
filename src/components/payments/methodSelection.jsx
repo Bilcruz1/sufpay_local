@@ -31,6 +31,8 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import SecurityIcon from '@mui/icons-material/Security';
 import SpeedIcon from '@mui/icons-material/Speed';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import SettingsIcon from '@mui/icons-material/Settings';
+import { useNavigate } from 'react-router-dom';
 
 const banks = [
 	{ code: '060004', name: 'First Bank of Nigeria' },
@@ -93,7 +95,7 @@ const paymentMethodDetails = {
 };
 
 export default function MethodSelection({
-	paymentMethod = '', // Set default to empty string
+	paymentMethod = '',
 	handlePaymentMethodChange,
 	paymentMethods,
 	handleProceedToCardDetails,
@@ -107,12 +109,15 @@ export default function MethodSelection({
 	amount,
 	setCurrentStage,
 	setUssdCode,
+	passkeyState,
+	checkPasskeySet,
+	handleWalletPayment,
 }) {
 	const [showBankSelection, setShowBankSelection] = useState(false);
 	const [accountBank, setAccountBank] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
+	const navigate = useNavigate();
 
-	// Dynamic labels based on service type
 	const getIdentifierLabel = () => {
 		switch (serviceType) {
 			case 'electricity':
@@ -149,7 +154,15 @@ export default function MethodSelection({
 		} else if (paymentMethod === 'ussd') {
 			setShowBankSelection(true);
 		} else if (paymentMethod === 'wallet') {
-			handleSubmitPayment();
+			if (!passkeyState.checked) {
+				checkPasskeySet().then(() => {
+					if (passkeyState.isSet) {
+						handleWalletPayment();
+					}
+				});
+			} else if (passkeyState.isSet) {
+				handleWalletPayment();
+			}
 		} else {
 			handleSubmitPayment();
 		}
@@ -174,6 +187,11 @@ export default function MethodSelection({
 	const handleCloseBankSelection = () => {
 		setShowBankSelection(false);
 		setAccountBank('');
+	};
+
+	const handleGoToSettings = () => {
+		navigate('/settings');
+		handleCloseModal();
 	};
 
 	const selectedMethod = paymentMethods.find(
@@ -351,6 +369,77 @@ export default function MethodSelection({
 							}}
 						>
 							<CardContent sx={{ p: 2.5, '&:last-child': { pb: 2.5 } }}>
+								{/* Show passkey warning if wallet is selected but passkey is not set */}
+								{paymentMethod === 'wallet' &&
+									passkeyState.checked &&
+									!passkeyState.isSet && (
+										<Box
+											sx={{
+												backgroundColor: '#FFF3E0',
+												border: '1px solid ',
+												borderColor: 'warning.main',
+												borderRadius: 1,
+												p: 2,
+												mb: 2,
+												display: 'flex',
+												alignItems: 'center',
+												gap: 1.5,
+											}}
+										>
+											<SecurityIcon sx={{ color: 'warning.main' }} />
+											<Box flex={1}>
+												<Typography
+													variant="body2"
+													fontWeight="500"
+													color="warning.dark"
+												>
+													Passkey Not Set
+												</Typography>
+												<Typography
+													variant="body2"
+													color="text.secondary"
+													sx={{ mt: 0.5 }}
+												>
+													You need to set up your passkey before making wallet
+													transactions.
+												</Typography>
+												<Button
+													variant="text"
+													size="small"
+													startIcon={<SettingsIcon />}
+													onClick={handleGoToSettings}
+													sx={{ mt: 1, color: '#AAC645' }}
+												>
+													Go to Security Settings
+												</Button>
+											</Box>
+										</Box>
+									)}
+
+								{/* Show loading if still checking passkey status */}
+								{paymentMethod === 'wallet' && !passkeyState.checked && (
+									<Box
+										sx={{
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'center',
+											py: 2,
+											mb: 2,
+										}}
+									>
+										<CircularProgress
+											size={24}
+											sx={{ mr: 1.5 }}
+										/>
+										<Typography
+											variant="body2"
+											color="text.secondary"
+										>
+											Checking security settings...
+										</Typography>
+									</Box>
+								)}
+
 								<Box
 									display="flex"
 									alignItems="center"
@@ -587,7 +676,13 @@ export default function MethodSelection({
 						onClick={handleContinue}
 						variant="contained"
 						fullWidth
-						disabled={!paymentMethod}
+						disabled={
+							!paymentMethod ||
+							(paymentMethod === 'wallet' &&
+								passkeyState.checked &&
+								!passkeyState.isSet) ||
+							!passkeyState.checked
+						}
 						sx={{
 							py: 1.5,
 							fontWeight: '600',
@@ -604,7 +699,11 @@ export default function MethodSelection({
 							},
 						}}
 					>
-						{paymentMethod === 'wallet' ? 'Pay Now' : 'Continue'}
+						{paymentMethod === 'wallet'
+							? passkeyState.checked && !passkeyState.isSet
+								? 'Passkey Required'
+								: 'Pay Now'
+							: 'Continue'}
 					</Button>
 				</Box>
 			</DialogContent>

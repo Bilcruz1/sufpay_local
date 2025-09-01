@@ -45,12 +45,13 @@ import Failed from '../../payments/failed';
 import Success from '../../payments/success';
 import Processing from '../../payments/processing';
 import MethodSelection from '../../payments/methodSelection';
+import PasskeyModal from '../../payments/passkeyModal';
 
 interface DataVariation {
 	billerVariationId: string;
 	name: string;
 	amount: number;
-	days?: number; // Extracted from name
+	days?: number;
 	category?: 'regular' | 'daily' | 'weekly' | 'monthly' | 'yearly';
 }
 
@@ -105,6 +106,15 @@ interface CategorizedPlans {
 	yearly: DataVariation[];
 }
 
+interface PasskeyState {
+	isSet: boolean;
+	checked: boolean;
+	modalOpen: boolean;
+	value: string;
+	error: string;
+	loading: boolean;
+}
+
 const DataTransactions: React.FC = () => {
 	const navigate = useNavigate();
 	const [phoneNumber, setPhoneNumber] = useState<string>('');
@@ -146,6 +156,14 @@ const DataTransactions: React.FC = () => {
 		error: '',
 	});
 	const [forceProceed, setForceProceed] = useState(false);
+	const [passkeyState, setPasskeyState] = useState<PasskeyState>({
+		isSet: false,
+		checked: false,
+		modalOpen: false,
+		value: '',
+		error: '',
+		loading: false,
+	});
 
 	const { isLoading: isLoadingCarriers, makeRequest: makeDataCarrierRequest } =
 		useRequest(getDataBillers);
@@ -181,6 +199,54 @@ const DataTransactions: React.FC = () => {
 		return labelMap[name] || name;
 	};
 
+	// Check passkey status from localStorage
+	const checkPasskeySet = async () => {
+		try {
+			const userProfileItem = localStorage.getItem('userProfile');
+			if (!userProfileItem) {
+				console.error('User profile not found in localStorage');
+				setPasskeyState(prev => ({
+					...prev,
+					isSet: false,
+					checked: true,
+				}));
+				return;
+			}
+
+			const userProfile = JSON.parse(userProfileItem);
+
+			// Check if wallet and passPinIsSet exist in user profile
+			if (!userProfile.wallet) {
+				console.error('Wallet not found in user profile');
+				setPasskeyState(prev => ({
+					...prev,
+					isSet: false,
+					checked: true,
+				}));
+				return;
+			}
+
+			// Get passPinIsSet directly from localStorage user profile
+			const isPasskeySet = userProfile.wallet.passPinIsSet || false;
+
+			setPasskeyState(prev => ({
+				...prev,
+				isSet: isPasskeySet,
+				checked: true,
+			}));
+
+			console.log('Passkey status from localStorage:', isPasskeySet);
+		} catch (error) {
+			console.error('Error in checkPasskeySet:', error);
+			// Set as checked even if there's an error to avoid infinite loading
+			setPasskeyState(prev => ({
+				...prev,
+				isSet: false,
+				checked: true,
+			}));
+		}
+	};
+
 	// Function to extract days from plan name and categorize
 	const extractDaysAndCategorize = (
 		planName: string
@@ -206,7 +272,7 @@ const DataTransactions: React.FC = () => {
 		} else if (days >= 8 && days <= 31) {
 			return { days, category: 'monthly' };
 		} else if (days >= 32 && days <= 90) {
-			return { days, category: 'monthly' }; // Treat 90-day plans as monthly
+			return { days, category: 'monthly' };
 		} else if (days >= 180 && days <= 365) {
 			return { days, category: 'yearly' };
 		} else {
@@ -464,7 +530,7 @@ const DataTransactions: React.FC = () => {
 		navigate(-1);
 	};
 
-	const handleOpenModal = () => {
+	const handleOpenModal = async () => {
 		if (!phoneNumber || !selectedCarrier || !selectedPlan) return;
 
 		// Check if phone number validation failed and user hasn't chosen to proceed anyway
@@ -472,16 +538,33 @@ const DataTransactions: React.FC = () => {
 			return;
 		}
 
-		setOpenModal(true);
-		setCurrentStage('method-selection');
-		setPaymentStatus('idle');
+		// Check if passkey is set before opening the modal
+		setPaymentStatus('processing');
+		try {
+			await checkPasskeySet();
+			setOpenModal(true);
+			setCurrentStage('method-selection');
+			setPaymentStatus('idle');
+		} catch (error) {
+			console.error('Error checking passkey:', error);
+			setPaymentStatus('idle');
+		}
 	};
 
-	const handleForceProceed = () => {
+	const handleForceProceed = async () => {
 		setForceProceed(true);
-		setOpenModal(true);
-		setCurrentStage('method-selection');
-		setPaymentStatus('idle');
+
+		// Check passkey status before proceeding
+		setPaymentStatus('processing');
+		try {
+			await checkPasskeySet();
+			setOpenModal(true);
+			setCurrentStage('method-selection');
+			setPaymentStatus('idle');
+		} catch (error) {
+			console.error('Error checking passkey:', error);
+			setPaymentStatus('idle');
+		}
 	};
 
 	const handleCloseModal = () => {
@@ -498,6 +581,15 @@ const DataTransactions: React.FC = () => {
 		setTransferDetails(null);
 		setUssdCode('');
 		setForceProceed(false);
+		setPhoneNumber('');
+		setSelectedPlan(null);
+		setSelectedCarrier('');
+		setCarrierLogo('');
+		setPhoneValidation({
+			isValid: false,
+			isLoading: false,
+			error: '',
+		});
 	};
 
 	const handlePaymentMethodChange = (event: SelectChangeEvent<string>) => {
@@ -513,7 +605,7 @@ const DataTransactions: React.FC = () => {
 		newValue: string
 	) => {
 		setSelectedCategory(newValue);
-		setSelectedPlan(null); // Reset selected plan when category changes
+		setSelectedPlan(null);
 	};
 
 	const handlePlanSelect = (plan: DataVariation) => {
@@ -521,7 +613,6 @@ const DataTransactions: React.FC = () => {
 	};
 
 	const formatPlanName = (name: string) => {
-		// Extract key information from plan name
 		const parts = name.split(' - ');
 		if (parts.length >= 3) {
 			const size = parts[1]; // e.g., "650MB", "1.5GB"
@@ -530,6 +621,7 @@ const DataTransactions: React.FC = () => {
 		}
 		return name;
 	};
+
 	const handleConfirmTransferPayment = () => {
 		setPaymentStatus('processing');
 		setTimeout(() => {
@@ -537,6 +629,7 @@ const DataTransactions: React.FC = () => {
 			setTimeout(handleCloseModal, 2000);
 		}, 1500);
 	};
+
 	const handleInitiateTransferPayment = async () => {
 		setPaymentStatus('processing');
 		if (!selectedPlan) return;
@@ -573,12 +666,11 @@ const DataTransactions: React.FC = () => {
 				accountName: response.data.accountName || 'Not available',
 				amount: response.data.amount || amount,
 				reference: response.data.reference || 'Use your user ID',
-				expiration: response.data.expiration || 300, // 5 minutes default
+				expiration: response.data.expiration || 300,
 			};
 
 			setTransferDetails(transferDetails);
 
-			// Start countdown
 			setTimeLeft(transferDetails.expiration);
 			setIsExpired(false);
 
@@ -589,6 +681,7 @@ const DataTransactions: React.FC = () => {
 			setPaymentStatus('failed');
 		}
 	};
+
 	const handleInitiateUssdPayment = async (selectedBank: {
 		code: any;
 		name: any;
@@ -640,6 +733,99 @@ const DataTransactions: React.FC = () => {
 		}
 	};
 
+	const handleWalletPayment = async () => {
+		// Check passkey status from localStorage first
+		if (!passkeyState.checked) {
+			await checkPasskeySet();
+		}
+
+		// If passkey is not set, show modal to prompt user to set it
+		if (!passkeyState.isSet) {
+			setPasskeyState(prev => ({
+				...prev,
+				modalOpen: true,
+				error:
+					'You need to set up your wallet PIN before making payments. Please set your PIN first.',
+			}));
+			return;
+		}
+
+		// If passkey is set, proceed to show the passkey input modal
+		setPasskeyState(prev => ({
+			...prev,
+			modalOpen: true,
+			error: '',
+			value: '',
+		}));
+	};
+
+	const handlePasskeySubmit = async (passkey: string) => {
+		setPasskeyState(prev => ({ ...prev, loading: true, error: '' }));
+
+		try {
+			// Validate required fields
+			if (!selectedPlan || !phoneNumber || !selectedCarrier) {
+				throw new Error('Please fill all required fields');
+			}
+
+			// Get carrier details
+			const carrier = carrierOptions.find(c => c.value === selectedCarrier);
+			if (!carrier) throw new Error('Invalid carrier selected');
+
+			// Get user profile
+			const userProfileItem = localStorage.getItem('userProfile');
+			if (!userProfileItem) throw new Error('User profile not found');
+			const userProfile = JSON.parse(userProfileItem);
+
+			// Wallet payment payload with passkey
+			const walletPayload = {
+				userId: userProfile.userId,
+				transactionDetails: {
+					phoneNumber,
+					amount: selectedPlan.amount,
+					billerId: carrier.billerId,
+					DataBundle: selectedPlan.billerVariationId,
+					networkProviderName: selectedCarrier,
+					ServiceProviderName: selectedCarrier,
+					description: 'data',
+				},
+				walletIdentifier: userProfile.wallet?.walletIdentifier,
+				networkProviderName: selectedCarrier,
+				ServiceProviderName: selectedCarrier,
+				passKey: passkey,
+			};
+
+			const [walletResponse, walletError] = await makeWalletRequest(
+				walletPayload
+			);
+			if (walletError) throw walletError;
+
+			setPaymentStatus('success');
+			setPasskeyState(prev => ({
+				...prev,
+				modalOpen: false,
+				loading: false,
+				value: '',
+			}));
+		} catch (error) {
+			console.error('Payment failed:', error);
+			setPasskeyState(prev => ({
+				...prev,
+				error: 'Invalid passkey or payment failed',
+				loading: false,
+			}));
+		}
+	};
+
+	const handlePasskeyClose = () => {
+		setPasskeyState(prev => ({
+			...prev,
+			modalOpen: false,
+			value: '',
+			error: '',
+		}));
+	};
+
 	const handleSubmitPayment = async () => {
 		if (!selectedPlan) return;
 
@@ -678,19 +864,31 @@ const DataTransactions: React.FC = () => {
 			// Handle each payment method differently
 			switch (paymentMethod) {
 				case 'wallet':
-					const walletPayload = {
-						...commonPayload,
-						walletIdentifier: userProfile.wallet?.walletIdentifier,
-						networkProviderName: selectedCarrier,
-						ServiceProviderName: selectedCarrier,
-						passKey: '111111',
-					};
+					// Check if passkey is set from localStorage
+					if (!passkeyState.checked) {
+						await checkPasskeySet();
+					}
 
-					const [walletResponse, walletError] = await makeWalletRequest(
-						walletPayload
-					);
-					if (walletError) throw walletError;
-					setPaymentStatus('success');
+					// If passkey is not set, show error and prompt to set it
+					if (!passkeyState.isSet) {
+						setPaymentStatus('failed');
+						setPasskeyState(prev => ({
+							...prev,
+							modalOpen: true,
+							error:
+								'Please set up your wallet PIN first to use wallet payments.',
+						}));
+						return;
+					}
+
+					// If passkey is set, open passkey input modal
+					setPaymentStatus('idle');
+					setPasskeyState(prev => ({
+						...prev,
+						modalOpen: true,
+						error: '',
+						value: '',
+					}));
 					break;
 
 				case 'card':
@@ -846,7 +1044,7 @@ const DataTransactions: React.FC = () => {
 								) : null,
 								inputProps: {
 									maxLength: 14,
-									pattern: '^\\+?234\\d{10}$',
+									pattern: '^\\+?234\\d{10}',
 								},
 							}}
 						/>
@@ -1096,6 +1294,9 @@ const DataTransactions: React.FC = () => {
 						identifier={phoneNumber}
 						selectedProvider={selectedCarrier}
 						setUssdCode={setUssdCode}
+						passkeyState={passkeyState}
+						checkPasskeySet={checkPasskeySet}
+						handleWalletPayment={handleWalletPayment}
 					/>
 				) : currentStage === 'card-details' ? (
 					<CardPayment
@@ -1128,6 +1329,15 @@ const DataTransactions: React.FC = () => {
 					/>
 				) : null}
 			</Dialog>
+
+			{/* Passkey Modal */}
+			<PasskeyModal
+				open={passkeyState.modalOpen}
+				onClose={handlePasskeyClose}
+				onSubmit={handlePasskeySubmit}
+				error={passkeyState.error}
+				loading={passkeyState.loading}
+			/>
 		</>
 	);
 };

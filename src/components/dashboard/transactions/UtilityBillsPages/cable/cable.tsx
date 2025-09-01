@@ -36,6 +36,7 @@ import USSD from '../../../../payments/ussd';
 import Processing from '../../../../payments/processing';
 import Success from '../../../../payments/success';
 import Failed from '../../../../payments/failed';
+import PasskeyModal from '../../../../payments/passkeyModal';
 import { toast, ToastContainer } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 
@@ -81,6 +82,15 @@ interface CardDetails {
 	cvv: string;
 }
 
+interface PasskeyState {
+	isSet: boolean;
+	checked: boolean;
+	modalOpen: boolean;
+	value: string;
+	error: string;
+	loading: boolean;
+}
+
 const CableTvPage = () => {
 	const theme = useTheme();
 	const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -116,8 +126,15 @@ const CableTvPage = () => {
 		expiryYear: '',
 		cvv: '',
 	});
+	const [passkeyState, setPasskeyState] = useState<PasskeyState>({
+		isSet: false,
+		checked: false,
+		modalOpen: false,
+		value: '',
+		error: '',
+		loading: false,
+	});
 
-	// API hooks
 	const {
 		response: cableServiceResponse,
 		makeRequest: fetchCableServices,
@@ -132,9 +149,74 @@ const CableTvPage = () => {
 	);
 	const { makeRequest: makeUssdRequest } = useRequest(initiateUssdCableTv);
 
+	// Check passkey status from localStorage
+	const checkPasskeySet = async () => {
+		try {
+			const userProfileItem = localStorage.getItem('userProfile');
+			if (!userProfileItem) {
+				console.error('User profile not found in localStorage');
+				setPasskeyState(prev => ({
+					...prev,
+					isSet: false,
+					checked: true,
+				}));
+				return;
+			}
+
+			const userProfile = JSON.parse(userProfileItem);
+
+			// Check if wallet and passPinIsSet exist in user profile
+			if (!userProfile.wallet) {
+				console.error('Wallet not found in user profile');
+				setPasskeyState(prev => ({
+					...prev,
+					isSet: false,
+					checked: true,
+				}));
+				return;
+			}
+
+			// Get passPinIsSet directly from localStorage user profile
+			const isPasskeySet = userProfile.wallet.passPinIsSet || false;
+
+			setPasskeyState(prev => ({
+				...prev,
+				isSet: isPasskeySet,
+				checked: true,
+			}));
+
+			console.log('Passkey status from localStorage:', isPasskeySet);
+		} catch (error) {
+			console.error('Error in checkPasskeySet:', error);
+			// Set as checked even if there's an error to avoid infinite loading
+			setPasskeyState(prev => ({
+				...prev,
+				isSet: false,
+				checked: true,
+			}));
+		}
+	};
+
 	useEffect(() => {
 		fetchCableServices();
 	}, []);
+
+	useEffect(() => {
+		if (!timeLeft) return;
+
+		const timer = setInterval(() => {
+			setTimeLeft(prev => {
+				if (prev !== null && prev <= 1) {
+					clearInterval(timer);
+					setIsExpired(true);
+					return 0;
+				}
+				return prev !== null ? prev - 1 : null;
+			});
+		}, 1000);
+
+		return () => clearInterval(timer);
+	}, [timeLeft]);
 
 	const filteredServices =
 		cableServiceResponse?.data?.filter((service: CableService) =>
@@ -180,7 +262,7 @@ const CableTvPage = () => {
 		setShowSmartcardField(false);
 	};
 
-	const handleOpenPaymentModal = () => {
+	const handleOpenPaymentModal = async () => {
 		if (!smartcardNumber || smartcardNumber.length < 10) {
 			toast.error('Please enter a valid 10-digit smartcard number');
 			return;
@@ -189,9 +271,18 @@ const CableTvPage = () => {
 			toast.error('Please select a package');
 			return;
 		}
-		setOpenModal(true);
-		setCurrentStage('method-selection');
-		setPaymentStatus('idle');
+
+		// Check if passkey is set before opening the modal
+		setPaymentStatus('processing');
+		try {
+			await checkPasskeySet();
+			setOpenModal(true);
+			setCurrentStage('method-selection');
+			setPaymentStatus('idle');
+		} catch (error) {
+			console.error('Error checking passkey:', error);
+			setPaymentStatus('idle');
+		}
 	};
 
 	const handleCloseModal = () => {
@@ -207,6 +298,10 @@ const CableTvPage = () => {
 		});
 		setTransferDetails(null);
 		setUssdCode('');
+		setSmartcardNumber('');
+		setSelectedVariation(null);
+		setSelectedService(null);
+		setStep(1);
 	};
 
 	const handleCloseModalSuccess = () => {
@@ -350,6 +445,93 @@ const CableTvPage = () => {
 		toast.success('Copied to clipboard');
 	};
 
+	const handleWalletPayment = async () => {
+		// Check passkey status from localStorage first
+		if (!passkeyState.checked) {
+			await checkPasskeySet();
+		}
+
+		// If passkey is not set, show modal to prompt user to set it
+		if (!passkeyState.isSet) {
+			setPasskeyState(prev => ({
+				...prev,
+				modalOpen: true,
+				error:
+					'You need to set up your wallet PIN before making payments. Please set your PIN first.',
+			}));
+			return;
+		}
+
+		// If passkey is set, proceed to show the passkey input modal
+		setPasskeyState(prev => ({
+			...prev,
+			modalOpen: true,
+			error: '',
+			value: '',
+		}));
+	};
+
+	const handlePasskeySubmit = async (passkey: string) => {
+		setPasskeyState(prev => ({ ...prev, loading: true, error: '' }));
+
+		try {
+			// Validate required fields
+			if (!selectedVariation || !smartcardNumber || !selectedService) {
+				throw new Error('Please fill all required fields');
+			}
+
+			// Get user profile
+			const userProfileItem = localStorage.getItem('userProfile');
+			if (!userProfileItem) throw new Error('User profile not found');
+			const userProfile = JSON.parse(userProfileItem);
+
+			// Wallet payment payload with passkey
+			const walletPayload = {
+				userId: userProfile.userId,
+				transactionDetails: {
+					phoneNumber: userProfile.phoneNumber,
+					amount: selectedVariation.variationAmount.toString(),
+					billerId: selectedService.serviceId,
+					serviceProviderName: selectedService.serviceName,
+					cablePlanId: selectedVariation.variationCode,
+					smartCardNumber: smartcardNumber,
+					description: 'cable-tv',
+				},
+				walletIdentifier: userProfile.wallet?.walletIdentifier,
+				passKey: passkey,
+			};
+
+			const [walletResponse, walletError] = await makeWalletRequest(
+				walletPayload
+			);
+			if (walletError) throw walletError;
+
+			setPaymentStatus('success');
+			setPasskeyState(prev => ({
+				...prev,
+				modalOpen: false,
+				loading: false,
+				value: '',
+			}));
+		} catch (error) {
+			console.error('Payment failed:', error);
+			setPasskeyState(prev => ({
+				...prev,
+				error: 'Invalid passkey or payment failed',
+				loading: false,
+			}));
+		}
+	};
+
+	const handlePasskeyClose = () => {
+		setPasskeyState(prev => ({
+			...prev,
+			modalOpen: false,
+			value: '',
+			error: '',
+		}));
+	};
+
 	const handlePay = async () => {
 		setPaymentStatus('processing');
 		try {
@@ -372,16 +554,31 @@ const CableTvPage = () => {
 
 			switch (paymentMethod) {
 				case 'wallet':
-					const walletPayload = {
-						...commonPayload,
-						walletIdentifier: userProfile.wallet?.walletIdentifier,
-						passKey: '111111',
-					};
-					const [walletResponse, walletError] = await makeWalletRequest(
-						walletPayload
-					);
-					if (walletError) throw walletError;
-					setPaymentStatus('success');
+					// Check if passkey is set from localStorage
+					if (!passkeyState.checked) {
+						await checkPasskeySet();
+					}
+
+					// If passkey is not set, show error and prompt to set it
+					if (!passkeyState.isSet) {
+						setPaymentStatus('failed');
+						setPasskeyState(prev => ({
+							...prev,
+							modalOpen: true,
+							error:
+								'Please set up your wallet PIN first to use wallet payments.',
+						}));
+						return;
+					}
+
+					// If passkey is set, open passkey input modal
+					setPaymentStatus('idle');
+					setPasskeyState(prev => ({
+						...prev,
+						modalOpen: true,
+						error: '',
+						value: '',
+					}));
 					break;
 
 				case 'card':
@@ -407,7 +604,6 @@ const CableTvPage = () => {
 					break;
 
 				case 'ussd':
-					// Bank selection will be handled in MethodSelection
 					break;
 
 				default:
@@ -796,9 +992,21 @@ const CableTvPage = () => {
 						amount={selectedVariation?.variationAmount.toString() || ''}
 						setCurrentStage={setCurrentStage}
 						setUssdCode={setUssdCode}
+						passkeyState={passkeyState}
+						checkPasskeySet={checkPasskeySet}
+						handleWalletPayment={handleWalletPayment}
 					/>
 				) : null}
 			</Dialog>
+
+			{/* Passkey Modal */}
+			<PasskeyModal
+				open={passkeyState.modalOpen}
+				onClose={handlePasskeyClose}
+				onSubmit={handlePasskeySubmit}
+				error={passkeyState.error}
+				loading={passkeyState.loading}
+			/>
 
 			<ToastContainer position="bottom-right" />
 		</Box>

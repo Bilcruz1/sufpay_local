@@ -34,6 +34,7 @@ import MethodSelection from '../../../payments/methodSelection';
 import Processing from '../../../payments/processing';
 import Success from '../../../payments/success';
 import Failed from '../../../payments/failed';
+import PasskeyModal from '../../../payments/passkeyModal';
 
 interface Provider {
 	id: number;
@@ -57,6 +58,15 @@ interface CardDetails {
 	expiryMonth: string;
 	expiryYear: string;
 	cvv: string;
+}
+
+interface PasskeyState {
+	isSet: boolean;
+	checked: boolean;
+	modalOpen: boolean;
+	value: string;
+	error: string;
+	loading: boolean;
 }
 
 const ElectricityBills: React.FC = () => {
@@ -89,6 +99,14 @@ const ElectricityBills: React.FC = () => {
 		expiryYear: '',
 		cvv: '',
 	});
+	const [passkeyState, setPasskeyState] = useState<PasskeyState>({
+		isSet: false,
+		checked: false,
+		modalOpen: false,
+		value: '',
+		error: '',
+		loading: false,
+	});
 
 	// Fetch data hooks
 	const { response: AllEnumResponse, makeRequest: makeAllEnumRequest } =
@@ -115,6 +133,54 @@ const ElectricityBills: React.FC = () => {
 	);
 
 	const { makeRequest: makeUssdRequest } = useRequest(initiateUssdElectricity);
+
+	// Check passkey status from localStorage
+	const checkPasskeySet = async () => {
+		try {
+			const userProfileItem = localStorage.getItem('userProfile');
+			if (!userProfileItem) {
+				console.error('User profile not found in localStorage');
+				setPasskeyState(prev => ({
+					...prev,
+					isSet: false,
+					checked: true,
+				}));
+				return;
+			}
+
+			const userProfile = JSON.parse(userProfileItem);
+
+			// Check if wallet and passPinIsSet exist in user profile
+			if (!userProfile.wallet) {
+				console.error('Wallet not found in user profile');
+				setPasskeyState(prev => ({
+					...prev,
+					isSet: false,
+					checked: true,
+				}));
+				return;
+			}
+
+			// Get passPinIsSet directly from localStorage user profile
+			const isPasskeySet = userProfile.wallet.passPinIsSet || false;
+
+			setPasskeyState(prev => ({
+				...prev,
+				isSet: isPasskeySet,
+				checked: true,
+			}));
+
+			console.log('Passkey status from localStorage:', isPasskeySet);
+		} catch (error) {
+			console.error('Error in checkPasskeySet:', error);
+			// Set as checked even if there's an error to avoid infinite loading
+			setPasskeyState(prev => ({
+				...prev,
+				isSet: false,
+				checked: true,
+			}));
+		}
+	};
 
 	// Fetch data on mount
 	useEffect(() => {
@@ -200,7 +266,7 @@ const ElectricityBills: React.FC = () => {
 			}));
 		};
 
-	const handleOpenModal = () => {
+	const handleOpenModal = async () => {
 		console.log('Opening modal with:', {
 			selectedProvider,
 			meterNumber,
@@ -236,9 +302,17 @@ const ElectricityBills: React.FC = () => {
 			return;
 		}
 
-		setOpenModal(true);
-		setCurrentStage('method-selection');
-		setPaymentStatus('idle');
+		// Check if passkey is set before opening the modal
+		setPaymentStatus('processing');
+		try {
+			await checkPasskeySet();
+			setOpenModal(true);
+			setCurrentStage('method-selection');
+			setPaymentStatus('idle');
+		} catch (error) {
+			console.error('Error checking passkey:', error);
+			setPaymentStatus('idle');
+		}
 	};
 
 	const handleCloseModal = () => {
@@ -254,6 +328,11 @@ const ElectricityBills: React.FC = () => {
 		});
 		setTransferDetails(null);
 		setUssdCode('');
+		setElectricityAmount('');
+		setMeterNumber('');
+		setSelectedProvider(null);
+		setMeterType('');
+		setErrors({});
 	};
 
 	const handleCloseModalSuccess = () => {
@@ -283,7 +362,7 @@ const ElectricityBills: React.FC = () => {
 						meterNumber,
 						amount: electricityAmount,
 						billerId: String(selectedProvider?.id),
-						distributionCompany: selectedProvider?.discos, // Use the discos value from the provider
+						distributionCompany: selectedProvider?.discos,
 						subscriptionType: Number(meterType),
 						serviceProviderName: selectedProvider?.name,
 						description: 'electricity',
@@ -333,7 +412,7 @@ const ElectricityBills: React.FC = () => {
 						meterNumber,
 						amount: electricityAmount,
 						billerId: String(selectedProvider?.id),
-						distributionCompany: selectedProvider?.discos, // Use the discos value from the provider
+						distributionCompany: selectedProvider?.discos,
 						subscriptionType: Number(meterType),
 						serviceProviderName: selectedProvider?.name,
 						description: 'electricity',
@@ -375,6 +454,94 @@ const ElectricityBills: React.FC = () => {
 		toast.success('Copied to clipboard');
 	};
 
+	const handleWalletPayment = async () => {
+		// Check passkey status from localStorage first
+		if (!passkeyState.checked) {
+			await checkPasskeySet();
+		}
+
+		// If passkey is not set, show modal to prompt user to set it
+		if (!passkeyState.isSet) {
+			setPasskeyState(prev => ({
+				...prev,
+				modalOpen: true,
+				error:
+					'You need to set up your wallet PIN before making payments. Please set your PIN first.',
+			}));
+			return;
+		}
+
+		// If passkey is set, proceed to show the passkey input modal
+		setPasskeyState(prev => ({
+			...prev,
+			modalOpen: true,
+			error: '',
+			value: '',
+		}));
+	};
+
+	const handlePasskeySubmit = async (passkey: string) => {
+		setPasskeyState(prev => ({ ...prev, loading: true, error: '' }));
+
+		try {
+			// Validate required fields
+			if (!selectedProvider || !meterNumber || !electricityAmount) {
+				throw new Error('Please fill all required fields');
+			}
+
+			// Get user profile
+			const userProfileItem = localStorage.getItem('userProfile');
+			if (!userProfileItem) throw new Error('User profile not found');
+			const userProfile = JSON.parse(userProfileItem);
+
+			// Wallet payment payload with passkey
+			const walletPayload = {
+				userId: userProfile.userId,
+				transactionDetails: {
+					meterNumber,
+					amount: electricityAmount,
+					billerId: String(selectedProvider.id),
+					distributionCompany: selectedProvider.discos,
+					subscriptionType: Number(meterType),
+					serviceProviderName: selectedProvider.name,
+					description: 'electricity',
+					state: 'abuja',
+				},
+				walletIdentifier: userProfile.wallet?.walletIdentifier,
+				passKey: passkey,
+			};
+
+			const [walletResponse, walletError] = await makeWalletRequest(
+				walletPayload
+			);
+			if (walletError) throw walletError;
+
+			setPaymentStatus('success');
+			setPasskeyState(prev => ({
+				...prev,
+				modalOpen: false,
+				loading: false,
+				value: '',
+			}));
+		} catch (error) {
+			console.error('Payment failed:', error);
+			setPasskeyState(prev => ({
+				...prev,
+				error: 'Invalid passkey or payment failed',
+				loading: false,
+			}));
+		}
+	};
+
+	const handlePasskeyClose = () => {
+		setPasskeyState(prev => ({
+			...prev,
+			modalOpen: false,
+			value: '',
+			error: '',
+		}));
+	};
+
 	const handlePay = async () => {
 		setPaymentStatus('processing');
 		try {
@@ -388,7 +555,7 @@ const ElectricityBills: React.FC = () => {
 					meterNumber,
 					amount: electricityAmount,
 					billerId: String(selectedProvider?.id),
-					distributionCompany: selectedProvider?.discos, // Use the discos value from the provider
+					distributionCompany: selectedProvider?.discos,
 					subscriptionType: Number(meterType),
 					serviceProviderName: selectedProvider?.name,
 					description: 'electricity',
@@ -398,16 +565,31 @@ const ElectricityBills: React.FC = () => {
 
 			switch (paymentMethod) {
 				case 'wallet':
-					const walletPayload = {
-						...commonPayload,
-						walletIdentifier: userProfile.wallet?.walletIdentifier,
-						passKey: '111111',
-					};
-					const [walletResponse, walletError] = await makeWalletRequest(
-						walletPayload
-					);
-					if (walletError) throw walletError;
-					setPaymentStatus('success');
+					// Check if passkey is set from localStorage
+					if (!passkeyState.checked) {
+						await checkPasskeySet();
+					}
+
+					// If passkey is not set, show error and prompt to set it
+					if (!passkeyState.isSet) {
+						setPaymentStatus('failed');
+						setPasskeyState(prev => ({
+							...prev,
+							modalOpen: true,
+							error:
+								'Please set up your wallet PIN first to use wallet payments.',
+						}));
+						return;
+					}
+
+					// If passkey is set, open passkey input modal
+					setPaymentStatus('idle');
+					setPasskeyState(prev => ({
+						...prev,
+						modalOpen: true,
+						error: '',
+						value: '',
+					}));
 					break;
 
 				case 'card':
@@ -433,7 +615,6 @@ const ElectricityBills: React.FC = () => {
 					break;
 
 				case 'ussd':
-					// Bank selection will be handled in MethodSelection
 					break;
 
 				default:
@@ -455,7 +636,7 @@ const ElectricityBills: React.FC = () => {
 					minLocalTransactionAmount: number;
 					maxLocalTransactionAmount: number;
 				}) => biller.discos !== 0
-			) // Filter out providers with discos value of 0
+			)
 			.map(
 				(biller: {
 					name: string;
@@ -482,7 +663,7 @@ const ElectricityBills: React.FC = () => {
 					minLocalTransactionAmount: number;
 					maxLocalTransactionAmount: number;
 				}) => biller.discos !== 0
-			) // Filter out providers with discos value of 0
+			)
 			.map(
 				(biller: {
 					name: string;
@@ -630,8 +811,8 @@ const ElectricityBills: React.FC = () => {
 							value={electricityAmount}
 							onChange={handleAmountChange}
 							placeholder="Enter amount"
-							type="text" // Use text to handle our custom formatting
-							inputMode="numeric" // Show numeric keyboard on mobile
+							type="text"
+							inputMode="numeric"
 							InputProps={{
 								startAdornment: (
 									<InputAdornment position="start">₦</InputAdornment>
@@ -739,14 +920,26 @@ const ElectricityBills: React.FC = () => {
 						paymentMethod={paymentMethod}
 						handleSubmitPayment={handlePay}
 						serviceType="electricity"
-						identifier={meterNumber} // Smartcard number
+						identifier={meterNumber}
 						selectedProvider={selectedProvider?.name}
 						amount={electricityAmount}
 						setCurrentStage={setCurrentStage}
 						setUssdCode={setUssdCode}
+						passkeyState={passkeyState}
+						checkPasskeySet={checkPasskeySet}
+						handleWalletPayment={handleWalletPayment}
 					/>
 				) : null}
 			</Dialog>
+
+			{/* Passkey Modal */}
+			<PasskeyModal
+				open={passkeyState.modalOpen}
+				onClose={handlePasskeyClose}
+				onSubmit={handlePasskeySubmit}
+				error={passkeyState.error}
+				loading={passkeyState.loading}
+			/>
 
 			<ToastContainer position="bottom-right" />
 		</>

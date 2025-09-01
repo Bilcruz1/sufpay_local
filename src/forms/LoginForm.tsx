@@ -11,14 +11,10 @@ import {
 import React, { useState } from 'react';
 import googleImg from '../assets/img/google_img.svg';
 import { InputFeild, PasswordInputFeild } from '../components';
-import { formDataSchema } from './schema';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getUserProfile } from '../Apis/card-payment';
 import { IResponse } from '../utils/interfaces';
-import { storage_keys } from '../client';
-import jwtDecode from 'jwt-decode';
-
 import { Loading } from '../components';
 import { loginUser, loginRequest } from '../Apis/onBoardingApi';
 import { useNavigate } from 'react-router-dom';
@@ -26,11 +22,19 @@ import { useRequest } from '../hooks/use-request';
 import { ILogin } from '../Apis/requestInterface';
 import AuthContext from '../context/auth-context';
 import useNotification from '../utils/hooks/useNotification';
+import { z } from 'zod';
 
 interface IFormData {
 	credentials: string;
 	password: string;
 }
+
+// Create a separate schema for login that doesn't validate password length
+const loginSchema = z.object({
+	credentials: z.string().min(1, 'Email or phone number is required'),
+	password: z.string().min(1, 'Password is required'),
+	// Removed password length validation for login
+});
 
 const LoginForm: React.FC = () => {
 	const [formData, setFormData] = useState<IFormData>({
@@ -93,7 +97,8 @@ const LoginForm: React.FC = () => {
 		setBtnDisabled(true);
 		setErrors({ credentials: '', password: '' });
 
-		const validationResult = formDataSchema.safeParse(formData);
+		// Use the login schema instead of formDataSchema
+		const validationResult = loginSchema.safeParse(formData);
 
 		if (!validationResult.success) {
 			validationResult.error.errors.forEach(el => {
@@ -143,12 +148,15 @@ const LoginForm: React.FC = () => {
 					console.error('Failed to decode token');
 				}
 			} else {
-				// toast.error(response.message);
-
-				showErrorNotification(response.message);
+				// Show the error message from the API response instead of validation error
+				showErrorNotification(response.message || 'Invalid credentials');
 			}
 		} catch (err) {
-			toast.error(`Login error: ${error}`);
+			// Show a generic error message for network issues
+			showErrorNotification('Login failed. Please try again.');
+			console.error('Login error:', err);
+		} finally {
+			setBtnDisabled(false);
 		}
 	};
 
@@ -209,12 +217,11 @@ const LoginForm: React.FC = () => {
 							background: '#aac645',
 							borderRadius: '1rem',
 						}}
-						disabled={isLoading}
+						disabled={isLoading || btnDisabled}
 						variant="contained"
 						onClick={submitForm}
 						size={'large'}
 					>
-						{/* {isLoading ? 'Loading...' : 'Sign in'} */}
 						{isLoading ? (
 							<CircularProgress
 								size={24}

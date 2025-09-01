@@ -17,7 +17,7 @@ export default function Success({ handleCloseModal }) {
 				{/* Animated checkmark */}
 				<CheckCircleIcon
 					sx={{
-						color: 'primary.main', // Same as the Done button
+						color: 'primary.main',
 						fontSize: 80,
 						mb: 3,
 						animation: 'pulse 1.5s ease-in-out infinite',

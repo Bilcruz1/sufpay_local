@@ -14,7 +14,6 @@ export default function Failed({ setPaymentStatus }) {
 					textAlign: 'center',
 				}}
 			>
-				{/* Animated error icon */}
 				<ErrorIcon
 					sx={{
 						color: 'error.main',
@@ -51,7 +50,6 @@ export default function Failed({ setPaymentStatus }) {
 					There was an issue processing your payment. Please try again.
 				</Typography>
 
-				{/* Action buttons */}
 				<Box sx={{ display: 'flex', gap: 2, width: '100%' }}>
 					<Button
 						onClick={() => setPaymentStatus('idle')}
